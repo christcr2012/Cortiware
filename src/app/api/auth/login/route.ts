@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit, resetRateLimit } from '@/lib/rate-limit';
-import { logLoginSuccess, logLoginFailure, logRateLimitExceeded } from '@/lib/audit-log';
+import { logLoginSuccess, logLoginFailure, logRateLimitExceeded, logTOTPVerification } from '@/lib/audit-log';
+import { verifyTOTPCode, verifyBackupCode } from '@/lib/totp';
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+
+const prisma = new PrismaClient();
 
 /**
  * UNIFIED LOGIN SYSTEM
@@ -104,6 +109,13 @@ export async function POST(req: NextRequest) {
   // ============================================================================
 
   const userResult = await authenticateDatabaseUser(email, password, totpCode, recoveryCode);
+
+  // Check if TOTP is required
+  if (userResult.requiresTOTP) {
+    console.log(`🔐 TOTP required for: ${email}`);
+    return NextResponse.redirect(new URL(`/login?totp=required&email=${encodeURIComponent(email)}`, url), 303);
+  }
+
   if (userResult.success) {
     console.log(`✅ User login: ${email} (${userResult.accountType})`);
     // Reset rate limit and log success
@@ -201,7 +213,14 @@ async function authenticateDatabaseUser(
   password: string,
   totpCode: string,
   recoveryCode: string
-): Promise<{ success: boolean; accountType?: string; redirectUrl?: string; cookieName?: string }> {
+): Promise<{
+  success: boolean;
+  accountType?: string;
+  redirectUrl?: string;
+  cookieName?: string;
+  userId?: string;
+  requiresTOTP?: boolean;
+}> {
 
   // Dev escape hatches for different account types
   const allowAnyTenant = process.env.DEV_ACCEPT_ANY_TENANT_LOGIN === 'true';
@@ -248,54 +267,98 @@ async function authenticateDatabaseUser(
     return { success: true, accountType, redirectUrl, cookieName };
   }
 
-  // TODO: Database authentication
-  // const user = await prisma.user.findUnique({
-  //   where: { email: email.toLowerCase() },
-  //   include: {
-  //     org: true,
-  //     breakglassAccount: true,
-  //     recoveryCodes: { where: { usedAt: null, expiresAt: { gt: new Date() } } },
-  //   },
-  // });
+  // Database authentication
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+  });
 
-  // if (!user) {
-  //   return { success: false };
-  // }
+  if (!user) {
+    return { success: false };
+  }
 
   // Check if account is locked
-  // if (user.isLocked && user.lockedUntil && user.lockedUntil > new Date()) {
-  //   return { success: false };
-  // }
+  if (user.isLocked && user.lockedUntil && user.lockedUntil > new Date()) {
+    return { success: false };
+  }
 
-  // Path 1: Recovery Code Authentication
-  // if (recoveryCode) {
-  //   return await authenticateWithRecoveryCode(user, recoveryCode);
-  // }
+  // Check if account is inactive
+  if (!user.isActive) {
+    return { success: false };
+  }
 
-  // Path 2: Regular Password Authentication
-  // const passwordValid = await bcrypt.compare(password, user.passwordHash);
-  // if (!passwordValid) {
-  //   await incrementFailedAttempts(user.id);
-  //   return { success: false };
-  // }
+  // Verify password
+  const passwordValid = user.passwordHash ? await bcrypt.compare(password, user.passwordHash) : false;
+  if (!passwordValid) {
+    // Increment failed attempts
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginAttempts: { increment: 1 },
+        lastFailedLogin: new Date(),
+      },
+    });
+    return { success: false };
+  }
 
-  // Check if TOTP is required
-  // if (user.totpEnabled && !totpCode) {
-  //   return { success: false, requiresTOTP: true };
-  // }
+  // Check if TOTP is enabled
+  if (user.totpEnabled && user.totpSecret) {
+    // If TOTP is enabled but no code provided, return special response
+    if (!totpCode && !recoveryCode) {
+      return { success: false, requiresTOTP: true } as any;
+    }
 
-  // Verify TOTP if provided
-  // if (user.totpEnabled && totpCode) {
-  //   const totpValid = await verifyTOTP(user.totpSecret!, totpCode);
-  //   if (!totpValid) {
-  //     return { success: false };
-  //   }
-  // }
+    // Try TOTP code first
+    if (totpCode) {
+      const totpValid = verifyTOTPCode(totpCode, user.totpSecret);
+      if (!totpValid) {
+        return { success: false };
+      }
+    }
+    // Try backup code if provided
+    else if (recoveryCode && user.backupCodesHash) {
+      const backupResult = await verifyBackupCode(recoveryCode, user.backupCodesHash);
+      if (!backupResult.valid) {
+        return { success: false };
+      }
+      // Update backup codes in database
+      if (backupResult.updatedJson) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { backupCodesHash: backupResult.updatedJson },
+        });
+      }
+    }
+    else {
+      return { success: false };
+    }
+  }
 
-  // Determine account type from user.role
-  // accountType = determineAccountType(user.role);
-  // redirectUrl = getRedirectUrl(accountType);
-  // cookieName = getCookieName(accountType);
+  // Reset failed attempts on successful login
+  await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      failedLoginAttempts: 0,
+      lastSuccessfulLogin: new Date(),
+    },
+  });
+
+  // Determine redirect based on role
+  if (user.role === 'ACCOUNTANT') {
+    accountType = 'accountant';
+    redirectUrl = '/accountant';
+    cookieName = 'rs_accountant';
+  } else if (user.role === 'VENDOR') {
+    accountType = 'vendor';
+    redirectUrl = '/vendor';
+    cookieName = 'rs_vendor';
+  } else {
+    // OWNER, MANAGER, STAFF
+    accountType = 'tenant';
+    redirectUrl = '/dashboard';
+    cookieName = 'rs_user';
+  }
+
+  return { success: true, accountType, redirectUrl, cookieName, userId: user.id };
 
   // return { success: true, accountType, redirectUrl, cookieName };
 
