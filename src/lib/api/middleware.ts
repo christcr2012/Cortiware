@@ -22,7 +22,9 @@ export const rateLimitPresets = {
 
 export function withRateLimit(_preset: keyof typeof rateLimitPresets): Wrapper {
   return (handler) => async (req, ...args) => {
-    // Placeholder: No-op. Sonnet to connect to real limiter (KV/Redis/Upstash/etc.).
+    // TODO(sonnet): Integrate real limiter (KV/Redis/Upstash) keyed by audience+token(or IP)+route.
+    // - Read optional env overrides: RATE_LIMIT_API_PER_MINUTE, RATE_LIMIT_AUTH_PER_MINUTE
+    // - On limit exceeded, return jsonError(429, 'RateLimited', 'Try again later')
     return handler(req, ...args);
   };
 }
@@ -32,7 +34,9 @@ export function withIdempotencyRequired(): Wrapper {
     if (req.method === 'POST') {
       const idem = req.headers.get('idempotency-key');
       if (!idem) return jsonError(400, 'ValidationError', 'Idempotency-Key header required');
-      // TODO(sonnet): Check and record idempotency key in durable store
+      // TODO(sonnet): Check and record idempotency key in durable store.
+      // - Replay semantics: identical body -> replay response; different body -> 409 conflict
+      // - TTL via IDEMPOTENCY_TTL_MINUTES; persist response envelope
     }
     return handler(req, ...args);
   };

@@ -10,11 +10,16 @@ export interface ProviderFederationService {
 
 export const providerFederationService: ProviderFederationService = {
   async listTenants(_params) {
-    // TODO(sonnet): Prisma query with cursor pagination
+    // TODO(sonnet): Prisma query with cursor pagination.
+    // - ORDER BY createdAt DESC
+    // - SELECT id,name (and any summary fields defined in contracts)
+    // - NEXT CURSOR: encode last item id/createdAt
+    // - Enforce entitlements before query
     throw new Error('Not implemented');
   },
   async getTenant(_id) {
-    // TODO(sonnet): Prisma findUnique
+    // TODO(sonnet): Prisma findUnique by id; return null if missing.
+    // - Enforce entitlements (access to specific tenant)
     throw new Error('Not implemented');
   },
 };
