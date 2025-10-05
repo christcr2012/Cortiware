@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { applyRateLimit, resetRateLimit } from '@/lib/rate-limit';
 
 /**
  * UNIFIED LOGIN SYSTEM
@@ -11,14 +12,22 @@ import { NextRequest, NextResponse } from 'next/server';
  * - Vendor Accounts (database-backed with breakglass)
  *
  * Authentication Flow:
- * 1. Check Provider (env → DB → breakglass)
- * 2. Check Developer (env → DB → breakglass)
- * 3. Check Database Users (password → TOTP → breakglass)
- * 4. Return appropriate redirect based on account type
+ * 1. Apply rate limiting
+ * 2. Check Provider (env → DB → breakglass)
+ * 3. Check Developer (env → DB → breakglass)
+ * 4. Check Database Users (password → TOTP → breakglass)
+ * 5. Reset rate limit on successful login
+ * 6. Return appropriate redirect based on account type
  */
 
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
+
+  // Apply rate limiting
+  const rateLimitResponse = await applyRateLimit(req, 'auth');
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
 
   // Parse body from form or JSON
   let email = '';
@@ -64,6 +73,8 @@ export async function POST(req: NextRequest) {
   const providerResult = await authenticateProvider(email, password);
   if (providerResult.success) {
     console.log(`✅ Provider login: ${email}`);
+    // Reset rate limit on successful login
+    resetRateLimit(ipAddress, 'auth');
     const res = NextResponse.redirect(new URL('/provider', url), 303);
     setCookie(res, 'rs_provider', email);
     return res;
@@ -76,6 +87,8 @@ export async function POST(req: NextRequest) {
   const developerResult = await authenticateDeveloper(email, password);
   if (developerResult.success) {
     console.log(`✅ Developer login: ${email}`);
+    // Reset rate limit on successful login
+    resetRateLimit(ipAddress, 'auth');
     const res = NextResponse.redirect(new URL('/developer', url), 303);
     setCookie(res, 'rs_developer', email);
     return res;
@@ -88,6 +101,8 @@ export async function POST(req: NextRequest) {
   const userResult = await authenticateDatabaseUser(email, password, totpCode, recoveryCode);
   if (userResult.success) {
     console.log(`✅ User login: ${email} (${userResult.accountType})`);
+    // Reset rate limit on successful login
+    resetRateLimit(ipAddress, 'auth');
     const redirectUrl = userResult.redirectUrl || '/dashboard';
     const res = NextResponse.redirect(new URL(redirectUrl, url), 303);
     setCookie(res, userResult.cookieName || 'rs_user', email);
