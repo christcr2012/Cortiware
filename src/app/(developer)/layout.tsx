@@ -1,10 +1,10 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import AppShellClient from '../(app)/AppShellClient';
+import DeveloperShellClient from './DeveloperShellClient';
 
 /**
- * Layout for DEVELOPER USERS
- * Uses client-side shell with brand configuration (NOT provider green theme)
+ * Layout for PROVIDER DEVELOPER USERS
+ * Part of provider-side system with green theme
  * Environment-based authentication
  */
 export default async function DeveloperLayout({
@@ -19,6 +19,6 @@ export default async function DeveloperLayout({
     redirect('/developer/login');
   }
 
-  return <AppShellClient>{children}</AppShellClient>;
+  return <DeveloperShellClient>{children}</DeveloperShellClient>;
 }
 

@@ -13,18 +13,28 @@ Audience: Architects, Senior Devs; Sonnet implementers
 ## Portal Architecture
 
 ### Client-Side Portal (Brand-Configurable Theme)
-- **Users:** Tenant users, Accountants, Developers, Vendors
-- **Authentication:** Database-backed (User table) for tenants; env-based for accountants/developers
+- **Users:** Tenant users, Accountants, Vendors
+- **Authentication:** Database-backed (User table) for tenants; env-based for accountants
 - **Theme:** Configurable per organization (brandConfig)
 - **Shell:** `AppShellClient` with dynamic branding
-- **Routes:** `/dashboard`, `/leads`, `/contacts`, `/accountant`, `/developer`
+- **Routes:** `/dashboard`, `/leads`, `/contacts`, `/accountant`
 
-### Provider-Side Portal (Masculine Green Theme)
-- **Users:** Provider administrators only
+### Provider-Side Portals (Masculine Green Theme)
+Both provider portals use the same masculine futuristic green theme.
+
+#### Provider Admin Portal
+- **Users:** Provider administrators
 - **Authentication:** Environment-based (NOT database)
 - **Theme:** Fixed masculine futuristic green theme
 - **Shell:** `ProviderShellClient` with green accents
-- **Routes:** `/provider`, `/provider/clients`, `/provider/billing`
+- **Routes:** `/provider`, `/provider/clients`, `/provider/billing`, `/provider/analytics`
+
+#### Provider Developer Portal
+- **Users:** Provider developers (platform developers)
+- **Authentication:** Environment-based (NOT database)
+- **Theme:** Fixed masculine futuristic green theme
+- **Shell:** `DeveloperShellClient` with green accents
+- **Routes:** `/developer`, `/developer/logs`, `/developer/database`, `/developer/api`, `/developer/diagnostics`
 
 ## Topology
 - Next.js 15 App Router app
@@ -32,10 +42,14 @@ Audience: Architects, Senior Devs; Sonnet implementers
 - (Future) Background queue + audit/event stream (placeholders exist)
 
 ## Portals and Audiences
-- Tenant: `rs_user` cookie; DB-backed users; RBAC.
-- Provider: `rs_provider` cookie; environment-based auth; cross-client context; no DB coupling.
-- Developer: `rs_developer` cookie; environment-based auth; admin capabilities; no DB coupling.
-- Accountant: `rs_accountant` cookie; environment-based auth; finance-only scope.
+
+### Client-Side (Brand-Configurable Theme)
+- Tenant: `rs_user` cookie; DB-backed users; RBAC; brand-configurable theme
+- Accountant: `rs_accountant` cookie; environment-based auth; finance-only scope; brand-configurable theme
+
+### Provider-Side (Masculine Green Theme)
+- Provider Admin: `rs_provider` cookie; environment-based auth; cross-client context; green theme
+- Provider Developer: `rs_developer` cookie; environment-based auth; platform development; green theme
 
 ## Auth Flows
 - App Router endpoints:
