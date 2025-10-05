@@ -1,0 +1,834 @@
+[2025-10-04T06:28:29.803Z] ≡ƒÜÇ AUTONOMOUS BINDER PROCESSOR
+[2025-10-04T06:28:29.805Z] Processing ALL binders from: C:\Users\chris\OneDrive\Desktop\binderFiles
+[2025-10-04T06:28:29.805Z] Repository: C:\Users\chris\Git Local\StreamFlow
+[2025-10-04T06:28:29.805Z] ================================================================================
+
+[2025-10-04T06:28:29.813Z] Found 26 binder files to process
+
+[2025-10-04T06:28:29.813Z] 
+================================================================================
+[2025-10-04T06:28:29.813Z] PROCESSING: binder1
+[2025-10-04T06:28:29.813Z] ================================================================================
+[2025-10-04T06:28:29.813Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:29.818Z]    Size: 2.13 MB
+[2025-10-04T06:28:29.819Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:29.820Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:29.820Z] Γ£à Marking as complete
+[2025-10-04T06:28:29.820Z] 
+================================================================================
+[2025-10-04T06:28:29.820Z] PROCESSING: binder2
+[2025-10-04T06:28:29.820Z] ================================================================================
+[2025-10-04T06:28:29.820Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:29.826Z]    Size: 2.33 MB
+[2025-10-04T06:28:29.826Z]    Pattern: PATTERN1_API_ROUTES
+[2025-10-04T06:28:29.835Z] ≡ƒöì Found 4209 API endpoints
+[2025-10-04T06:28:29.835Z] ≡ƒö¿ Generating files...
+[2025-10-04T06:28:29.862Z]    Progress: 100/4209 files generated
+[2025-10-04T06:28:29.890Z]    Progress: 200/4209 files generated
+[2025-10-04T06:28:29.921Z]    Progress: 300/4209 files generated
+[2025-10-04T06:28:29.950Z]    Progress: 400/4209 files generated
+[2025-10-04T06:28:29.975Z]    Progress: 500/4209 files generated
+[2025-10-04T06:28:30.009Z]    Progress: 600/4209 files generated
+[2025-10-04T06:28:30.040Z]    Progress: 700/4209 files generated
+[2025-10-04T06:28:30.070Z]    Progress: 800/4209 files generated
+[2025-10-04T06:28:30.105Z]    Progress: 900/4209 files generated
+[2025-10-04T06:28:30.144Z]    Progress: 1000/4209 files generated
+[2025-10-04T06:28:30.179Z]    Progress: 1100/4209 files generated
+[2025-10-04T06:28:30.214Z]    Progress: 1200/4209 files generated
+[2025-10-04T06:28:30.242Z]    Progress: 1300/4209 files generated
+[2025-10-04T06:28:30.269Z]    Progress: 1400/4209 files generated
+[2025-10-04T06:28:30.295Z]    Progress: 1500/4209 files generated
+[2025-10-04T06:28:30.319Z]    Progress: 1600/4209 files generated
+[2025-10-04T06:28:30.358Z]    Progress: 1700/4209 files generated
+[2025-10-04T06:28:30.385Z]    Progress: 1800/4209 files generated
+[2025-10-04T06:28:30.416Z]    Progress: 1900/4209 files generated
+[2025-10-04T06:28:30.449Z]    Progress: 2000/4209 files generated
+[2025-10-04T06:28:30.484Z]    Progress: 2100/4209 files generated
+[2025-10-04T06:28:30.511Z]    Progress: 2200/4209 files generated
+[2025-10-04T06:28:30.538Z]    Progress: 2300/4209 files generated
+[2025-10-04T06:28:30.567Z]    Progress: 2400/4209 files generated
+[2025-10-04T06:28:30.595Z]    Progress: 2500/4209 files generated
+[2025-10-04T06:28:30.620Z]    Progress: 2600/4209 files generated
+[2025-10-04T06:28:30.649Z]    Progress: 2700/4209 files generated
+[2025-10-04T06:28:30.675Z]    Progress: 2800/4209 files generated
+[2025-10-04T06:28:30.703Z]    Progress: 2900/4209 files generated
+[2025-10-04T06:28:30.732Z]    Progress: 3000/4209 files generated
+[2025-10-04T06:28:30.760Z]    Progress: 3100/4209 files generated
+[2025-10-04T06:28:30.786Z]    Progress: 3200/4209 files generated
+[2025-10-04T06:28:30.817Z]    Progress: 3300/4209 files generated
+[2025-10-04T06:28:30.840Z]    Progress: 3400/4209 files generated
+[2025-10-04T06:28:30.864Z]    Progress: 3500/4209 files generated
+[2025-10-04T06:28:30.893Z]    Progress: 3600/4209 files generated
+[2025-10-04T06:28:30.919Z]    Progress: 3700/4209 files generated
+[2025-10-04T06:28:30.951Z]    Progress: 3800/4209 files generated
+[2025-10-04T06:28:30.979Z]    Progress: 3900/4209 files generated
+[2025-10-04T06:28:31.005Z]    Progress: 4000/4209 files generated
+[2025-10-04T06:28:31.041Z]    Progress: 4100/4209 files generated
+[2025-10-04T06:28:31.103Z]    Progress: 4200/4209 files generated
+[2025-10-04T06:28:31.106Z] Γ£à Generated 4209 files
+[2025-10-04T06:28:31.106Z] ≡ƒôª Committing 4209 files in batches...
+[2025-10-04T06:28:31.107Z]    Adding all generated files...
+[2025-10-04T06:28:31.909Z]    No changes to commit
+[2025-10-04T06:28:31.909Z] 
+================================================================================
+[2025-10-04T06:28:31.909Z] PROCESSING: binder3
+[2025-10-04T06:28:31.909Z] ================================================================================
+[2025-10-04T06:28:31.909Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:31.915Z]    Size: 2.50 MB
+[2025-10-04T06:28:31.916Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:31.916Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:31.916Z] Γ£à Marking as complete
+[2025-10-04T06:28:31.916Z] 
+================================================================================
+[2025-10-04T06:28:31.916Z] PROCESSING: binder3A
+[2025-10-04T06:28:31.916Z] ================================================================================
+[2025-10-04T06:28:31.916Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.106Z]    Size: 92.52 MB
+[2025-10-04T06:28:32.137Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.137Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.137Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.137Z] 
+================================================================================
+[2025-10-04T06:28:32.137Z] PROCESSING: binder3B
+[2025-10-04T06:28:32.137Z] ================================================================================
+[2025-10-04T06:28:32.137Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.341Z]    Size: 92.30 MB
+[2025-10-04T06:28:32.371Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.371Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.371Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.371Z] 
+================================================================================
+[2025-10-04T06:28:32.371Z] PROCESSING: binder3C_full
+[2025-10-04T06:28:32.371Z] ================================================================================
+[2025-10-04T06:28:32.371Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.608Z]    Size: 95.01 MB
+[2025-10-04T06:28:32.640Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.640Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.640Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.640Z] 
+================================================================================
+[2025-10-04T06:28:32.640Z] PROCESSING: binder4
+[2025-10-04T06:28:32.640Z] ================================================================================
+[2025-10-04T06:28:32.640Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.652Z]    Size: 2.79 MB
+[2025-10-04T06:28:32.653Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.653Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.653Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.653Z] 
+================================================================================
+[2025-10-04T06:28:32.654Z] PROCESSING: binder5
+[2025-10-04T06:28:32.654Z] ================================================================================
+[2025-10-04T06:28:32.654Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.668Z]    Size: 4.60 MB
+[2025-10-04T06:28:32.669Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.669Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.669Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.669Z] 
+================================================================================
+[2025-10-04T06:28:32.669Z] PROCESSING: binder6
+[2025-10-04T06:28:32.669Z] ================================================================================
+[2025-10-04T06:28:32.669Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.680Z]    Size: 5.00 MB
+[2025-10-04T06:28:32.682Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.682Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.682Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.682Z] 
+================================================================================
+[2025-10-04T06:28:32.682Z] PROCESSING: binder7
+[2025-10-04T06:28:32.682Z] ================================================================================
+[2025-10-04T06:28:32.682Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:32.878Z]    Size: 95.18 MB
+[2025-10-04T06:28:32.906Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:32.906Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:32.906Z] Γ£à Marking as complete
+[2025-10-04T06:28:32.906Z] 
+================================================================================
+[2025-10-04T06:28:32.906Z] PROCESSING: binder8
+[2025-10-04T06:28:32.906Z] ================================================================================
+[2025-10-04T06:28:32.906Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:33.099Z]    Size: 91.55 MB
+[2025-10-04T06:28:33.127Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:33.127Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:33.127Z] Γ£à Marking as complete
+[2025-10-04T06:28:33.127Z] 
+================================================================================
+[2025-10-04T06:28:33.127Z] PROCESSING: binder9
+[2025-10-04T06:28:33.127Z] ================================================================================
+[2025-10-04T06:28:33.127Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:33.328Z]    Size: 92.50 MB
+[2025-10-04T06:28:33.357Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T06:28:33.357Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T06:28:33.357Z] Γ£à Marking as complete
+[2025-10-04T06:28:33.357Z] 
+================================================================================
+[2025-10-04T06:28:33.357Z] PROCESSING: binder10
+[2025-10-04T06:28:33.357Z] ================================================================================
+[2025-10-04T06:28:33.357Z] ≡ƒôû Reading binder file...
+[2025-10-04T06:28:33.545Z]    Size: 91.41 MB
+[2025-10-04T06:28:33.559Z]    Pattern: PATTERN2_NUMBERED_API
+[2025-10-04T06:28:33.670Z] ≡ƒöì Found 40000 API endpoints
+[2025-10-04T06:28:33.670Z] ≡ƒö¿ Generating files...
+[2025-10-04T06:28:33.695Z]    Progress: 100/40000 files generated
+[2025-10-04T06:28:33.722Z]    Progress: 200/40000 files generated
+[2025-10-04T06:28:33.750Z]    Progress: 300/40000 files generated
+[2025-10-04T06:28:33.780Z]    Progress: 400/40000 files generated
+[2025-10-04T06:28:33.833Z]    Progress: 500/40000 files generated
+[2025-10-04T06:28:33.861Z]    Progress: 600/40000 files generated
+[2025-10-04T06:28:33.889Z]    Progress: 700/40000 files generated
+[2025-10-04T06:28:33.920Z]    Progress: 800/40000 files generated
+[2025-10-04T06:28:33.949Z]    Progress: 900/40000 files generated
+[2025-10-04T06:28:33.975Z]    Progress: 1000/40000 files generated
+[2025-10-04T06:28:34.003Z]    Progress: 1100/40000 files generated
+[2025-10-04T06:28:34.033Z]    Progress: 1200/40000 files generated
+[2025-10-04T06:28:34.066Z]    Progress: 1300/40000 files generated
+[2025-10-04T06:28:34.110Z]    Progress: 1400/40000 files generated
+[2025-10-04T06:28:34.215Z]    Progress: 1500/40000 files generated
+[2025-10-04T06:28:34.317Z]    Progress: 1600/40000 files generated
+[2025-10-04T06:28:34.438Z]    Progress: 1700/40000 files generated
+[2025-10-04T06:28:34.584Z]    Progress: 1800/40000 files generated
+[2025-10-04T06:28:34.740Z]    Progress: 1900/40000 files generated
+[2025-10-04T06:28:34.832Z]    Progress: 2000/40000 files generated
+[2025-10-04T06:28:34.963Z]    Progress: 2100/40000 files generated
+[2025-10-04T06:28:35.060Z]    Progress: 2200/40000 files generated
+[2025-10-04T06:28:35.541Z]    Progress: 2300/40000 files generated
+[2025-10-04T06:28:35.574Z]    Progress: 2400/40000 files generated
+[2025-10-04T06:28:35.605Z]    Progress: 2500/40000 files generated
+[2025-10-04T06:28:35.635Z]    Progress: 2600/40000 files generated
+[2025-10-04T06:28:35.662Z]    Progress: 2700/40000 files generated
+[2025-10-04T06:28:35.718Z]    Progress: 2800/40000 files generated
+[2025-10-04T06:28:35.817Z]    Progress: 2900/40000 files generated
+[2025-10-04T06:28:35.922Z]    Progress: 3000/40000 files generated
+[2025-10-04T06:28:36.035Z]    Progress: 3100/40000 files generated
+[2025-10-04T06:28:36.142Z]    Progress: 3200/40000 files generated
+[2025-10-04T06:28:36.252Z]    Progress: 3300/40000 files generated
+[2025-10-04T06:28:36.348Z]    Progress: 3400/40000 files generated
+[2025-10-04T06:28:36.469Z]    Progress: 3500/40000 files generated
+[2025-10-04T06:28:37.053Z]    Progress: 3600/40000 files generated
+[2025-10-04T06:28:37.079Z]    Progress: 3700/40000 files generated
+[2025-10-04T06:28:37.107Z]    Progress: 3800/40000 files generated
+[2025-10-04T06:28:37.134Z]    Progress: 3900/40000 files generated
+[2025-10-04T06:28:37.177Z]    Progress: 4000/40000 files generated
+[2025-10-04T06:28:37.208Z]    Progress: 4100/40000 files generated
+[2025-10-04T06:28:37.234Z]    Progress: 4200/40000 files generated
+[2025-10-04T06:28:37.367Z]    Progress: 4300/40000 files generated
+[2025-10-04T06:28:37.456Z]    Progress: 4400/40000 files generated
+[2025-10-04T06:28:37.970Z]    Progress: 4500/40000 files generated
+[2025-10-04T06:28:37.995Z]    Progress: 4600/40000 files generated
+[2025-10-04T06:28:38.021Z]    Progress: 4700/40000 files generated
+[2025-10-04T06:28:38.052Z]    Progress: 4800/40000 files generated
+[2025-10-04T06:28:38.082Z]    Progress: 4900/40000 files generated
+[2025-10-04T06:28:38.111Z]    Progress: 5000/40000 files generated
+[2025-10-04T06:28:38.197Z]    Progress: 5100/40000 files generated
+[2025-10-04T06:28:38.304Z]    Progress: 5200/40000 files generated
+[2025-10-04T06:28:38.409Z]    Progress: 5300/40000 files generated
+[2025-10-04T06:28:38.529Z]    Progress: 5400/40000 files generated
+[2025-10-04T06:28:38.641Z]    Progress: 5500/40000 files generated
+[2025-10-04T06:28:38.849Z]    Progress: 5600/40000 files generated
+[2025-10-04T06:28:38.888Z]    Progress: 5700/40000 files generated
+[2025-10-04T06:28:38.955Z]    Progress: 5800/40000 files generated
+[2025-10-04T06:28:39.136Z]    Progress: 5900/40000 files generated
+[2025-10-04T06:28:39.164Z]    Progress: 6000/40000 files generated
+[2025-10-04T06:28:39.418Z]    Progress: 6100/40000 files generated
+[2025-10-04T06:28:39.454Z]    Progress: 6200/40000 files generated
+[2025-10-04T06:28:39.521Z]    Progress: 6300/40000 files generated
+[2025-10-04T06:28:39.632Z]    Progress: 6400/40000 files generated
+[2025-10-04T06:28:39.796Z]    Progress: 6500/40000 files generated
+[2025-10-04T06:28:39.933Z]    Progress: 6600/40000 files generated
+[2025-10-04T06:28:39.963Z]    Progress: 6700/40000 files generated
+[2025-10-04T06:28:40.063Z]    Progress: 6800/40000 files generated
+[2025-10-04T06:28:40.172Z]    Progress: 6900/40000 files generated
+[2025-10-04T06:28:40.269Z]    Progress: 7000/40000 files generated
+[2025-10-04T06:28:40.382Z]    Progress: 7100/40000 files generated
+[2025-10-04T06:28:40.488Z]    Progress: 7200/40000 files generated
+[2025-10-04T06:28:40.601Z]    Progress: 7300/40000 files generated
+[2025-10-04T06:28:40.714Z]    Progress: 7400/40000 files generated
+[2025-10-04T06:28:40.825Z]    Progress: 7500/40000 files generated
+[2025-10-04T06:28:40.941Z]    Progress: 7600/40000 files generated
+[2025-10-04T06:28:41.056Z]    Progress: 7700/40000 files generated
+[2025-10-04T06:28:41.158Z]    Progress: 7800/40000 files generated
+[2025-10-04T06:28:41.273Z]    Progress: 7900/40000 files generated
+[2025-10-04T06:28:41.390Z]    Progress: 8000/40000 files generated
+[2025-10-04T06:28:41.499Z]    Progress: 8100/40000 files generated
+[2025-10-04T06:28:41.723Z]    Progress: 8200/40000 files generated
+[2025-10-04T06:28:41.761Z]    Progress: 8300/40000 files generated
+[2025-10-04T06:28:41.839Z]    Progress: 8400/40000 files generated
+[2025-10-04T06:28:41.937Z]    Progress: 8500/40000 files generated
+[2025-10-04T06:28:42.133Z]    Progress: 8600/40000 files generated
+[2025-10-04T06:28:42.308Z]    Progress: 8700/40000 files generated
+[2025-10-04T06:28:42.335Z]    Progress: 8800/40000 files generated
+[2025-10-04T06:28:42.415Z]    Progress: 8900/40000 files generated
+[2025-10-04T06:28:42.528Z]    Progress: 9000/40000 files generated
+[2025-10-04T06:28:42.628Z]    Progress: 9100/40000 files generated
+[2025-10-04T06:28:42.739Z]    Progress: 9200/40000 files generated
+[2025-10-04T06:28:42.853Z]    Progress: 9300/40000 files generated
+[2025-10-04T06:28:42.946Z]    Progress: 9400/40000 files generated
+[2025-10-04T06:28:43.057Z]    Progress: 9500/40000 files generated
+[2025-10-04T06:28:43.154Z]    Progress: 9600/40000 files generated
+[2025-10-04T06:28:43.515Z]    Progress: 9700/40000 files generated
+[2025-10-04T06:28:43.543Z]    Progress: 9800/40000 files generated
+[2025-10-04T06:28:43.575Z]    Progress: 9900/40000 files generated
+[2025-10-04T06:28:43.601Z]    Progress: 10000/40000 files generated
+[2025-10-04T06:28:43.698Z]    Progress: 10100/40000 files generated
+[2025-10-04T06:28:43.800Z]    Progress: 10200/40000 files generated
+[2025-10-04T06:28:43.898Z]    Progress: 10300/40000 files generated
+[2025-10-04T06:28:43.999Z]    Progress: 10400/40000 files generated
+[2025-10-04T06:28:44.119Z]    Progress: 10500/40000 files generated
+[2025-10-04T06:28:44.230Z]    Progress: 10600/40000 files generated
+[2025-10-04T06:28:44.332Z]    Progress: 10700/40000 files generated
+[2025-10-04T06:28:44.443Z]    Progress: 10800/40000 files generated
+[2025-10-04T06:28:44.557Z]    Progress: 10900/40000 files generated
+[2025-10-04T06:28:44.650Z]    Progress: 11000/40000 files generated
+[2025-10-04T06:28:44.797Z]    Progress: 11100/40000 files generated
+[2025-10-04T06:28:44.878Z]    Progress: 11200/40000 files generated
+[2025-10-04T06:28:45.003Z]    Progress: 11300/40000 files generated
+[2025-10-04T06:28:45.108Z]    Progress: 11400/40000 files generated
+[2025-10-04T06:28:45.356Z]    Progress: 11500/40000 files generated
+[2025-10-04T06:28:45.386Z]    Progress: 11600/40000 files generated
+[2025-10-04T06:28:45.426Z]    Progress: 11700/40000 files generated
+[2025-10-04T06:28:45.633Z]    Progress: 11800/40000 files generated
+[2025-10-04T06:28:45.663Z]    Progress: 11900/40000 files generated
+[2025-10-04T06:28:45.758Z]    Progress: 12000/40000 files generated
+[2025-10-04T06:28:45.858Z]    Progress: 12100/40000 files generated
+[2025-10-04T06:28:46.111Z]    Progress: 12200/40000 files generated
+[2025-10-04T06:28:46.139Z]    Progress: 12300/40000 files generated
+[2025-10-04T06:28:46.203Z]    Progress: 12400/40000 files generated
+[2025-10-04T06:28:46.319Z]    Progress: 12500/40000 files generated
+[2025-10-04T06:28:46.447Z]    Progress: 12600/40000 files generated
+[2025-10-04T06:28:46.579Z]    Progress: 12700/40000 files generated
+[2025-10-04T06:28:46.668Z]    Progress: 12800/40000 files generated
+[2025-10-04T06:28:46.783Z]    Progress: 12900/40000 files generated
+[2025-10-04T06:28:46.984Z]    Progress: 13000/40000 files generated
+[2025-10-04T06:28:47.015Z]    Progress: 13100/40000 files generated
+[2025-10-04T06:28:47.118Z]    Progress: 13200/40000 files generated
+[2025-10-04T06:28:47.224Z]    Progress: 13300/40000 files generated
+[2025-10-04T06:28:47.337Z]    Progress: 13400/40000 files generated
+[2025-10-04T06:28:47.442Z]    Progress: 13500/40000 files generated
+[2025-10-04T06:28:47.550Z]    Progress: 13600/40000 files generated
+[2025-10-04T06:28:47.661Z]    Progress: 13700/40000 files generated
+[2025-10-04T06:28:47.766Z]    Progress: 13800/40000 files generated
+[2025-10-04T06:28:47.887Z]    Progress: 13900/40000 files generated
+[2025-10-04T06:28:47.989Z]    Progress: 14000/40000 files generated
+[2025-10-04T06:28:48.096Z]    Progress: 14100/40000 files generated
+[2025-10-04T06:28:48.213Z]    Progress: 14200/40000 files generated
+[2025-10-04T06:28:48.446Z]    Progress: 14300/40000 files generated
+[2025-10-04T06:28:48.472Z]    Progress: 14400/40000 files generated
+[2025-10-04T06:28:48.536Z]    Progress: 14500/40000 files generated
+[2025-10-04T06:28:48.650Z]    Progress: 14600/40000 files generated
+[2025-10-04T06:28:48.748Z]    Progress: 14700/40000 files generated
+[2025-10-04T06:28:48.854Z]    Progress: 14800/40000 files generated
+[2025-10-04T06:28:48.965Z]    Progress: 14900/40000 files generated
+[2025-10-04T06:28:49.191Z]    Progress: 15000/40000 files generated
+[2025-10-04T06:28:49.221Z]    Progress: 15100/40000 files generated
+[2025-10-04T06:28:49.294Z]    Progress: 15200/40000 files generated
+[2025-10-04T06:28:49.380Z]    Progress: 15300/40000 files generated
+[2025-10-04T06:28:49.482Z]    Progress: 15400/40000 files generated
+[2025-10-04T06:28:49.590Z]    Progress: 15500/40000 files generated
+[2025-10-04T06:28:49.692Z]    Progress: 15600/40000 files generated
+[2025-10-04T06:28:49.811Z]    Progress: 15700/40000 files generated
+[2025-10-04T06:28:50.025Z]    Progress: 15800/40000 files generated
+[2025-10-04T06:28:50.048Z]    Progress: 15900/40000 files generated
+[2025-10-04T06:28:50.135Z]    Progress: 16000/40000 files generated
+[2025-10-04T06:28:50.232Z]    Progress: 16100/40000 files generated
+[2025-10-04T06:28:50.347Z]    Progress: 16200/40000 files generated
+[2025-10-04T06:28:50.450Z]    Progress: 16300/40000 files generated
+[2025-10-04T06:28:50.562Z]    Progress: 16400/40000 files generated
+[2025-10-04T06:28:50.661Z]    Progress: 16500/40000 files generated
+[2025-10-04T06:28:50.834Z]    Progress: 16600/40000 files generated
+[2025-10-04T06:28:50.866Z]    Progress: 16700/40000 files generated
+[2025-10-04T06:28:50.980Z]    Progress: 16800/40000 files generated
+[2025-10-04T06:28:51.080Z]    Progress: 16900/40000 files generated
+[2025-10-04T06:28:51.218Z]    Progress: 17000/40000 files generated
+[2025-10-04T06:28:51.305Z]    Progress: 17100/40000 files generated
+[2025-10-04T06:28:51.702Z]    Progress: 17200/40000 files generated
+[2025-10-04T06:28:51.729Z]    Progress: 17300/40000 files generated
+[2025-10-04T06:28:51.760Z]    Progress: 17400/40000 files generated
+[2025-10-04T06:28:51.790Z]    Progress: 17500/40000 files generated
+[2025-10-04T06:28:51.819Z]    Progress: 17600/40000 files generated
+[2025-10-04T06:28:51.936Z]    Progress: 17700/40000 files generated
+[2025-10-04T06:28:52.043Z]    Progress: 17800/40000 files generated
+[2025-10-04T06:28:52.145Z]    Progress: 17900/40000 files generated
+[2025-10-04T06:28:52.340Z]    Progress: 18000/40000 files generated
+[2025-10-04T06:28:52.369Z]    Progress: 18100/40000 files generated
+[2025-10-04T06:28:52.482Z]    Progress: 18200/40000 files generated
+[2025-10-04T06:28:52.593Z]    Progress: 18300/40000 files generated
+[2025-10-04T06:28:52.699Z]    Progress: 18400/40000 files generated
+[2025-10-04T06:28:52.804Z]    Progress: 18500/40000 files generated
+[2025-10-04T06:28:52.920Z]    Progress: 18600/40000 files generated
+[2025-10-04T06:28:53.011Z]    Progress: 18700/40000 files generated
+[2025-10-04T06:28:53.118Z]    Progress: 18800/40000 files generated
+[2025-10-04T06:28:53.222Z]    Progress: 18900/40000 files generated
+[2025-10-04T06:28:53.334Z]    Progress: 19000/40000 files generated
+[2025-10-04T06:28:53.433Z]    Progress: 19100/40000 files generated
+[2025-10-04T06:28:53.540Z]    Progress: 19200/40000 files generated
+[2025-10-04T06:28:53.825Z]    Progress: 19300/40000 files generated
+[2025-10-04T06:28:53.849Z]    Progress: 19400/40000 files generated
+[2025-10-04T06:28:54.091Z]    Progress: 19500/40000 files generated
+[2025-10-04T06:28:54.112Z]    Progress: 19600/40000 files generated
+[2025-10-04T06:28:54.135Z]    Progress: 19700/40000 files generated
+[2025-10-04T06:28:54.228Z]    Progress: 19800/40000 files generated
+[2025-10-04T06:28:54.326Z]    Progress: 19900/40000 files generated
+[2025-10-04T06:28:54.422Z]    Progress: 20000/40000 files generated
+[2025-10-04T06:28:54.524Z]    Progress: 20100/40000 files generated
+[2025-10-04T06:28:54.631Z]    Progress: 20200/40000 files generated
+[2025-10-04T06:28:54.737Z]    Progress: 20300/40000 files generated
+[2025-10-04T06:28:54.830Z]    Progress: 20400/40000 files generated
+[2025-10-04T06:28:54.922Z]    Progress: 20500/40000 files generated
+[2025-10-04T06:28:55.019Z]    Progress: 20600/40000 files generated
+[2025-10-04T06:28:55.109Z]    Progress: 20700/40000 files generated
+[2025-10-04T06:28:55.208Z]    Progress: 20800/40000 files generated
+[2025-10-04T06:28:55.315Z]    Progress: 20900/40000 files generated
+[2025-10-04T06:28:55.428Z]    Progress: 21000/40000 files generated
+[2025-10-04T06:28:55.513Z]    Progress: 21100/40000 files generated
+[2025-10-04T06:28:55.615Z]    Progress: 21200/40000 files generated
+[2025-10-04T06:28:55.706Z]    Progress: 21300/40000 files generated
+[2025-10-04T06:28:55.803Z]    Progress: 21400/40000 files generated
+[2025-10-04T06:28:55.905Z]    Progress: 21500/40000 files generated
+[2025-10-04T06:28:55.995Z]    Progress: 21600/40000 files generated
+[2025-10-04T06:28:56.089Z]    Progress: 21700/40000 files generated
+[2025-10-04T06:28:56.188Z]    Progress: 21800/40000 files generated
+[2025-10-04T06:28:56.279Z]    Progress: 21900/40000 files generated
+[2025-10-04T06:28:56.382Z]    Progress: 22000/40000 files generated
+[2025-10-04T06:28:56.484Z]    Progress: 22100/40000 files generated
+[2025-10-04T06:28:56.575Z]    Progress: 22200/40000 files generated
+[2025-10-04T06:28:56.691Z]    Progress: 22300/40000 files generated
+[2025-10-04T06:28:56.771Z]    Progress: 22400/40000 files generated
+[2025-10-04T06:28:56.860Z]    Progress: 22500/40000 files generated
+[2025-10-04T06:28:56.962Z]    Progress: 22600/40000 files generated
+[2025-10-04T06:28:57.040Z]    Progress: 22700/40000 files generated
+[2025-10-04T06:28:57.126Z]    Progress: 22800/40000 files generated
+[2025-10-04T06:28:57.220Z]    Progress: 22900/40000 files generated
+[2025-10-04T06:28:57.305Z]    Progress: 23000/40000 files generated
+[2025-10-04T06:28:57.473Z]    Progress: 23100/40000 files generated
+[2025-10-04T06:28:57.499Z]    Progress: 23200/40000 files generated
+[2025-10-04T06:28:57.582Z]    Progress: 23300/40000 files generated
+[2025-10-04T06:28:57.687Z]    Progress: 23400/40000 files generated
+[2025-10-04T06:28:57.786Z]    Progress: 23500/40000 files generated
+[2025-10-04T06:28:57.857Z]    Progress: 23600/40000 files generated
+[2025-10-04T06:28:57.956Z]    Progress: 23700/40000 files generated
+[2025-10-04T06:28:58.053Z]    Progress: 23800/40000 files generated
+[2025-10-04T06:28:58.158Z]    Progress: 23900/40000 files generated
+[2025-10-04T06:28:58.241Z]    Progress: 24000/40000 files generated
+[2025-10-04T06:28:58.421Z]    Progress: 24100/40000 files generated
+[2025-10-04T06:28:58.447Z]    Progress: 24200/40000 files generated
+[2025-10-04T06:28:58.577Z]    Progress: 24300/40000 files generated
+[2025-10-04T06:28:58.645Z]    Progress: 24400/40000 files generated
+[2025-10-04T06:28:58.796Z]    Progress: 24500/40000 files generated
+[2025-10-04T06:28:58.838Z]    Progress: 24600/40000 files generated
+[2025-10-04T06:28:58.952Z]    Progress: 24700/40000 files generated
+[2025-10-04T06:28:59.186Z]    Progress: 24800/40000 files generated
+[2025-10-04T06:28:59.210Z]    Progress: 24900/40000 files generated
+[2025-10-04T06:28:59.238Z]    Progress: 25000/40000 files generated
+[2025-10-04T06:28:59.305Z]    Progress: 25100/40000 files generated
+[2025-10-04T06:28:59.463Z]    Progress: 25200/40000 files generated
+[2025-10-04T06:28:59.500Z]    Progress: 25300/40000 files generated
+[2025-10-04T06:28:59.691Z]    Progress: 25400/40000 files generated
+[2025-10-04T06:28:59.722Z]    Progress: 25500/40000 files generated
+[2025-10-04T06:28:59.778Z]    Progress: 25600/40000 files generated
+[2025-10-04T06:28:59.863Z]    Progress: 25700/40000 files generated
+[2025-10-04T06:28:59.948Z]    Progress: 25800/40000 files generated
+[2025-10-04T06:29:00.045Z]    Progress: 25900/40000 files generated
+[2025-10-04T06:29:00.131Z]    Progress: 26000/40000 files generated
+[2025-10-04T06:29:00.218Z]    Progress: 26100/40000 files generated
+[2025-10-04T06:29:00.353Z]    Progress: 26200/40000 files generated
+[2025-10-04T06:29:00.415Z]    Progress: 26300/40000 files generated
+[2025-10-04T06:29:00.500Z]    Progress: 26400/40000 files generated
+[2025-10-04T06:29:00.595Z]    Progress: 26500/40000 files generated
+[2025-10-04T06:29:00.696Z]    Progress: 26600/40000 files generated
+[2025-10-04T06:29:00.785Z]    Progress: 26700/40000 files generated
+[2025-10-04T06:29:00.866Z]    Progress: 26800/40000 files generated
+[2025-10-04T06:29:00.976Z]    Progress: 26900/40000 files generated
+[2025-10-04T06:29:01.071Z]    Progress: 27000/40000 files generated
+[2025-10-04T06:29:01.177Z]    Progress: 27100/40000 files generated
+[2025-10-04T06:29:01.271Z]    Progress: 27200/40000 files generated
+[2025-10-04T06:29:01.371Z]    Progress: 27300/40000 files generated
+[2025-10-04T06:29:01.452Z]    Progress: 27400/40000 files generated
+[2025-10-04T06:29:01.650Z]    Progress: 27500/40000 files generated
+[2025-10-04T06:29:01.675Z]    Progress: 27600/40000 files generated
+[2025-10-04T06:29:01.730Z]    Progress: 27700/40000 files generated
+[2025-10-04T06:29:01.882Z]    Progress: 27800/40000 files generated
+[2025-10-04T06:29:01.917Z]    Progress: 27900/40000 files generated
+[2025-10-04T06:29:01.999Z]    Progress: 28000/40000 files generated
+[2025-10-04T06:29:02.209Z]    Progress: 28100/40000 files generated
+[2025-10-04T06:29:02.236Z]    Progress: 28200/40000 files generated
+[2025-10-04T06:29:02.274Z]    Progress: 28300/40000 files generated
+[2025-10-04T06:29:02.379Z]    Progress: 28400/40000 files generated
+[2025-10-04T06:29:02.471Z]    Progress: 28500/40000 files generated
+[2025-10-04T06:29:02.650Z]    Progress: 28600/40000 files generated
+[2025-10-04T06:29:02.672Z]    Progress: 28700/40000 files generated
+[2025-10-04T06:29:02.773Z]    Progress: 28800/40000 files generated
+[2025-10-04T06:29:02.869Z]    Progress: 28900/40000 files generated
+[2025-10-04T06:29:02.940Z]    Progress: 29000/40000 files generated
+[2025-10-04T06:29:03.036Z]    Progress: 29100/40000 files generated
+[2025-10-04T06:29:03.132Z]    Progress: 29200/40000 files generated
+[2025-10-04T06:29:03.224Z]    Progress: 29300/40000 files generated
+[2025-10-04T06:29:03.304Z]    Progress: 29400/40000 files generated
+[2025-10-04T06:29:03.420Z]    Progress: 29500/40000 files generated
+[2025-10-04T06:29:03.595Z]    Progress: 29600/40000 files generated
+[2025-10-04T06:29:03.617Z]    Progress: 29700/40000 files generated
+[2025-10-04T06:29:03.719Z]    Progress: 29800/40000 files generated
+[2025-10-04T06:29:03.862Z]    Progress: 29900/40000 files generated
+[2025-10-04T06:29:03.901Z]    Progress: 30000/40000 files generated
+[2025-10-04T06:29:03.992Z]    Progress: 30100/40000 files generated
+[2025-10-04T06:29:04.085Z]    Progress: 30200/40000 files generated
+[2025-10-04T06:29:04.182Z]    Progress: 30300/40000 files generated
+[2025-10-04T06:29:04.265Z]    Progress: 30400/40000 files generated
+[2025-10-04T06:29:04.413Z]    Progress: 30500/40000 files generated
+[2025-10-04T06:29:04.463Z]    Progress: 30600/40000 files generated
+[2025-10-04T06:29:04.550Z]    Progress: 30700/40000 files generated
+[2025-10-04T06:29:04.944Z]    Progress: 30800/40000 files generated
+[2025-10-04T06:29:04.969Z]    Progress: 30900/40000 files generated
+[2025-10-04T06:29:04.994Z]    Progress: 31000/40000 files generated
+[2025-10-04T06:29:05.018Z]    Progress: 31100/40000 files generated
+[2025-10-04T06:29:05.041Z]    Progress: 31200/40000 files generated
+[2025-10-04T06:29:05.239Z]    Progress: 31300/40000 files generated
+[2025-10-04T06:29:05.264Z]    Progress: 31400/40000 files generated
+[2025-10-04T06:29:05.318Z]    Progress: 31500/40000 files generated
+[2025-10-04T06:29:05.439Z]    Progress: 31600/40000 files generated
+[2025-10-04T06:29:05.532Z]    Progress: 31700/40000 files generated
+[2025-10-04T06:29:05.634Z]    Progress: 31800/40000 files generated
+[2025-10-04T06:29:05.742Z]    Progress: 31900/40000 files generated
+[2025-10-04T06:29:05.844Z]    Progress: 32000/40000 files generated
+[2025-10-04T06:29:05.931Z]    Progress: 32100/40000 files generated
+[2025-10-04T06:29:06.033Z]    Progress: 32200/40000 files generated
+[2025-10-04T06:29:06.135Z]    Progress: 32300/40000 files generated
+[2025-10-04T06:29:06.227Z]    Progress: 32400/40000 files generated
+[2025-10-04T06:29:06.333Z]    Progress: 32500/40000 files generated
+[2025-10-04T06:29:06.442Z]    Progress: 32600/40000 files generated
+[2025-10-04T06:29:06.617Z]    Progress: 32700/40000 files generated
+[2025-10-04T06:29:06.654Z]    Progress: 32800/40000 files generated
+[2025-10-04T06:29:06.738Z]    Progress: 32900/40000 files generated
+[2025-10-04T06:29:06.836Z]    Progress: 33000/40000 files generated
+[2025-10-04T06:29:07.038Z]    Progress: 33100/40000 files generated
+[2025-10-04T06:29:07.063Z]    Progress: 33200/40000 files generated
+[2025-10-04T06:29:07.151Z]    Progress: 33300/40000 files generated
+[2025-10-04T06:29:07.255Z]    Progress: 33400/40000 files generated
+[2025-10-04T06:29:07.367Z]    Progress: 33500/40000 files generated
+[2025-10-04T06:29:07.647Z]    Progress: 33600/40000 files generated
+[2025-10-04T06:29:07.671Z]    Progress: 33700/40000 files generated
+[2025-10-04T06:29:07.697Z]    Progress: 33800/40000 files generated
+[2025-10-04T06:29:07.789Z]    Progress: 33900/40000 files generated
+[2025-10-04T06:29:07.902Z]    Progress: 34000/40000 files generated
+[2025-10-04T06:29:07.998Z]    Progress: 34100/40000 files generated
+[2025-10-04T06:29:08.091Z]    Progress: 34200/40000 files generated
+[2025-10-04T06:29:08.199Z]    Progress: 34300/40000 files generated
+[2025-10-04T06:29:08.301Z]    Progress: 34400/40000 files generated
+[2025-10-04T06:29:08.397Z]    Progress: 34500/40000 files generated
+[2025-10-04T06:29:08.496Z]    Progress: 34600/40000 files generated
+[2025-10-04T06:29:08.600Z]    Progress: 34700/40000 files generated
+[2025-10-04T06:29:08.704Z]    Progress: 34800/40000 files generated
+[2025-10-04T06:29:08.805Z]    Progress: 34900/40000 files generated
+[2025-10-04T06:29:09.105Z]    Progress: 35000/40000 files generated
+[2025-10-04T06:29:09.130Z]    Progress: 35100/40000 files generated
+[2025-10-04T06:29:09.152Z]    Progress: 35200/40000 files generated
+[2025-10-04T06:29:09.232Z]    Progress: 35300/40000 files generated
+[2025-10-04T06:29:09.319Z]    Progress: 35400/40000 files generated
+[2025-10-04T06:29:09.426Z]    Progress: 35500/40000 files generated
+[2025-10-04T06:29:09.520Z]    Progress: 35600/40000 files generated
+[2025-10-04T06:29:09.613Z]    Progress: 35700/40000 files generated
+[2025-10-04T06:29:09.705Z]    Progress: 35800/40000 files generated
+[2025-10-04T06:29:09.812Z]    Progress: 35900/40000 files generated
+[2025-10-04T06:29:09.933Z]    Progress: 36000/40000 files generated
+[2025-10-04T06:29:10.025Z]    Progress: 36100/40000 files generated
+[2025-10-04T06:29:10.129Z]    Progress: 36200/40000 files generated
+[2025-10-04T06:29:10.230Z]    Progress: 36300/40000 files generated
+[2025-10-04T06:29:10.464Z]    Progress: 36400/40000 files generated
+[2025-10-04T06:29:10.490Z]    Progress: 36500/40000 files generated
+[2025-10-04T06:29:10.546Z]    Progress: 36600/40000 files generated
+[2025-10-04T06:29:10.648Z]    Progress: 36700/40000 files generated
+[2025-10-04T06:29:10.747Z]    Progress: 36800/40000 files generated
+[2025-10-04T06:29:10.848Z]    Progress: 36900/40000 files generated
+[2025-10-04T06:29:11.042Z]    Progress: 37000/40000 files generated
+[2025-10-04T06:29:11.068Z]    Progress: 37100/40000 files generated
+[2025-10-04T06:29:11.150Z]    Progress: 37200/40000 files generated
+[2025-10-04T06:29:11.245Z]    Progress: 37300/40000 files generated
+[2025-10-04T06:29:11.354Z]    Progress: 37400/40000 files generated
+[2025-10-04T06:29:11.450Z]    Progress: 37500/40000 files generated
+[2025-10-04T06:29:11.701Z]    Progress: 37600/40000 files generated
+[2025-10-04T06:29:11.727Z]    Progress: 37700/40000 files generated
+[2025-10-04T06:29:11.751Z]    Progress: 37800/40000 files generated
+[2025-10-04T06:29:11.847Z]    Progress: 37900/40000 files generated
+[2025-10-04T06:29:11.950Z]    Progress: 38000/40000 files generated
+[2025-10-04T06:29:12.045Z]    Progress: 38100/40000 files generated
+[2025-10-04T06:29:12.157Z]    Progress: 38200/40000 files generated
+[2025-10-04T06:29:12.240Z]    Progress: 38300/40000 files generated
+[2025-10-04T06:29:12.351Z]    Progress: 38400/40000 files generated
+[2025-10-04T06:29:12.445Z]    Progress: 38500/40000 files generated
+[2025-10-04T06:29:12.568Z]    Progress: 38600/40000 files generated
+[2025-10-04T06:29:12.676Z]    Progress: 38700/40000 files generated
+[2025-10-04T06:29:12.771Z]    Progress: 38800/40000 files generated
+[2025-10-04T06:29:12.870Z]    Progress: 38900/40000 files generated
+[2025-10-04T06:29:12.975Z]    Progress: 39000/40000 files generated
+[2025-10-04T06:29:13.071Z]    Progress: 39100/40000 files generated
+[2025-10-04T06:29:13.174Z]    Progress: 39200/40000 files generated
+[2025-10-04T06:29:13.287Z]    Progress: 39300/40000 files generated
+[2025-10-04T06:29:13.390Z]    Progress: 39400/40000 files generated
+[2025-10-04T06:29:13.725Z]    Progress: 39500/40000 files generated
+[2025-10-04T06:29:13.750Z]    Progress: 39600/40000 files generated
+[2025-10-04T06:29:13.774Z]    Progress: 39700/40000 files generated
+[2025-10-04T06:29:13.894Z]    Progress: 39800/40000 files generated
+[2025-10-04T06:29:13.917Z]    Progress: 39900/40000 files generated
+[2025-10-04T06:29:13.975Z]    Progress: 40000/40000 files generated
+[2025-10-04T06:29:13.975Z] Γ£à Generated 40000 files
+[2025-10-04T06:29:13.975Z] ≡ƒôª Committing 40000 files in batches...
+[2025-10-04T06:29:13.975Z]    Adding all generated files...
+[2025-10-04T06:30:03.345Z]    Found 30000 staged files
+[2025-10-04T06:30:03.345Z]    Committing in 20 batches...
+[2025-10-04T06:30:06.536Z]    Batch 1/20: Adding 1500 files...
+[2025-10-04T06:32:12.241Z]    Batch 1/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 97b9defce] feat(binder10): batch 1/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:32:17.438Z]    Batch 2/20: Adding 1500 files...
+[2025-10-04T06:34:21.768Z]    Batch 2/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 90c9a4be0] feat(binder10): batch 2/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:34:25.814Z]    Batch 3/20: Adding 1500 files...
+[2025-10-04T06:36:28.002Z]    Batch 3/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main c5c07096d] feat(binder10): batch 3/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:36:32.110Z]    Batch 4/20: Adding 1500 files...
+[2025-10-04T06:38:35.359Z]    Batch 4/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 72e247509] feat(binder10): batch 4/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:38:39.195Z]    Batch 5/20: Adding 1500 files...
+[2025-10-04T06:40:55.634Z]    Batch 5/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 9b31a6237] feat(binder10): batch 5/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:40:59.647Z]    Batch 6/20: Adding 1500 files...
+[2025-10-04T06:43:15.281Z]    Batch 6/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main d8d8c8f18] feat(binder10): batch 6/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:43:18.750Z]    Batch 7/20: Adding 1500 files...
+[2025-10-04T06:45:34.853Z]    Batch 7/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main d2f8c88ff] feat(binder10): batch 7/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:45:38.602Z]    Batch 8/20: Adding 1500 files...
+[2025-10-04T06:47:54.387Z]    Batch 8/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 8cf95c037] feat(binder10): batch 8/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:47:57.666Z]    Batch 9/20: Adding 1500 files...
+[2025-10-04T06:50:13.829Z]    Batch 9/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main df487a22d] feat(binder10): batch 9/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:50:17.295Z]    Batch 10/20: Adding 1500 files...
+[2025-10-04T06:52:32.599Z]    Batch 10/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 251969ba2] feat(binder10): batch 10/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:52:35.821Z]    Batch 11/20: Adding 1500 files...
+[2025-10-04T06:54:50.042Z]    Batch 11/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 0e55f3662] feat(binder10): batch 11/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:54:52.933Z]    Batch 12/20: Adding 1500 files...
+[2025-10-04T06:57:07.498Z]    Batch 12/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 26b6b6b44] feat(binder10): batch 12/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:57:10.360Z]    Batch 13/20: Adding 1500 files...
+[2025-10-04T06:59:25.474Z]    Batch 13/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main cc657dd88] feat(binder10): batch 13/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T06:59:27.992Z]    Batch 14/20: Adding 1500 files...
+[2025-10-04T07:01:42.791Z]    Batch 14/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main 5f1f32f71] feat(binder10): batch 14/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:01:45.390Z]    Batch 15/20: Adding 1500 files...
+[2025-10-04T07:04:00.459Z]    Batch 15/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+[main ce26bf002] feat(binder10): batch 15/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:04:02.844Z]    Batch 16/20: Adding 1500 files...
+[2025-10-04T07:06:17.921Z]    Batch 16/20: Committing...
+Auto packing the repository for optimum performance.
+See "git help gc" for manual housekeeping.
+[main 392267507] feat(binder10): batch 16/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:06:20.311Z]    Batch 17/20: Adding 1500 files...
+[2025-10-04T07:08:35.557Z]    Batch 17/20: Committing...
+[main f41ad119b] feat(binder10): batch 17/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:08:36.527Z]    Batch 18/20: Adding 1500 files...
+[2025-10-04T07:10:51.399Z]    Batch 18/20: Committing...
+[main c48c29d85] feat(binder10): batch 18/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:10:52.442Z]    Batch 19/20: Adding 1500 files...
+[2025-10-04T07:13:07.870Z]    Batch 19/20: Committing...
+[main 8fe39ef19] feat(binder10): batch 19/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:13:08.811Z]    Batch 20/20: Adding 1500 files...
+[2025-10-04T07:15:24.630Z]    Batch 20/20: Committing...
+[main 926e7e768] feat(binder10): batch 20/20 [skip ci]
+ 1500 files changed, 10500 insertions(+), 37500 deletions(-)
+[2025-10-04T07:15:25.547Z]    Pushing to GitHub...
+To https://github.com/christcr2012/StreamFlow.git
+   2b6297983..926e7e768  main -> main
+[2025-10-04T07:15:34.995Z] Γ£à Successfully pushed 20 commits
+[2025-10-04T07:15:34.995Z] 
+================================================================================
+[2025-10-04T07:15:34.995Z] PROCESSING: binder11
+[2025-10-04T07:15:34.995Z] ================================================================================
+[2025-10-04T07:15:34.995Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:35.183Z]    Size: 99.02 MB
+[2025-10-04T07:15:35.210Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:35.210Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:35.210Z] Γ£à Marking as complete
+[2025-10-04T07:15:35.210Z] 
+================================================================================
+[2025-10-04T07:15:35.210Z] PROCESSING: binder12
+[2025-10-04T07:15:35.210Z] ================================================================================
+[2025-10-04T07:15:35.210Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:35.399Z]    Size: 93.45 MB
+[2025-10-04T07:15:35.423Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:35.424Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:35.424Z] Γ£à Marking as complete
+[2025-10-04T07:15:35.424Z] 
+================================================================================
+[2025-10-04T07:15:35.424Z] PROCESSING: binder13
+[2025-10-04T07:15:35.424Z] ================================================================================
+[2025-10-04T07:15:35.424Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:35.615Z]    Size: 93.60 MB
+[2025-10-04T07:15:35.642Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:35.642Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:35.642Z] Γ£à Marking as complete
+[2025-10-04T07:15:35.642Z] 
+================================================================================
+[2025-10-04T07:15:35.642Z] PROCESSING: binder14_ready
+[2025-10-04T07:15:35.642Z] ================================================================================
+[2025-10-04T07:15:35.642Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:35.766Z]    Size: 90.60 MB
+[2025-10-04T07:15:35.782Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:35.782Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:35.782Z] Γ£à Marking as complete
+[2025-10-04T07:15:35.782Z] 
+================================================================================
+[2025-10-04T07:15:35.782Z] PROCESSING: binder15_ready
+[2025-10-04T07:15:35.782Z] ================================================================================
+[2025-10-04T07:15:35.782Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:35.907Z]    Size: 92.43 MB
+[2025-10-04T07:15:35.923Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:35.923Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:35.923Z] Γ£à Marking as complete
+[2025-10-04T07:15:35.923Z] 
+================================================================================
+[2025-10-04T07:15:35.924Z] PROCESSING: binder16_ready
+[2025-10-04T07:15:35.924Z] ================================================================================
+[2025-10-04T07:15:35.924Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.045Z]    Size: 92.50 MB
+[2025-10-04T07:15:36.064Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.064Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.064Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.064Z] 
+================================================================================
+[2025-10-04T07:15:36.064Z] PROCESSING: binder17_ready
+[2025-10-04T07:15:36.064Z] ================================================================================
+[2025-10-04T07:15:36.064Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.183Z]    Size: 92.08 MB
+[2025-10-04T07:15:36.200Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.200Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.200Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.200Z] 
+================================================================================
+[2025-10-04T07:15:36.200Z] PROCESSING: binder18_ready
+[2025-10-04T07:15:36.200Z] ================================================================================
+[2025-10-04T07:15:36.200Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.321Z]    Size: 92.12 MB
+[2025-10-04T07:15:36.338Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.338Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.338Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.338Z] 
+================================================================================
+[2025-10-04T07:15:36.338Z] PROCESSING: binder19_ready
+[2025-10-04T07:15:36.338Z] ================================================================================
+[2025-10-04T07:15:36.338Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.530Z]    Size: 91.71 MB
+[2025-10-04T07:15:36.556Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.556Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.556Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.556Z] 
+================================================================================
+[2025-10-04T07:15:36.556Z] PROCESSING: binder20_ready
+[2025-10-04T07:15:36.556Z] ================================================================================
+[2025-10-04T07:15:36.556Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.747Z]    Size: 92.39 MB
+[2025-10-04T07:15:36.774Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.774Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.774Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.774Z] 
+================================================================================
+[2025-10-04T07:15:36.774Z] PROCESSING: binder21_ready
+[2025-10-04T07:15:36.774Z] ================================================================================
+[2025-10-04T07:15:36.774Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:36.966Z]    Size: 91.29 MB
+[2025-10-04T07:15:36.991Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:36.991Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:36.991Z] Γ£à Marking as complete
+[2025-10-04T07:15:36.992Z] 
+================================================================================
+[2025-10-04T07:15:36.992Z] PROCESSING: binder22_ready
+[2025-10-04T07:15:36.992Z] ================================================================================
+[2025-10-04T07:15:36.992Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:37.183Z]    Size: 92.47 MB
+[2025-10-04T07:15:37.209Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:37.209Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:37.209Z] Γ£à Marking as complete
+[2025-10-04T07:15:37.209Z] 
+================================================================================
+[2025-10-04T07:15:37.209Z] PROCESSING: binder23_ready
+[2025-10-04T07:15:37.209Z] ================================================================================
+[2025-10-04T07:15:37.209Z] ≡ƒôû Reading binder file...
+[2025-10-04T07:15:37.398Z]    Size: 92.33 MB
+[2025-10-04T07:15:37.425Z]    Pattern: CONTRACT_SPEC
+[2025-10-04T07:15:37.425Z] ≡ƒôï Contract/Specification document - no code generation needed
+[2025-10-04T07:15:37.425Z] Γ£à Marking as complete
+[2025-10-04T07:15:37.425Z] 
+================================================================================
+[2025-10-04T07:15:37.425Z] FINAL SUMMARY
+[2025-10-04T07:15:37.425Z] ================================================================================
+[2025-10-04T07:15:37.425Z] Total binders processed: 26
+[2025-10-04T07:15:37.425Z]   - Generated code: 2
+[2025-10-04T07:15:37.425Z]   - Skipped (contracts): 24
+[2025-10-04T07:15:37.425Z] Total files generated: 44209
+[2025-10-04T07:15:37.426Z] 
+Γ£à ALL BINDERS COMPLETE!
+[2025-10-04T07:15:37.426Z] Ready for error analysis when you wake up.

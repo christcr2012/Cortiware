@@ -1,0 +1,123 @@
+{
+  "db_migrations": {
+    "completed": [
+      "db_cleaning_events_845622",
+      "db_idx_cleaning_events_1_845623",
+      "db_idx_cleaning_events_2_845623",
+      "db_cleaning_events_845623",
+      "db_cleaning_events_845623",
+      "db_idx_cleaning_events_1_845623",
+      "db_idx_cleaning_events_2_845623",
+      "db_if_845623",
+      "db_fencing_events_845629",
+      "db_idx_fencing_events_1_845630",
+      "db_idx_fencing_events_2_845630",
+      "db_fencing_events_845630",
+      "db_fencing_events_845630",
+      "db_idx_fencing_events_1_845630",
+      "db_idx_fencing_events_2_845630",
+      "db_if_845630",
+      "db_concrete_events_845633",
+      "db_idx_concrete_events_1_845633",
+      "db_idx_concrete_events_2_845633",
+      "db_concrete_events_845633",
+      "db_concrete_events_845634",
+      "db_idx_concrete_events_1_845634",
+      "db_idx_concrete_events_2_845634",
+      "db_if_845634",
+      "db_appliance_events_845639",
+      "db_idx_appliance_events_1_845639",
+      "db_idx_appliance_events_2_845639",
+      "db_appliance_events_845639",
+      "db_appliance_events_845639",
+      "db_idx_appliance_events_1_845639",
+      "db_idx_appliance_events_2_845639",
+      "db_if_845639",
+      "db_mechanic_events_845644",
+      "db_idx_mechanic_events_1_845644",
+      "db_idx_mechanic_events_2_845644",
+      "db_mechanic_events_845644",
+      "db_mechanic_events_845644",
+      "db_idx_mechanic_events_1_845644",
+      "db_idx_mechanic_events_2_845644",
+      "db_if_845644",
+      "db_windowdoor_events_845649",
+      "db_idx_windowdoor_events_1_845649",
+      "db_idx_windowdoor_events_2_845649",
+      "db_windowdoor_events_845649",
+      "db_windowdoor_events_845649",
+      "db_idx_windowdoor_events_1_845649",
+      "db_idx_windowdoor_events_2_845649",
+      "db_if_845649",
+      "db_rolloff_events_845651",
+      "db_idx_rolloff_events_1_845651",
+      "db_idx_rolloff_events_2_845651",
+      "db_rolloff_events_845651",
+      "db_rolloff_events_845651",
+      "db_idx_rolloff_events_1_845651",
+      "db_idx_rolloff_events_2_845651",
+      "db_if_845651",
+      "db_portajohn_events_845653",
+      "db_idx_portajohn_events_1_845653",
+      "db_idx_portajohn_events_2_845653",
+      "db_portajohn_events_845653",
+      "db_portajohn_events_845653",
+      "db_idx_portajohn_events_1_845653",
+      "db_idx_portajohn_events_2_845653",
+      "db_if_845653",
+      "db_trucking_events_845655",
+      "db_idx_trucking_events_1_845655",
+      "db_idx_trucking_events_2_845655",
+      "db_trucking_events_845655",
+      "db_trucking_events_845655",
+      "db_idx_trucking_events_1_845655",
+      "db_idx_trucking_events_2_845655",
+      "db_if_845655",
+      "db_infra_adoption_845656",
+      "db_idx_infra_adoption_1_845656",
+      "db_idx_infra_adoption_2_845656"
+    ],
+    "failed": [],
+    "skipped": []
+  },
+  "api_endpoints": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "webhooks": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "screens": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "controls": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "ai_flows": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "jobs": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "tests": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "integrations": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  }
+}

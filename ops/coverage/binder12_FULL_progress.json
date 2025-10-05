@@ -1,0 +1,56 @@
+{
+  "db_migrations": {
+    "completed": [
+      "db_if_801733",
+      "db_if_801733",
+      "db_if_801733",
+      "db_if_801733",
+      "db_if_802279"
+    ],
+    "failed": [],
+    "skipped": []
+  },
+  "api_endpoints": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "webhooks": {
+    "completed": [
+      "webhook_handler_801733",
+      "webhook_handler_801733"
+    ],
+    "failed": [],
+    "skipped": []
+  },
+  "screens": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "controls": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "ai_flows": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "jobs": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "tests": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  },
+  "integrations": {
+    "completed": [],
+    "failed": [],
+    "skipped": []
+  }
+}

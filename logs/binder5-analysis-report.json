@@ -1,0 +1,124 @@
+{
+  "timestamp": "2025-10-03T17:17:57.824Z",
+  "file": "binderFiles/binder5_FULL.md",
+  "totalLines": 244524,
+  "summary": {
+    "buttons": {
+      "total": 42,
+      "implemented": 42,
+      "percentage": 100
+    },
+    "endpoints": {
+      "total": 43,
+      "implemented": 43,
+      "percentage": 100
+    },
+    "sections": [
+      {
+        "id": "01_field_pwa",
+        "title": "Field PWA",
+        "lineCount": 590,
+        "buttonsTotal": 14,
+        "buttonsImplemented": 14,
+        "endpointsTotal": 14,
+        "endpointsImplemented": 14,
+        "progressPercentage": 100
+      },
+      {
+        "id": "02_fleet_dvir",
+        "title": "Fleet DVIR & Maintenance",
+        "lineCount": 296,
+        "buttonsTotal": 7,
+        "buttonsImplemented": 7,
+        "endpointsTotal": 7,
+        "endpointsImplemented": 7,
+        "progressPercentage": 100
+      },
+      {
+        "id": "03_assets_qr",
+        "title": "Assets & QR Tracking",
+        "lineCount": 247,
+        "buttonsTotal": 6,
+        "buttonsImplemented": 6,
+        "endpointsTotal": 6,
+        "endpointsImplemented": 6,
+        "progressPercentage": 100
+      },
+      {
+        "id": "04_migration",
+        "title": "Migration Engine",
+        "lineCount": 348,
+        "buttonsTotal": 7,
+        "buttonsImplemented": 7,
+        "endpointsTotal": 7,
+        "endpointsImplemented": 7,
+        "progressPercentage": 100
+      },
+      {
+        "id": "05_federation",
+        "title": "Federation & Provider Setup",
+        "lineCount": 242981,
+        "buttonsTotal": 8,
+        "buttonsImplemented": 8,
+        "endpointsTotal": 9,
+        "endpointsImplemented": 9,
+        "progressPercentage": 100
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "01_field_pwa",
+      "title": "Field PWA",
+      "lineCount": 590,
+      "buttonsTotal": 14,
+      "buttonsImplemented": 14,
+      "endpointsTotal": 14,
+      "endpointsImplemented": 14,
+      "progressPercentage": 100
+    },
+    {
+      "id": "02_fleet_dvir",
+      "title": "Fleet DVIR & Maintenance",
+      "lineCount": 296,
+      "buttonsTotal": 7,
+      "buttonsImplemented": 7,
+      "endpointsTotal": 7,
+      "endpointsImplemented": 7,
+      "progressPercentage": 100
+    },
+    {
+      "id": "03_assets_qr",
+      "title": "Assets & QR Tracking",
+      "lineCount": 247,
+      "buttonsTotal": 6,
+      "buttonsImplemented": 6,
+      "endpointsTotal": 6,
+      "endpointsImplemented": 6,
+      "progressPercentage": 100
+    },
+    {
+      "id": "04_migration",
+      "title": "Migration Engine",
+      "lineCount": 348,
+      "buttonsTotal": 7,
+      "buttonsImplemented": 7,
+      "endpointsTotal": 7,
+      "endpointsImplemented": 7,
+      "progressPercentage": 100
+    },
+    {
+      "id": "05_federation",
+      "title": "Federation & Provider Setup",
+      "lineCount": 242981,
+      "buttonsTotal": 8,
+      "buttonsImplemented": 8,
+      "endpointsTotal": 9,
+      "endpointsImplemented": 9,
+      "progressPercentage": 100
+    }
+  ],
+  "unimplementedButtons": [],
+  "unimplementedEndpoints": [],
+  "nextPriorities": []
+}

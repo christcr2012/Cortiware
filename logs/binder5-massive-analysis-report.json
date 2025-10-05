@@ -1,0 +1,74 @@
+{
+  "timestamp": "2025-10-03T17:24:51.324Z",
+  "file": "binderFiles/binder5_FULL.md",
+  "totalLines": 244524,
+  "summary": {
+    "coreButtons": {
+      "total": 42,
+      "implemented": 42,
+      "percentage": 100
+    },
+    "exampleEndpoints": {
+      "total": 9326,
+      "implemented": 8845,
+      "percentage": 95
+    },
+    "testCases": {
+      "total": 5000
+    },
+    "databaseSchemas": {
+      "total": 8
+    }
+  },
+  "overallProgress": {
+    "totalEndpoints": 9368,
+    "implementedEndpoints": 8887,
+    "percentage": 95
+  },
+  "sections": {
+    "core": {
+      "description": "Core functional buttons",
+      "lines": "1-2000",
+      "items": 42,
+      "implemented": 42
+    },
+    "schemas": {
+      "description": "Database schemas",
+      "lines": "2000-3000",
+      "items": 8,
+      "implemented": 0
+    },
+    "examples": {
+      "description": "API endpoint examples",
+      "lines": "3000-200000",
+      "items": 9326,
+      "implemented": 8845
+    },
+    "tests": {
+      "description": "Test case specifications",
+      "lines": "200000-244524",
+      "items": 5000,
+      "implemented": 0
+    }
+  },
+  "nextPriorities": [
+    {
+      "section": "examples",
+      "description": "Implement example API endpoints",
+      "remaining": 481,
+      "estimatedHours": 49
+    },
+    {
+      "section": "schemas",
+      "description": "Implement database migrations",
+      "remaining": 8,
+      "estimatedHours": 4
+    },
+    {
+      "section": "tests",
+      "description": "Implement test cases",
+      "remaining": 5000,
+      "estimatedHours": 1250
+    }
+  ]
+}

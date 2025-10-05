@@ -1,0 +1,24 @@
+[2025-10-04T19:20:24.598Z] ▶️ 🚀 REBUILD HYBRID BINDER EXECUTOR - Starting
+[2025-10-04T19:20:24.601Z] ▶️ Verifying binder directory: C:/Users/chris/OneDrive/Desktop/binderfiles
+[2025-10-04T19:20:24.601Z] ✅ Found 28 binder files
+[2025-10-04T19:20:24.602Z] ▶️ Ensuring API directory structure
+[2025-10-04T19:20:24.602Z] ✅ API directory structure verified
+[2025-10-04T19:20:24.603Z] ▶️ Running pre-validation
+[2025-10-04T19:20:24.603Z] ▶️ ▶️ node scripts/validate-binders-new.js --phase pre
+[2025-10-04T19:20:41.991Z] ✅ Pre-validation completed successfully
+[2025-10-04T19:20:41.991Z] ▶️ Running binder orchestration
+[2025-10-04T19:20:41.992Z] ▶️ ▶️ node scripts/binder-orchestrator-new.js
+[2025-10-04T19:21:54.769Z] ✅ Binder orchestration completed successfully
+[2025-10-04T19:21:54.770Z] ▶️ Running post-validation
+[2025-10-04T19:21:54.770Z] ▶️ ▶️ node scripts/validate-binders-new.js --phase post
+[2025-10-04T19:22:12.799Z] ✅ Post-validation completed successfully
+[2025-10-04T19:22:12.800Z] ▶️ Processing failed binders (retry 1/2)
+[2025-10-04T19:22:12.800Z] ℹ️ No failed binders report found, skipping retry
+[2025-10-04T19:22:12.800Z] ▶️ Fixing TypeScript errors
+[2025-10-04T19:22:12.800Z] ▶️ ▶️ node scripts/fix-validator-errors.js
+[2025-10-04T19:22:38.760Z] ▶️ ▶️ node scripts/fix-typescript-errors.js
+[2025-10-04T19:23:06.061Z] ✅ TypeScript errors fixed successfully
+[2025-10-04T19:23:06.061Z] ▶️ Calculating success rate
+[2025-10-04T19:23:06.062Z] ℹ️ Success rate: NaN% (undefined/5930795)
+[2025-10-04T19:23:06.062Z] ℹ️ Mapping rate: NaN% (undefined/5930795)
+[2025-10-04T19:23:06.063Z] ✅ Final report saved to: C:\Users\chris\Git Local\StreamFlow\ops\reports\rebuild-hybrid-executor-report.json
