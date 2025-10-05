@@ -1,0 +1,35 @@
+name: E2E Smoke (Federation)
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL of a running environment (e.g., Vercel preview)"
+        required: true
+        default: "https://your-preview-url.vercel.app"
+      fed_enabled:
+        description: "Expect federation enabled? (true/false)"
+        required: true
+        default: "true"
+
+jobs:
+  e2e-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Run E2E Smoke
+        env:
+          BASE_URL: ${{ inputs.base_url }}
+          E2E_EXPECT_FED_ENABLED: ${{ inputs.fed_enabled }}
+        run: npm run test:e2e
+
