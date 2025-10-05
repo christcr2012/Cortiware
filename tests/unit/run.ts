@@ -3,6 +3,7 @@ import { run as runOpps } from './validation.opportunities.test';
 import { run as runOrgs } from './validation.organizations.test';
 import { run as runFedCfg } from './federation.config.test';
 import { run as runAuthHelpers } from './middleware.auth.test';
+import { run as runFedServices } from './federation.services.test';
 
 async function main() {
   const results = [
@@ -11,6 +12,7 @@ async function main() {
     await runOrgs(),
     await runFedCfg(),
     await runAuthHelpers(),
+    await runFedServices(),
   ];
   const totals = results.reduce((acc, r) => ({
     passed: acc.passed + r.passed,
