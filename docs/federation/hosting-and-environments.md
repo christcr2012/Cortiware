@@ -12,6 +12,42 @@
 - Staging: Preview deployments per PR; separate DB and KV; feature flags managed via env vars
 - Production: `next build` + `prisma migrate deploy`; secrets via Vercel project environment
 
+## OIDC Configuration (when FED_OIDC_ENABLED=true)
+
+### Required Environment Variables
+```bash
+FED_OIDC_ENABLED=true
+OIDC_PROVIDER_ISSUER=https://your-idp.example.com
+OIDC_CLIENT_ID=your-client-id
+OIDC_CLIENT_SECRET=your-client-secret
+OIDC_REDIRECT_URI=https://your-app.vercel.app/api/auth/oidc/callback
+OIDC_SCOPE=openid profile email
+```
+
+### Dual-Mode Authentication
+- When `FED_OIDC_ENABLED=false`: Uses env-based tokens (rs_provider, rs_developer cookies)
+- When `FED_OIDC_ENABLED=true`: Tries OIDC session first, falls back to env-based if not found
+- This allows gradual migration without breaking existing auth
+
+### OIDC Flow
+1. User visits provider/developer portal
+2. Portal redirects to `/api/auth/oidc/login` (not yet implemented)
+3. System redirects to IdP authorization endpoint
+4. User authenticates at IdP
+5. IdP redirects back to `/api/auth/oidc/callback` with authorization code
+6. Callback exchanges code for tokens, validates JWT, creates session cookie
+7. User redirected to intended destination
+
+### IdP Requirements
+- Must support OpenID Connect (OIDC) with authorization code flow
+- Must provide public keys for JWT signature verification (JWKS endpoint)
+- Recommended claims: `sub` (required), `email`, `name`, `roles` (custom claim for federation roles)
+
+### Session Management
+- Session stored in `oidc_session` cookie (HttpOnly, Secure, SameSite=Lax)
+- Session validated on each request by checking JWT signature and expiration
+- Refresh tokens not yet implemented (TODO)
+
 ## Domains & Routes
 - Tenant app: `app.yourdomain.com`
 - Provider portal: `provider.yourdomain.com` (future), initially internal routes only

@@ -106,17 +106,39 @@ export function withTenantAuth(): Wrapper {
 export function withProviderAuth(): Wrapper {
   return (handler) => async (req, ...args) => {
     if (!FED_ENABLED) return jsonError(404, 'NotFound', 'Federation disabled');
-    const jar = await cookies();
-    const token = jar.get('rs_provider')?.value || jar.get('provider-session')?.value || jar.get('ws_provider')?.value;
-    if (!token) return jsonError(401, 'Unauthorized', 'Provider sign in required');
 
-    // Attach provider identity to request (via header for downstream usage)
-    const { getRoleFromToken } = await import('@/lib/entitlements');
-    const role = getRoleFromToken(token);
+    const jar = await cookies();
+    const { FED_OIDC_ENABLED } = await import('@/lib/config/federation');
+
+    let actor: string | null = null;
+    let role: string | null = null;
+
+    // Try OIDC first if enabled
+    if (FED_OIDC_ENABLED) {
+      const oidcToken = jar.get('oidc_session')?.value;
+      if (oidcToken) {
+        const { validateOIDCSession } = await import('@/lib/oidc');
+        const session = await validateOIDCSession(oidcToken);
+        if (session) {
+          actor = session.sub;
+          role = session.roles?.[0] || 'provider-viewer';
+        }
+      }
+    }
+
+    // Fall back to env-based auth
+    if (!actor) {
+      const token = jar.get('rs_provider')?.value || jar.get('provider-session')?.value || jar.get('ws_provider')?.value;
+      if (!token) return jsonError(401, 'Unauthorized', 'Provider sign in required');
+
+      const { getRoleFromToken } = await import('@/lib/entitlements');
+      actor = token;
+      role = getRoleFromToken(token);
+    }
 
     // Attach identity headers to existing request
-    req.headers.set('x-federation-actor', token);
-    req.headers.set('x-federation-role', role);
+    req.headers.set('x-federation-actor', actor);
+    req.headers.set('x-federation-role', role || 'provider-viewer');
 
     return handler(req, ...args);
   };
@@ -125,16 +147,38 @@ export function withProviderAuth(): Wrapper {
 export function withDeveloperAuth(): Wrapper {
   return (handler) => async (req, ...args) => {
     if (!FED_ENABLED) return jsonError(404, 'NotFound', 'Federation disabled');
+
     const jar = await cookies();
-    const token = jar.get('rs_developer')?.value || jar.get('developer-session')?.value || jar.get('ws_developer')?.value;
-    if (!token) return jsonError(401, 'Unauthorized', 'Developer sign in required');
+    const { FED_OIDC_ENABLED } = await import('@/lib/config/federation');
 
-    // Attach developer identity to request
-    const { getRoleFromToken } = await import('@/lib/entitlements');
-    const role = getRoleFromToken(token);
+    let actor: string | null = null;
+    let role: string | null = null;
 
-    req.headers.set('x-federation-actor', token);
-    req.headers.set('x-federation-role', role);
+    // Try OIDC first if enabled
+    if (FED_OIDC_ENABLED) {
+      const oidcToken = jar.get('oidc_session')?.value;
+      if (oidcToken) {
+        const { validateOIDCSession } = await import('@/lib/oidc');
+        const session = await validateOIDCSession(oidcToken);
+        if (session) {
+          actor = session.sub;
+          role = session.roles?.[0] || 'developer';
+        }
+      }
+    }
+
+    // Fall back to env-based auth
+    if (!actor) {
+      const token = jar.get('rs_developer')?.value || jar.get('developer-session')?.value || jar.get('ws_developer')?.value;
+      if (!token) return jsonError(401, 'Unauthorized', 'Developer sign in required');
+
+      const { getRoleFromToken } = await import('@/lib/entitlements');
+      actor = token;
+      role = getRoleFromToken(token);
+    }
+
+    req.headers.set('x-federation-actor', actor);
+    req.headers.set('x-federation-role', role || 'developer');
 
     return handler(req, ...args);
   };
