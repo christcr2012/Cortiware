@@ -1,0 +1,16 @@
+# Environment files
+.env
+.env.production
+.env*.local
+
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+.vercel/
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
