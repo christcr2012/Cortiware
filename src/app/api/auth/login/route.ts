@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit, resetRateLimit } from '@/lib/rate-limit';
+import { logLoginSuccess, logLoginFailure, logRateLimitExceeded } from '@/lib/audit-log';
 
 /**
  * UNIFIED LOGIN SYSTEM
@@ -23,9 +24,14 @@ import { applyRateLimit, resetRateLimit } from '@/lib/rate-limit';
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
 
+  // Get client info for rate limiting and audit logging
+  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+  const userAgent = req.headers.get('user-agent') || 'unknown';
+
   // Apply rate limiting
   const rateLimitResponse = await applyRateLimit(req, 'auth');
   if (rateLimitResponse) {
+    // Log rate limit exceeded (we don't have email yet, will log after parsing)
     return rateLimitResponse;
   }
 
@@ -59,12 +65,9 @@ export async function POST(req: NextRequest) {
 
   // Basic validation
   if (!email || !password) {
+    await logLoginFailure(email || 'unknown', ipAddress, userAgent, 'Missing credentials');
     return NextResponse.redirect(new URL(`/login?error=missing`, url), 303);
   }
-
-  // Get client info for audit logging
-  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-  const userAgent = req.headers.get('user-agent') || 'unknown';
 
   // ============================================================================
   // STEP 1: Check Provider Authentication
@@ -73,8 +76,9 @@ export async function POST(req: NextRequest) {
   const providerResult = await authenticateProvider(email, password);
   if (providerResult.success) {
     console.log(`✅ Provider login: ${email}`);
-    // Reset rate limit on successful login
+    // Reset rate limit and log success
     resetRateLimit(ipAddress, 'auth');
+    await logLoginSuccess('provider-system', email, ipAddress, userAgent);
     const res = NextResponse.redirect(new URL('/provider', url), 303);
     setCookie(res, 'rs_provider', email);
     return res;
@@ -87,8 +91,9 @@ export async function POST(req: NextRequest) {
   const developerResult = await authenticateDeveloper(email, password);
   if (developerResult.success) {
     console.log(`✅ Developer login: ${email}`);
-    // Reset rate limit on successful login
+    // Reset rate limit and log success
     resetRateLimit(ipAddress, 'auth');
+    await logLoginSuccess('developer-system', email, ipAddress, userAgent);
     const res = NextResponse.redirect(new URL('/developer', url), 303);
     setCookie(res, 'rs_developer', email);
     return res;
@@ -101,8 +106,11 @@ export async function POST(req: NextRequest) {
   const userResult = await authenticateDatabaseUser(email, password, totpCode, recoveryCode);
   if (userResult.success) {
     console.log(`✅ User login: ${email} (${userResult.accountType})`);
-    // Reset rate limit on successful login
+    // Reset rate limit and log success
     resetRateLimit(ipAddress, 'auth');
+    if (userResult.userId) {
+      await logLoginSuccess(userResult.userId, email, ipAddress, userAgent);
+    }
     const redirectUrl = userResult.redirectUrl || '/dashboard';
     const res = NextResponse.redirect(new URL(redirectUrl, url), 303);
     setCookie(res, userResult.cookieName || 'rs_user', email);
@@ -114,6 +122,7 @@ export async function POST(req: NextRequest) {
   // ============================================================================
 
   console.log(`❌ Login failed: ${email}`);
+  await logLoginFailure(email, ipAddress, userAgent, 'Invalid credentials');
   return NextResponse.redirect(new URL(`/login?error=invalid`, url), 303);
 }
 
