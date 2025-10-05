@@ -63,6 +63,7 @@ jobs:
       - run:
           name: Build Application
           command: npm run build
+          no_output_timeout: 10m
       
       # Run tests (if you have them)
       - run:
