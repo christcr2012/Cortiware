@@ -68,8 +68,212 @@ model User {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  // Unified Auth System - Security Fields
+  isActive              Boolean   @default(true)
+  isLocked              Boolean   @default(false)
+  lockedUntil           DateTime?
+  failedLoginAttempts   Int       @default(0)
+  lastFailedLogin       DateTime?
+  lastSuccessfulLogin   DateTime?
+  lastPasswordChange    DateTime?
+
+  // Two-Factor Authentication (TOTP)
+  totpSecret            String?
+  totpEnabled           Boolean   @default(false)
+  backupCodesHash       String?   // JSON array of hashed backup codes
+
   org           Org            @relation(fields: [orgId], references: [id])
   rbacUserRoles RbacUserRole[] @relation("UserRbacUserRoles")
+
+  // Unified Auth System - Relations
+  recoveryCodes         UserRecoveryCode[]
+  breakglassAccount     UserBreakglassAccount?
+  securityQuestions     UserSecurityQuestion[]
+  loginHistory          UserLoginHistory[]
+  deviceFingerprints    UserDeviceFingerprint[]
+}
+
+// ============================================================================
+// UNIFIED AUTH SYSTEM - RECOVERY & SECURITY
+// ============================================================================
+
+/// Recovery codes for self-service account recovery (Layer 1)
+model UserRecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  codeHash  String    // Bcrypt hashed recovery code
+  usedAt    DateTime?
+  usedFrom  String?   // IP address where code was used
+  createdAt DateTime  @default(now())
+  expiresAt DateTime  // Valid for 1 year by default
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([usedAt])
+}
+
+/// Security questions for additional verification (Layer 2)
+model UserSecurityQuestion {
+  id           String   @id @default(cuid())
+  userId       String
+  question     String   // "What was your first pet's name?"
+  answerHash   String   // Bcrypt hashed answer (case-insensitive)
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Breakglass account for automated emergency access (Layer 3)
+model UserBreakglassAccount {
+  id                    String    @id @default(cuid())
+  userId                String    @unique
+  orgId                 String
+
+  // Encrypted credentials (AES-256-GCM with per-user key derived from master)
+  encryptedEmail        String
+  encryptedPasswordHash String
+  encryptionIV          String    // Initialization vector for decryption
+
+  // Usage tracking
+  createdAt             DateTime  @default(now())
+  lastActivatedAt       DateTime?
+  activationCount       Int       @default(0)
+
+  // Automated security
+  isEnabled             Boolean   @default(true)
+  canAutoActivate       Boolean   @default(true)  // Can activate without manual approval
+  minDelayMinutes       Int       @default(0)     // Minimum delay before activation (risk-based)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orgId])
+  @@index([userId])
+}
+
+/// Device fingerprinting for trust scoring
+model UserDeviceFingerprint {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Device identification
+  fingerprint     String   // Hash of: User-Agent + Screen Resolution + Timezone + Canvas fingerprint
+  ipAddress       String
+  userAgent       String
+
+  // Trust level
+  isTrusted       Boolean  @default(false)
+  trustScore      Int      @default(0)  // 0-100
+
+  // Metadata
+  firstSeenAt     DateTime @default(now())
+  lastSeenAt      DateTime @default(now())
+  loginCount      Int      @default(1)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, fingerprint])
+  @@index([userId])
+  @@index([fingerprint])
+}
+
+/// Comprehensive login history for audit trail
+model UserLoginHistory {
+  id              String   @id @default(cuid())
+  userId          String
+
+  // Login details
+  success         Boolean
+  method          String   // "password", "recovery_code", "breakglass", "totp"
+  ipAddress       String
+  userAgent       String
+  deviceFingerprint String?
+
+  // Risk assessment
+  riskScore       Int      @default(0)  // 0-100
+  riskFactors     String?  // JSON array of risk factors
+
+  // Geolocation (optional)
+  country         String?
+  city            String?
+
+  // Metadata
+  timestamp       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, timestamp])
+  @@index([success])
+  @@index([riskScore])
+}
+
+/// Breakglass activation log for automated actions
+model BreakglassActivationLog {
+  id                String   @id @default(cuid())
+  userId            String
+  orgId             String
+
+  // Activation details
+  reason            String   // "password_reset", "account_locked", "lost_access"
+  method            String   // "email_verification", "recovery_code", "security_questions"
+
+  // Risk assessment
+  riskScore         Int      // 0-100
+  riskFactors       String   // JSON array
+  delayMinutes      Int      // How long user had to wait
+
+  // Verification
+  verificationSteps String   // JSON array of completed verification steps
+  ipAddress         String
+  userAgent         String
+
+  // Outcome
+  success           Boolean
+  errorMessage      String?
+
+  // Notifications sent
+  notifiedAdmins    String   // JSON array of admin emails notified
+
+  // Metadata
+  timestamp         DateTime @default(now())
+
+  @@index([userId, timestamp])
+  @@index([orgId, timestamp])
+  @@index([riskScore])
+}
+
+/// Pending recovery requests with automated delay timers
+model RecoveryRequest {
+  id                String    @id @default(cuid())
+  userId            String
+  orgId             String
+
+  // Request details
+  type              String    // "password_reset", "breakglass_activation", "unlock_account"
+  status            String    // "pending", "verified", "completed", "expired", "denied"
+
+  // Verification
+  verificationToken String    @unique
+  verificationCode  String?   // 6-digit code sent via email/SMS
+  codeExpiresAt     DateTime?
+  codeAttempts      Int       @default(0)
+
+  // Risk-based delay
+  riskScore         Int
+  delayUntil        DateTime  // When the request can be processed
+
+  // Metadata
+  ipAddress         String
+  userAgent         String
+  createdAt         DateTime  @default(now())
+  expiresAt         DateTime  // Request expires after 24 hours
+  completedAt       DateTime?
+
+  @@index([userId])
+  @@index([verificationToken])
+  @@index([status, delayUntil])
 }
 
 model Lead {
