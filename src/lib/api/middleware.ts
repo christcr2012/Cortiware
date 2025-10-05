@@ -18,25 +18,76 @@ export function compose(...wrappers: Wrapper[]): Wrapper {
 export const rateLimitPresets = {
   api: { windowMs: 60_000, max: 60 },
   auth: { windowMs: 60_000, max: 20 },
-} as const;
+};
 
-export function withRateLimit(_preset: keyof typeof rateLimitPresets): Wrapper {
+export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
   return (handler) => async (req, ...args) => {
-    // TODO(sonnet): Integrate real limiter (KV/Redis/Upstash) keyed by audience+token(or IP)+route.
-    // - Read optional env overrides: RATE_LIMIT_API_PER_MINUTE, RATE_LIMIT_AUTH_PER_MINUTE
-    // - On limit exceeded, return jsonError(429, 'RateLimited', 'Try again later')
+    const { checkRateLimit, getRateLimitKey } = await import('@/lib/rate-limiter');
+
+    // Get config with optional env overrides
+    const config = { ...rateLimitPresets[preset] };
+    if (preset === 'api' && process.env.RATE_LIMIT_API_PER_MINUTE) {
+      config.max = parseInt(process.env.RATE_LIMIT_API_PER_MINUTE, 10);
+    }
+    if (preset === 'auth' && process.env.RATE_LIMIT_AUTH_PER_MINUTE) {
+      config.max = parseInt(process.env.RATE_LIMIT_AUTH_PER_MINUTE, 10);
+    }
+
+    // Determine identifier (cookie token or IP)
+    const jar = await cookies();
+    const identifier =
+      jar.get('rs_provider')?.value ||
+      jar.get('rs_developer')?.value ||
+      jar.get('rs_user')?.value ||
+      req.headers.get('x-forwarded-for')?.split(',')[0] ||
+      req.headers.get('x-real-ip') ||
+      'unknown';
+
+    const route = new URL(req.url).pathname;
+    const key = getRateLimitKey(preset, identifier, route);
+    const result = await checkRateLimit(key, config);
+
+    if (!result.allowed) {
+      return jsonError(429, 'RateLimited', 'Too many requests. Try again later.', {
+        resetAt: new Date(result.resetAt).toISOString(),
+      });
+    }
+
     return handler(req, ...args);
   };
 }
 
 export function withIdempotencyRequired(): Wrapper {
   return (handler) => async (req, ...args) => {
-    if (req.method === 'POST') {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
       const idem = req.headers.get('idempotency-key');
       if (!idem) return jsonError(400, 'ValidationError', 'Idempotency-Key header required');
-      // TODO(sonnet): Check and record idempotency key in durable store.
-      // - Replay semantics: identical body -> replay response; different body -> 409 conflict
-      // - TTL via IDEMPOTENCY_TTL_MINUTES; persist response envelope
+
+      const { checkIdempotency, recordIdempotency } = await import('@/lib/idempotency-store');
+      const bodyText = await req.clone().text();
+
+      const check = await checkIdempotency(idem, bodyText);
+
+      if ('replay' in check && check.replay) {
+        // Replay cached response
+        return new Response(JSON.stringify(check.response.body), {
+          status: check.response.status,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      if ('conflict' in check && check.conflict) {
+        // Different body with same key
+        return jsonError(409, 'IdempotencyConflict', 'Idempotency key already used with different request body');
+      }
+
+      // Execute handler and record response
+      const response = await handler(req, ...args);
+      const responseClone = response.clone();
+      const responseBody = await responseClone.json();
+      await recordIdempotency(idem, bodyText, { status: response.status, body: responseBody });
+
+      return response;
     }
     return handler(req, ...args);
   };
@@ -58,7 +109,15 @@ export function withProviderAuth(): Wrapper {
     const jar = await cookies();
     const token = jar.get('rs_provider')?.value || jar.get('provider-session')?.value || jar.get('ws_provider')?.value;
     if (!token) return jsonError(401, 'Unauthorized', 'Provider sign in required');
-    // TODO(sonnet): Resolve provider identity (env-based now; OIDC later)
+
+    // Attach provider identity to request (via header for downstream usage)
+    const { getRoleFromToken } = await import('@/lib/entitlements');
+    const role = getRoleFromToken(token);
+
+    // Attach identity headers to existing request
+    req.headers.set('x-federation-actor', token);
+    req.headers.set('x-federation-role', role);
+
     return handler(req, ...args);
   };
 }
@@ -69,7 +128,14 @@ export function withDeveloperAuth(): Wrapper {
     const jar = await cookies();
     const token = jar.get('rs_developer')?.value || jar.get('developer-session')?.value || jar.get('ws_developer')?.value;
     if (!token) return jsonError(401, 'Unauthorized', 'Developer sign in required');
-    // TODO(sonnet): Resolve developer identity (env-based now; OIDC later)
+
+    // Attach developer identity to request
+    const { getRoleFromToken } = await import('@/lib/entitlements');
+    const role = getRoleFromToken(token);
+
+    req.headers.set('x-federation-actor', token);
+    req.headers.set('x-federation-role', role);
+
     return handler(req, ...args);
   };
 }
