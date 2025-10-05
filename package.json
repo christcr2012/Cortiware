@@ -8,8 +8,8 @@
   "scripts": {
     "setpwd": "tsx scripts/set-password.ts",
     "dev": "next dev -p 5000",
-    "build": "next build",
-    "vercel-build": "prisma generate && prisma migrate deploy && next build",
+    "build": "npx --yes next build",
+    "vercel-build": "npx --yes prisma generate && npx --yes next build",
     "start": "next start",
     "seed": "tsx prisma/seed.ts",
     "lint": "next lint",
