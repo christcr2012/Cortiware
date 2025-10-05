@@ -22,13 +22,13 @@ export default async function LoginPage(
 
   
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)' }}>
-      <div className="max-w-md w-full bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-gray-700">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%)' }}>
+      <div className="max-w-md w-full bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-green-500/30">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
             Robinson Solutions
           </h1>
-          <p className="text-gray-400 text-sm">Sign in to your workspace</p>
+          <p className="text-green-400/70 text-sm font-mono tracking-wider">CLIENT PORTAL • SECURE ACCESS</p>
         </div>
 
         {error === 'missing' && (
@@ -53,7 +53,7 @@ export default async function LoginPage(
           <input type="hidden" name="next" value={next} />
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-green-400/90 mb-2">
               Email Address
             </label>
             <input
@@ -62,13 +62,13 @@ export default async function LoginPage(
               type="email"
               autoComplete="email"
               required
-              className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all hover:border-green-500/50"
               placeholder="you@company.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-green-400/90 mb-2">
               Password
             </label>
             <input
@@ -77,25 +77,25 @@ export default async function LoginPage(
               type="password"
               autoComplete="current-password"
               required
-              className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 bg-gray-900/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all hover:border-green-500/50"
               placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg"
+            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-green-500/20"
           >
             Sign In
           </button>
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500">
-            Robinson Solutions Platform
+          <p className="text-xs text-gray-600 font-mono">
+            ROBINSON SOLUTIONS PLATFORM
           </p>
-          <p className="text-xs text-gray-600 mt-1">
-            Client Portal • Secure Access
+          <p className="text-xs text-gray-700 mt-1 font-mono">
+            CLIENT PORTAL • SECURE ACCESS
           </p>
         </div>
       </div>
