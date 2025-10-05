@@ -37,22 +37,26 @@ CircleCI will automatically detect `.circleci/config.yml` in your repo!
 
 ---
 
-### **Step 3: Configure Triggers**
+### **Step 3: Configure Advanced Settings**
 
 1. Click on your project **"StreamFlow"**
 2. Click **"Project Settings"** (gear icon)
 3. Click **"Advanced"** in the left sidebar
-4. Configure these settings:
+4. You'll see these options - configure them:
 
 ```
-✅ Auto-cancel redundant builds: ON
-❌ Only build pull requests: OFF
-❌ Build forked pull requests: OFF
-❌ Pass secrets to builds from forked pull requests: OFF
-❌ Free and Open Source: OFF
+✅ VCS Status Updates: ON (default - leave it)
+✅ Auto-cancel redundant workflows: ON (turn this ON)
+❌ Enable dynamic config using setup workflows: OFF (leave it off)
+❌ Disable SSH Reruns for this project: OFF (leave it off)
+❌ Allow triggering pipelines with unversioned config: OFF (leave it off)
 ```
 
-5. Leave **"Only build on these branches"** EMPTY (or set to `main` to save CI minutes)
+**What to do:**
+- Turn ON: **"Auto-cancel redundant workflows"**
+- Leave everything else at default
+
+That's it! The old options (build forked PRs, etc.) are no longer in the UI.
 
 ---
 
