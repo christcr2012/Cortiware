@@ -12,7 +12,9 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:unit": "tsx tests/unit/run.ts",
+    "test:e2e": "tsx tests/e2e/run.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
