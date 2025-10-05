@@ -1,14 +1,11 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import DeveloperShellClient from './DeveloperShellClient';
+import AppShellClient from '../(app)/AppShellClient';
 
 /**
- * Layout for DEVELOPER USERS ONLY
- * 
- * CRITICAL SEPARATION:
- * - Checks developer-session cookie (NOT mv_user)
- * - Environment-based authentication (NOT database)
- * - Completely separate from client and provider systems
+ * Layout for DEVELOPER USERS
+ * Uses client-side shell with brand configuration (NOT provider green theme)
+ * Environment-based authentication
  */
 export default async function DeveloperLayout({
   children,
@@ -16,12 +13,12 @@ export default async function DeveloperLayout({
   children: React.ReactNode;
 }) {
   const cookieStore = await cookies();
-  
+
   // Require developer authentication
-  if (!cookieStore.get('developer-session')) {
+  if (!cookieStore.get('rs_developer') && !cookieStore.get('developer-session') && !cookieStore.get('ws_developer')) {
     redirect('/developer/login');
   }
-  
-  return <DeveloperShellClient>{children}</DeveloperShellClient>;
+
+  return <AppShellClient>{children}</AppShellClient>;
 }
 

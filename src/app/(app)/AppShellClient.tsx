@@ -8,7 +8,7 @@ import type { BrandConfig } from '@/lib/types/me';
 
 /**
  * Client-side shell for authenticated app pages
- * Provides sidebar navigation and top bar
+ * Uses client's brand configuration (NOT provider green theme)
  */
 export default function AppShellClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -33,7 +33,7 @@ export default function AppShellClient({ children }: { children: React.ReactNode
 
   const brandColor = validateColor(rawBrandColor);
 
-  // Dynamic styles
+  // Dynamic styles based on client's brand
   const dynamicStyles: React.CSSProperties & Record<string, string> = {};
   if (brandColor) {
     dynamicStyles['--brand'] = brandColor;

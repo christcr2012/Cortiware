@@ -22,13 +22,13 @@ export default function ProviderShellClient({ children }: { children: React.Reac
       style={{
         gridTemplateColumns: '280px 1fr',
         gridTemplateRows: '80px 1fr',
-        background: 'linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%)',
+        background: 'linear-gradient(135deg, #0a0f0d 0%, #111816 100%)',
       }}
     >
       {/* Sidebar */}
       <aside
         style={{ gridRow: '1 / span 2' }}
-        className="border-r border-green-500/20 bg-gradient-to-b from-gray-900/50 to-black/50 backdrop-blur-sm"
+        className="border-r border-green-500/20 bg-gradient-to-b from-gray-950/80 to-black/80 backdrop-blur-md"
       >
         {/* Logo */}
         <div className="h-20 flex items-center justify-center border-b border-green-500/20 px-4">

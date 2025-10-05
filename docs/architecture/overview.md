@@ -4,11 +4,27 @@ Status: Draft (GPT‑5)
 Audience: Architects, Senior Devs; Sonnet implementers
 
 ## Goals
-- Multi-portal separation: Tenant (client), Provider, Developer, Accountant
+- Two-portal separation: Client-side (tenant/accountant/developer/vendors) and Provider-side
 - App Router canonical; Pages Router quarantined under `src/_disabled`
-- Separation of auth systems (env-based for provider/developer/accountant; DB-backed for tenant)
+- Separation of auth systems (env-based for provider; DB-backed for client-side users)
 - Guardrails: rate limiting, idempotency, audience isolation
 - RS branding and cookie scheme (`rs_*`) with backward compatibility
+
+## Portal Architecture
+
+### Client-Side Portal (Brand-Configurable Theme)
+- **Users:** Tenant users, Accountants, Developers, Vendors
+- **Authentication:** Database-backed (User table) for tenants; env-based for accountants/developers
+- **Theme:** Configurable per organization (brandConfig)
+- **Shell:** `AppShellClient` with dynamic branding
+- **Routes:** `/dashboard`, `/leads`, `/contacts`, `/accountant`, `/developer`
+
+### Provider-Side Portal (Masculine Green Theme)
+- **Users:** Provider administrators only
+- **Authentication:** Environment-based (NOT database)
+- **Theme:** Fixed masculine futuristic green theme
+- **Shell:** `ProviderShellClient` with green accents
+- **Routes:** `/provider`, `/provider/clients`, `/provider/billing`
 
 ## Topology
 - Next.js 15 App Router app
