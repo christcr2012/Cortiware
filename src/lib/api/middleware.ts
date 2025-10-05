@@ -70,3 +70,13 @@ export function withDeveloperAuth(): Wrapper {
   };
 }
 
+
+// --- Testable helpers (pure) ---
+export function isFederationEnabled() { return FED_ENABLED; }
+export function extractProviderToken(getCookie: (name: string) => string | undefined) {
+  return getCookie('rs_provider') || getCookie('provider-session') || getCookie('ws_provider');
+}
+export function extractDeveloperToken(getCookie: (name: string) => string | undefined) {
+  return getCookie('rs_developer') || getCookie('developer-session') || getCookie('ws_developer');
+}
+
