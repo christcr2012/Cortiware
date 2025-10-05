@@ -75,37 +75,14 @@ export async function POST(req: NextRequest) {
   }
 
   // ============================================================================
-  // STEP 1: Check Provider Authentication
+  // AUTHENTICATION ORDER (FIXED):
+  // 1. Database Users FIRST (accountant, client users)
+  // 2. Provider (environment-based) - FALLBACK
+  // 3. Developer (environment-based) - FALLBACK
   // ============================================================================
 
-  const providerResult = await authenticateProvider(email, password);
-  if (providerResult.success) {
-    console.log(`✅ Provider login: ${email}`);
-    // Reset rate limit and log success
-    resetRateLimit(ipAddress, 'auth');
-    await logLoginSuccess('provider-system', email, ipAddress, userAgent);
-    const res = NextResponse.redirect(new URL('/provider', url), 303);
-    setCookie(res, 'rs_provider', email);
-    return res;
-  }
-
   // ============================================================================
-  // STEP 2: Check Developer Authentication
-  // ============================================================================
-
-  const developerResult = await authenticateDeveloper(email, password);
-  if (developerResult.success) {
-    console.log(`✅ Developer login: ${email}`);
-    // Reset rate limit and log success
-    resetRateLimit(ipAddress, 'auth');
-    await logLoginSuccess('developer-system', email, ipAddress, userAgent);
-    const res = NextResponse.redirect(new URL('/developer', url), 303);
-    setCookie(res, 'rs_developer', email);
-    return res;
-  }
-
-  // ============================================================================
-  // STEP 3: Check Database Users (Tenant/Accountant/Vendor)
+  // STEP 1: Check Database Users (Tenant/Accountant/Vendor) - PRIORITY
   // ============================================================================
 
   const userResult = await authenticateDatabaseUser(email, password, totpCode, recoveryCode);
@@ -121,11 +98,41 @@ export async function POST(req: NextRequest) {
     // Reset rate limit and log success
     resetRateLimit(ipAddress, 'auth');
     if (userResult.userId) {
-      await logLoginSuccess(userResult.userId, email, ipAddress, userAgent);
+      await logLoginSuccess(userResult.userId, email, ipAddress, userAgent, 'password');
     }
     const redirectUrl = userResult.redirectUrl || '/dashboard';
     const res = NextResponse.redirect(new URL(redirectUrl, url), 303);
     setCookie(res, userResult.cookieName || 'rs_user', email);
+    return res;
+  }
+
+  // ============================================================================
+  // STEP 2: Check Provider Authentication (FALLBACK)
+  // ============================================================================
+
+  const providerResult = await authenticateProvider(email, password);
+  if (providerResult.success) {
+    console.log(`✅ Provider login: ${email}`);
+    // Reset rate limit and log success
+    resetRateLimit(ipAddress, 'auth');
+    await logLoginSuccess('provider-system', email, ipAddress, userAgent, 'environment');
+    const res = NextResponse.redirect(new URL('/provider', url), 303);
+    setCookie(res, 'rs_provider', email);
+    return res;
+  }
+
+  // ============================================================================
+  // STEP 3: Check Developer Authentication (FALLBACK)
+  // ============================================================================
+
+  const developerResult = await authenticateDeveloper(email, password);
+  if (developerResult.success) {
+    console.log(`✅ Developer login: ${email}`);
+    // Reset rate limit and log success
+    resetRateLimit(ipAddress, 'auth');
+    await logLoginSuccess('developer-system', email, ipAddress, userAgent, 'environment');
+    const res = NextResponse.redirect(new URL('/developer', url), 303);
+    setCookie(res, 'rs_developer', email);
     return res;
   }
 
@@ -149,17 +156,12 @@ function setCookie(res: NextResponse, name: string, value: string) {
 }
 
 async function authenticateProvider(email: string, password: string): Promise<{ success: boolean }> {
-  // Layer 1: Environment-based (primary)
+  // Layer 1: Environment-based (primary) - NO DEV MODE for Provider
   const envUser = process.env.PROVIDER_USERNAME || process.env.PROVIDER_EMAIL;
   const envPass = process.env.PROVIDER_PASSWORD;
-  const allowAny = process.env.DEV_ACCEPT_ANY_PROVIDER_LOGIN === 'true';
-
-  if (allowAny) {
-    console.log(`🔓 DEV MODE: Provider login allowed (any credentials)`);
-    return { success: true };
-  }
 
   if (envUser && envPass && email.toLowerCase() === envUser.toLowerCase() && password === envPass) {
+    console.log(`✅ Provider environment auth: ${email}`);
     return { success: true };
   }
 

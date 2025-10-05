@@ -13,7 +13,7 @@ export default async function ProviderDashboardPage() {
 
   // Verify provider authentication
   if (!cookieStore.get('rs_provider') && !cookieStore.get('provider-session') && !cookieStore.get('ws_provider')) {
-    redirect('/provider/login');
+    redirect('/login');
   }
 
   const providerEmail = cookieStore.get('rs_provider')?.value || 

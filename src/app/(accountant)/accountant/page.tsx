@@ -12,7 +12,7 @@ export default async function AccountantDashboard() {
 
   // Verify accountant authentication
   if (!cookieStore.get('rs_accountant') && !cookieStore.get('accountant-session')) {
-    redirect('/accountant/login');
+    redirect('/login');
   }
 
   const accountantEmail = cookieStore.get('rs_accountant')?.value ||

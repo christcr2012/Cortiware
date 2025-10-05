@@ -28,7 +28,8 @@ export default async function LoginPage(
           <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
             Robinson Solutions
           </h1>
-          <p className="text-green-400/70 text-sm font-mono tracking-wider">CLIENT PORTAL • SECURE ACCESS</p>
+          <p className="text-green-400/70 text-sm font-mono tracking-wider">UNIFIED LOGIN • ALL PORTALS</p>
+          <p className="text-gray-400 text-xs mt-2">Provider • Developer • Accountant • Client Access</p>
         </div>
 
         {error === 'missing' && (

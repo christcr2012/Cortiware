@@ -12,7 +12,7 @@ export default async function DeveloperDashboard() {
 
   // Verify developer authentication
   if (!cookieStore.get('rs_developer') && !cookieStore.get('developer-session') && !cookieStore.get('ws_developer')) {
-    redirect('/developer/login');
+    redirect('/login');
   }
 
   const developerEmail = cookieStore.get('rs_developer')?.value ||

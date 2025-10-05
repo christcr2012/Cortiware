@@ -103,6 +103,7 @@ export async function logLoginSuccess(
   email: string,
   ipAddress: string,
   userAgent: string,
+  method: string = 'password',
   deviceFingerprint?: string
 ): Promise<void> {
   await logAuthEvent({
@@ -110,6 +111,7 @@ export async function logLoginSuccess(
     email,
     eventType: AuditEventType.LOGIN_SUCCESS,
     success: true,
+    method,
     ipAddress,
     userAgent,
     deviceFingerprint,
