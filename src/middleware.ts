@@ -31,9 +31,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Protected prefixes: require mv_user cookie
+  // Protected prefixes: require rs_user or mv_user cookie (legacy support)
   if (PROTECTED_PREFIXES.some((p) => pathname.startsWith(p))) {
-    const cookie = req.cookies.get("mv_user")?.value;
+    const cookie = req.cookies.get("rs_user")?.value || req.cookies.get("mv_user")?.value;
     if (!cookie) {
       const url = req.nextUrl.clone();
       url.pathname = "/login";
