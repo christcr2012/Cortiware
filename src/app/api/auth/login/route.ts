@@ -224,7 +224,24 @@ async function authenticateDatabaseUser(
   requiresTOTP?: boolean;
 }> {
 
-  // Dev escape hatches for different account types
+  // FIRST: Check if user exists in database
+  const user = await prisma.user.findUnique({
+    where: { email: email.toLowerCase() },
+  });
+
+  // If user doesn't exist in database, return false immediately
+  // This prevents dev mode from accepting non-database emails
+  if (!user) {
+    return { success: false };
+  }
+
+  // If user has PROVIDER or DEVELOPER role, skip database authentication
+  // These roles use environment-based authentication, not database
+  if (user.role === 'PROVIDER' || user.role === 'DEVELOPER') {
+    return { success: false };
+  }
+
+  // Dev escape hatches for different account types (only for users that exist in database)
   const allowAnyTenant = process.env.DEV_ACCEPT_ANY_TENANT_LOGIN === 'true';
   const allowAnyAccountant = process.env.DEV_ACCEPT_ANY_ACCOUNTANT_LOGIN === 'true';
   const allowAnyVendor = process.env.DEV_ACCEPT_ANY_VENDOR_LOGIN === 'true';
@@ -242,7 +259,7 @@ async function authenticateDatabaseUser(
 
     if (allowAnyAccountant) {
       console.log(`🔓 DEV MODE: Accountant login allowed (any credentials)`);
-      return { success: true, accountType, redirectUrl, cookieName };
+      return { success: true, accountType, redirectUrl, cookieName, userId: user.id };
     }
   } else if (emailLower.includes('vendor')) {
     accountType = 'vendor';
@@ -251,13 +268,13 @@ async function authenticateDatabaseUser(
 
     if (allowAnyVendor) {
       console.log(`🔓 DEV MODE: Vendor login allowed (any credentials)`);
-      return { success: true, accountType, redirectUrl, cookieName };
+      return { success: true, accountType, redirectUrl, cookieName, userId: user.id };
     }
   } else {
     // Tenant user (owner, admin, user)
     if (allowAnyTenant) {
       console.log(`🔓 DEV MODE: Tenant login allowed (any credentials)`);
-      return { success: true, accountType, redirectUrl, cookieName };
+      return { success: true, accountType, redirectUrl, cookieName, userId: user.id };
     }
   }
 
@@ -266,17 +283,10 @@ async function authenticateDatabaseUser(
   const envPassword = process.env.TENANT_LOGIN_PASSWORD;
 
   if (envEmail && envPassword && email === envEmail && password === envPassword) {
-    return { success: true, accountType, redirectUrl, cookieName };
+    return { success: true, accountType, redirectUrl, cookieName, userId: user.id };
   }
 
-  // Database authentication
-  const user = await prisma.user.findUnique({
-    where: { email: email.toLowerCase() },
-  });
-
-  if (!user) {
-    return { success: false };
-  }
+  // Database authentication with password verification
 
   // Check if account is locked
   if (user.isLocked && user.lockedUntil && user.lockedUntil > new Date()) {
