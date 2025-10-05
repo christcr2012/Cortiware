@@ -18,19 +18,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 // Account configurations
+// NOTE: Provider and Developer accounts are environment-based (not database-backed)
+// Only creating database accounts for roles that exist in the Prisma Role enum:
+// OWNER, MANAGER, STAFF, PROVIDER, ACCOUNTANT
 const ACCOUNTS = {
-  provider: {
-    email: 'chris.tcr.2012@gmail.com',
-    password: 'Thrillicious01no', // Will be hashed
-    name: 'Chris Robinson',
-    role: 'PROVIDER' as const,
-  },
-  developer: {
-    email: 'gametcr3@gmail.com',
-    password: 'Thrillicious01no', // Will be hashed
-    name: 'Developer Account',
-    role: 'DEVELOPER' as const,
-  },
   accountant: {
     email: 'accountant@streamflow.com',
     password: 'Thrillicious01no', // Will be hashed
@@ -151,7 +142,7 @@ async function createOrGetSystemOrg() {
         featureFlags: { systemOrg: true },
         aiMonthlyBudgetCents: 50000,
         aiCreditBalance: 10000,
-        aiPlan: 'ENTERPRISE',
+        aiPlan: 'ELITE',
         aiAlerts: {},
         brandConfig: {
           name: 'Robinson Solutions',
@@ -218,24 +209,8 @@ async function setupAccounts() {
     console.log('\n📋 Setting up TEST client organization...');
     const testOrg = await createOrGetTestOrg();
 
-    // Create system accounts (provider, developer, accountant)
-    console.log('\n📋 Creating REAL system accounts...');
-    await createAccount(
-      ACCOUNTS.provider.email,
-      ACCOUNTS.provider.password,
-      ACCOUNTS.provider.name,
-      ACCOUNTS.provider.role,
-      systemOrg.id
-    );
-
-    await createAccount(
-      ACCOUNTS.developer.email,
-      ACCOUNTS.developer.password,
-      ACCOUNTS.developer.name,
-      ACCOUNTS.developer.role,
-      systemOrg.id
-    );
-
+    // Create accountant account (system organization)
+    console.log('\n📋 Creating accountant account...');
     await createAccount(
       ACCOUNTS.accountant.email,
       ACCOUNTS.accountant.password,
@@ -273,24 +248,30 @@ async function setupAccounts() {
     console.log('\n✅ Account setup complete!\n');
     console.log('📝 Account Summary:');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    console.log('REAL System Accounts (Robinson Solutions - System):');
-    console.log(`  Provider:   ${ACCOUNTS.provider.email}`);
-    console.log(`  Developer:  ${ACCOUNTS.developer.email}`);
+    console.log('✅ DATABASE ACCOUNTS CREATED:');
+    console.log('\nSystem Account (Robinson Solutions - System):');
     console.log(`  Accountant: ${ACCOUNTS.accountant.email}`);
-    console.log('\nTEST Client Accounts (Test Client Organization):');
+    console.log('\nTest Client Accounts (Test Client Organization):');
     console.log(`  Owner:      ${ACCOUNTS.testOwner.email} / ${ACCOUNTS.testOwner.password}`);
     console.log(`  Manager:    ${ACCOUNTS.testManager.email} / ${ACCOUNTS.testManager.password}`);
     console.log(`  Staff:      ${ACCOUNTS.testStaff.email} / ${ACCOUNTS.testStaff.password}`);
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    console.log('\n📝 ENVIRONMENT-BASED ACCOUNTS (not in database):');
+    console.log('  Provider and Developer accounts are configured via .env.local:');
+    console.log('    - DEV_PROVIDER_EMAIL / DEV_PROVIDER_PASSWORD');
+    console.log('    - DEV_DEVELOPER_EMAIL / DEV_DEVELOPER_PASSWORD');
+    console.log('    - DEV_ACCEPT_ANY_PROVIDER_LOGIN=true (dev mode)');
+    console.log('    - DEV_ACCEPT_ANY_DEVELOPER_LOGIN=true (dev mode)');
     console.log('\n🔐 Security Notes:');
-    console.log('  - All passwords are hashed with bcrypt (cost factor: 12)');
+    console.log('  - All database passwords are hashed with bcrypt (cost factor: 12)');
     console.log('  - System account passwords should be changed in production');
     console.log('  - Test accounts use simple passwords for development only');
+    console.log('  - Provider/Developer accounts bypass database in dev mode');
     console.log('\n🎯 Next Steps:');
-    console.log('  1. Test login at: http://localhost:5000/provider/login');
-    console.log('  2. Test login at: http://localhost:5000/developer/login');
-    console.log('  3. Test login at: http://localhost:5000/accountant/login');
-    console.log('  4. Test login at: http://localhost:5000/login (client accounts)');
+    console.log('  1. Test Provider login at: http://localhost:5000/provider');
+    console.log('  2. Test Developer login at: http://localhost:5000/developer');
+    console.log('  3. Test Accountant login at: http://localhost:5000/accountant');
+    console.log('  4. Test Client logins at: http://localhost:5000/login');
     console.log('\n');
   } catch (error) {
     console.error('❌ Account setup failed:', error);
