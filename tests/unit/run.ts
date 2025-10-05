@@ -1,9 +1,10 @@
 import { run as runLeads } from './validation.leads.test';
 import { run as runOpps } from './validation.opportunities.test';
 import { run as runOrgs } from './validation.organizations.test';
+import { run as runFedCfg } from './federation.config.test';
 
 async function main() {
-  const results = [await runLeads(), await runOpps(), await runOrgs()];
+  const results = [await runLeads(), await runOpps(), await runOrgs(), await runFedCfg()];
   const totals = results.reduce((acc, r) => ({
     passed: acc.passed + r.passed,
     failed: acc.failed + r.failed,
