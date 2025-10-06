@@ -220,6 +220,29 @@ NODE_ENV="development"
    # Connection: redis://localhost:6379
    ```
 
+### 6. Analytics Snapshot Cron (Optional - Recommended for Production)
+
+**Purpose:** Daily analytics snapshots for MRR/ARR tracking and reporting.
+
+**Vercel Cron Setup:**
+1. Create `vercel.json` in project root:
+   ```json
+   {
+     "crons": [{
+       "path": "/api/provider/analytics/snapshot",
+       "schedule": "0 0 * * *"
+     }]
+   }
+   ```
+2. Deploy to Vercel
+3. Cron will run daily at midnight UTC
+
+**Manual Trigger (for testing):**
+```bash
+curl -X POST https://your-domain.com/api/provider/analytics/snapshot \
+  -H "Cookie: provider-session=your-session-cookie"
+```
+
 ---
 
 ## Database Setup
@@ -529,6 +552,6 @@ For issues or questions:
 
 ---
 
-**Document Status:** ✅ Current through Phase 1 & Phase 3 (Partial)  
-**Next Update:** After Phase 3 completion (Incident UI, OIDC APIs, Analytics)
+**Document Status:** ✅ Current through Phase 1 & Phase 3 (Complete)
+**Next Update:** After Phase 2 (Monorepo & Multi-Domain)
 
