@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
+import { ThemeProvider } from './providers/ThemeProvider';
 
 export const metadata: Metadata = {
   title: 'Cortiware - Workflow Management Platform',
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 /**
  * Root Layout for App Router
  * Minimal wrapper - authentication and navigation handled per route group
+ * Theme system: premium-dark (default) and premium-light with system preference detection
  */
 import { cookies } from 'next/headers';
 
@@ -20,15 +22,30 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const adminTheme = cookieStore.get('rs_admin_theme')?.value;
   const clientTheme = cookieStore.get('rs_client_theme')?.value;
-  const theme = adminTheme || clientTheme || 'futuristic-green';
-
-  // Debug logging (remove in production)
-  console.log('[RootLayout] Theme cookies:', { adminTheme, clientTheme, finalTheme: theme });
+  // Default to premium-dark for SSR; client-side ThemeProvider will handle system preference
+  const theme = adminTheme || clientTheme || 'premium-dark';
 
   return (
     <html lang="en" data-theme={theme} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const stored = localStorage.getItem('cortiware.theme');
+                  const theme = stored === 'system'
+                    ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'premium-dark' : 'premium-light')
+                    : (stored || 'premium-dark');
+                  document.documentElement.setAttribute('data-theme', theme);
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

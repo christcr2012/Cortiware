@@ -1014,3 +1014,146 @@ html, body {
   --shadow-glow: 0 0 20px rgba(168, 85, 247, 0.2);
 }
 
+
+/* ========================================
+   PREMIUM THEMES (Phase 1 - GPT-5 Spec)
+   Default production themes
+   ======================================== */
+
+/* Theme: Premium Dark (Default) - Expensive, minimal, high-contrast */
+:root[data-theme="premium-dark"],
+:root:not([data-theme]) {
+  /* Core Backgrounds - Deep neutral */
+  --bg-primary: #0B0F13;
+  --bg-secondary: #121821;
+  --bg-tertiary: #1A2230;
+  --bg-elevated: #222B3A;
+
+  /* Main gradient background */
+  --bg-main:
+    radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(68, 209, 166, 0.04), transparent 60%),
+    linear-gradient(180deg, #0B0F13 0%, #0E1318 50%, #10151A 100%);
+
+  /* Glass Morphism - Subtle */
+  --glass-bg: rgba(8, 12, 16, 0.75);
+  --glass-bg-light: rgba(18, 24, 33, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-accent: rgba(68, 209, 166, 0.25);
+
+  /* Surface Colors - Premium cards */
+  --surface-1: rgba(18, 24, 33, 0.9);
+  --surface-2: rgba(26, 34, 48, 0.95);
+  --surface-3: rgba(34, 43, 58, 0.98);
+  --surface-hover: rgba(42, 51, 66, 0.85);
+
+  /* Typography Hierarchy */
+  --text-primary: #E6EBF0;
+  --text-secondary: #B8C5D0;
+  --text-tertiary: #8B98A5;
+  --text-muted: #6E7B88;
+  --text-accent: #44D1A6;
+
+  /* Premium Brand Colors - Teal accent (AA compliant) */
+  --brand-primary: #44D1A6;
+  --brand-secondary: #36A885;
+  --brand-tertiary: #5EDBB8;
+  --brand-gradient: linear-gradient(135deg, #44D1A6 0%, #36A885 50%, #2A8A6A 100%);
+
+  /* Accent Colors */
+  --accent-success: #18C964;
+  --accent-warning: #F6C244;
+  --accent-error: #FF5C5C;
+  --accent-info: #2CF2FF;
+  --accent-purple: #A06BFF;
+
+  /* Premium Borders - Subtle */
+  --border-primary: rgba(255, 255, 255, 0.08);
+  --border-secondary: rgba(255, 255, 255, 0.05);
+  --border-accent: rgba(68, 209, 166, 0.3);
+  --border-glow: rgba(68, 209, 166, 0.5);
+
+  /* Precise Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6), 0 8px 16px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(68, 209, 166, 0.2), 0 0 40px rgba(68, 209, 166, 0.1);
+  --shadow-glow-intense: 0 0 30px rgba(68, 209, 166, 0.4), 0 0 60px rgba(68, 209, 166, 0.2);
+
+  /* Chart Colors (Recharts palette) */
+  --color-chart-1: #44D1A6;
+  --color-chart-2: #2CF2FF;
+  --color-chart-3: #A06BFF;
+  --color-chart-4: #F6C244;
+  --color-chart-5: #FF5C5C;
+  --color-chart-6: #18C964;
+}
+
+/* Theme: Premium Light - Airy, low chrome, high legibility */
+:root[data-theme="premium-light"] {
+  /* Core Backgrounds - Airy neutral */
+  --bg-primary: #F7FAFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #EDF2F7;
+  --bg-elevated: #E2E8F0;
+
+  /* Main gradient background */
+  --bg-main:
+    radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(43, 191, 149, 0.03), transparent 60%),
+    linear-gradient(180deg, #F7FAFC 0%, #FAFBFC 100%);
+
+  /* Glass Morphism - Light */
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg-light: rgba(247, 250, 252, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-border-accent: rgba(43, 191, 149, 0.3);
+
+  /* Surface Colors */
+  --surface-1: rgba(255, 255, 255, 0.95);
+  --surface-2: rgba(247, 250, 252, 0.98);
+  --surface-3: rgba(237, 242, 247, 0.98);
+  --surface-hover: rgba(226, 232, 240, 0.9);
+
+  /* Typography Hierarchy */
+  --text-primary: #0A1015;
+  --text-secondary: #2D3748;
+  --text-tertiary: #4A5568;
+  --text-muted: #718096;
+  --text-accent: #2BBF95;
+
+  /* Premium Brand Colors - Teal accent (AA on white) */
+  --brand-primary: #2BBF95;
+  --brand-secondary: #229977;
+  --brand-tertiary: #3DD9AD;
+  --brand-gradient: linear-gradient(135deg, #2BBF95 0%, #229977 50%, #1A7A5E 100%);
+
+  /* Accent Colors */
+  --accent-success: #16A34A;
+  --accent-warning: #D97706;
+  --accent-error: #DC2626;
+  --accent-info: #0891B2;
+  --accent-purple: #7C3AED;
+
+  /* Premium Borders */
+  --border-primary: rgba(0, 0, 0, 0.1);
+  --border-secondary: rgba(0, 0, 0, 0.06);
+  --border-accent: rgba(43, 191, 149, 0.4);
+  --border-glow: rgba(43, 191, 149, 0.6);
+
+  /* Precise Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(43, 191, 149, 0.15), 0 0 40px rgba(43, 191, 149, 0.08);
+  --shadow-glow-intense: 0 0 30px rgba(43, 191, 149, 0.25), 0 0 60px rgba(43, 191, 149, 0.12);
+
+  /* Chart Colors (Recharts palette - adjusted for light) */
+  --color-chart-1: #2BBF95;
+  --color-chart-2: #0891B2;
+  --color-chart-3: #7C3AED;
+  --color-chart-4: #D97706;
+  --color-chart-5: #DC2626;
+  --color-chart-6: #16A34A;
+}
+
