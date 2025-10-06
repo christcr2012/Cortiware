@@ -1,0 +1,279 @@
+// Minimal App Router middleware wrappers (no external deps)
+// These provide a clean composition model for auth, rate limiting, and idempotency.
+// TODO(sonnet): Wire to real implementations in src/middleware/* or upstream infra.
+
+import type { NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
+import { jsonError } from '@/lib/api/response';
+import { FED_ENABLED } from '@/lib/config/federation';
+
+export type Handler = (req: NextRequest, ...args: any[]) => Promise<Response> | Response;
+
+export type Wrapper = (h: Handler) => Handler;
+
+export function compose(...wrappers: Wrapper[]): Wrapper {
+  return (handler) => wrappers.reduceRight((acc, w) => w(acc), handler);
+}
+
+/**
+ * Rate Limit Presets per GUARDRAILS_INFRA.md
+ *
+ * - AUTH: 10s window, 20 requests (login/signup protection)
+ * - API: 60s window, 100 requests (general API calls)
+ * - ANALYTICS: 600s window, 1000 requests (high-volume analytics)
+ */
+export const rateLimitPresets = {
+  auth: { windowMs: 10_000, max: 20 },
+  api: { windowMs: 60_000, max: 100 },
+  analytics: { windowMs: 600_000, max: 1000 },
+};
+
+/**
+ * Rate Limiting Wrapper
+ *
+ * Applies rate limiting per GUARDRAILS_INFRA.md spec:
+ * - Token bucket algorithm
+ * - Proper 429 response headers (Retry-After, X-RateLimit-*)
+ * - Key format: rate:${preset}:${identifier}:${route}
+ *
+ * @param preset - Rate limit preset (auth, api, analytics)
+ * @returns Wrapper function
+ */
+export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
+  return (handler) => async (req, ...args) => {
+    const { checkRateLimit, getRateLimitKey, getRateLimitHeaders } = await import('@/lib/rate-limiter');
+
+    // Get config with optional env overrides
+    const config = { ...rateLimitPresets[preset] };
+    if (preset === 'api' && process.env.RATE_LIMIT_API_PER_MINUTE) {
+      config.max = parseInt(process.env.RATE_LIMIT_API_PER_MINUTE, 10);
+    }
+    if (preset === 'auth' && process.env.RATE_LIMIT_AUTH_PER_MINUTE) {
+      config.max = parseInt(process.env.RATE_LIMIT_AUTH_PER_MINUTE, 10);
+    }
+    if (preset === 'analytics' && process.env.RATE_LIMIT_ANALYTICS_PER_10MIN) {
+      config.max = parseInt(process.env.RATE_LIMIT_ANALYTICS_PER_10MIN, 10);
+    }
+
+    // Determine identifier (cookie token or IP)
+    let identifier: string | null = null;
+    try {
+      const jar = await cookies();
+      identifier =
+        jar.get('rs_provider')?.value ||
+        jar.get('rs_developer')?.value ||
+        jar.get('rs_user')?.value ||
+        null;
+    } catch {
+      // Not in Next request scope (tests)
+      identifier = null;
+    }
+    if (!identifier) {
+      identifier =
+        req.headers.get('x-forwarded-for')?.split(',')[0] ||
+        req.headers.get('x-real-ip') ||
+        'unknown';
+    }
+
+    const route = new URL(req.url).pathname;
+    const key = getRateLimitKey(preset, identifier, route);
+    const result = await checkRateLimit(key, config);
+
+    // Add rate limit headers to response
+    const rateLimitHeaders = getRateLimitHeaders(result);
+
+    if (!result.allowed) {
+      // 429 Too Many Requests with proper headers
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: 'RATE_LIMIT',
+            message: 'Too many requests. Please try again later.',
+            resetAt: new Date(result.resetAt).toISOString(),
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            ...rateLimitHeaders,
+          },
+        }
+      );
+    }
+
+    // Execute handler and add rate limit headers to successful response
+    const response = await handler(req, ...args);
+
+    // Clone response to add headers
+    const newResponse = new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: new Headers(response.headers),
+    });
+
+    // Add rate limit headers
+    Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+      newResponse.headers.set(key, value);
+    });
+
+    return newResponse;
+  };
+}
+
+export function withIdempotencyRequired(): Wrapper {
+  return (handler) => async (req, ...args) => {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+      const idem = req.headers.get('idempotency-key');
+      if (!idem) return jsonError(400, 'ValidationError', 'Idempotency-Key header required');
+
+      const { checkIdempotency, recordIdempotency } = await import('@/lib/idempotency-store');
+      const bodyText = await req.clone().text();
+
+      const check = await checkIdempotency(idem, bodyText);
+
+      if ('replay' in check && check.replay) {
+        // Replay cached response
+        return new Response(JSON.stringify(check.response.body), {
+          status: check.response.status,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+
+      if ('conflict' in check && check.conflict) {
+        // Different body with same key
+        return jsonError(409, 'IdempotencyConflict', 'Idempotency key already used with different request body');
+      }
+
+      // Execute handler and record response
+      const response = await handler(req, ...args);
+      const responseClone = response.clone();
+      const responseBody = await responseClone.json();
+      await recordIdempotency(idem, bodyText, { status: response.status, body: responseBody });
+
+      return response;
+    }
+    return handler(req, ...args);
+  };
+}
+
+export function withTenantAuth(): Wrapper {
+  return (handler) => async (req, ...args) => {
+    const jar = await cookies();
+    const email = jar.get('rs_user')?.value || jar.get('mv_user')?.value;
+    if (!email) return jsonError(401, 'Unauthorized', 'Sign in required');
+    // TODO(sonnet): Load user + orgId and attach via request attribute or header for downstream usage
+    return handler(req, ...args);
+  };
+}
+
+export function withProviderAuth(): Wrapper {
+  return (handler) => async (req, ...args) => {
+    if (!FED_ENABLED) return jsonError(404, 'NotFound', 'Federation disabled');
+
+    const jar = await cookies();
+    const { FED_OIDC_ENABLED } = await import('@/lib/config/federation');
+
+    let actor: string | null = null;
+    let role: string | null = null;
+
+    // Try OIDC first if enabled
+    if (FED_OIDC_ENABLED) {
+      const oidcToken = jar.get('oidc_session')?.value;
+      if (oidcToken) {
+        const { validateOIDCSession } = await import('@/lib/oidc');
+        const session = await validateOIDCSession(oidcToken);
+        if (session) {
+          actor = session.sub;
+          role = session.roles?.[0] || 'provider-viewer';
+        }
+      }
+    }
+
+    // Fall back to env-based auth
+    if (!actor) {
+      const token = jar.get('rs_provider')?.value || jar.get('provider-session')?.value || jar.get('ws_provider')?.value;
+      if (!token) return jsonError(401, 'Unauthorized', 'Provider sign in required');
+
+      const { getRoleFromToken } = await import('@/lib/entitlements');
+      actor = token;
+      role = getRoleFromToken(token);
+    }
+
+    // Attach identity headers to existing request
+    req.headers.set('x-federation-actor', actor);
+    req.headers.set('x-federation-role', role || 'provider-viewer');
+
+    return handler(req, ...args);
+  };
+}
+
+export function withDeveloperAuth(): Wrapper {
+  return (handler) => async (req, ...args) => {
+    if (!FED_ENABLED) return jsonError(404, 'NotFound', 'Federation disabled');
+
+    const jar = await cookies();
+    const { FED_OIDC_ENABLED } = await import('@/lib/config/federation');
+
+    let actor: string | null = null;
+    let role: string | null = null;
+
+    // Try OIDC first if enabled
+    if (FED_OIDC_ENABLED) {
+      const oidcToken = jar.get('oidc_session')?.value;
+      if (oidcToken) {
+        const { validateOIDCSession } = await import('@/lib/oidc');
+        const session = await validateOIDCSession(oidcToken);
+        if (session) {
+          actor = session.sub;
+          role = session.roles?.[0] || 'developer';
+        }
+      }
+    }
+
+    // Fall back to env-based auth
+    if (!actor) {
+      const token = jar.get('rs_developer')?.value || jar.get('developer-session')?.value || jar.get('ws_developer')?.value;
+      if (!token) return jsonError(401, 'Unauthorized', 'Developer sign in required');
+
+      const { getRoleFromToken } = await import('@/lib/entitlements');
+      actor = token;
+      role = getRoleFromToken(token);
+    }
+
+    req.headers.set('x-federation-actor', actor);
+    req.headers.set('x-federation-role', role || 'developer');
+
+    return handler(req, ...args);
+  };
+}
+
+
+// --- Testable helpers (pure) ---
+export function isFederationEnabled() { return FED_ENABLED; }
+export function extractProviderToken(getCookie: (name: string) => string | undefined) {
+  return getCookie('rs_provider') || getCookie('provider-session') || getCookie('ws_provider');
+}
+export function extractDeveloperToken(getCookie: (name: string) => string | undefined) {
+  return getCookie('rs_developer') || getCookie('developer-session') || getCookie('ws_developer');
+}
+
+
+
+
+/**
+ * HMAC Authentication Wrapper
+ *
+ * Re-export from hmac/with-hmac-auth for convenience.
+ * Validates HMAC signatures for machine-to-provider requests.
+ */
+export { withHmacAuth } from '@/lib/hmac/with-hmac-auth';
+
+/**
+ * Audit Logging Wrapper
+ *
+ * Re-export from audit/with-audit-log for convenience.
+ * Automatically logs audit events with correlation IDs.
+ */
+export { withAuditLog } from '@/lib/audit/with-audit-log';
