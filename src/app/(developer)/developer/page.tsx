@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { getDeveloperStats, getSystemDiagnostics } from '@/services/developer/stats.service';
 
 /**
  * Developer Dashboard - System Development & Testing
@@ -19,6 +20,10 @@ export default async function DeveloperDashboard() {
                          cookieStore.get('developer-session')?.value ||
                          cookieStore.get('ws_developer')?.value ||
                          'developer@system';
+
+  // Fetch real statistics
+  const stats = await getDeveloperStats();
+  const diagnostics = await getSystemDiagnostics();
 
   return (
     <div
@@ -70,7 +75,7 @@ export default async function DeveloperDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>0</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.apiCallsToday}</span>
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>API Calls Today</p>
           </div>
@@ -92,12 +97,12 @@ export default async function DeveloperDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>0</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.testRuns}</span>
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Test Runs</p>
           </div>
 
-          {/* Build Status */}
+          {/* System Status */}
           <div
             className="backdrop-blur-sm rounded-xl p-6 transition-all"
             style={{
@@ -114,12 +119,12 @@ export default async function DeveloperDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="text-sm font-bold" style={{ color: 'var(--brand-primary)' }}>PASSING</span>
+              <span className="text-sm font-bold uppercase" style={{ color: 'var(--brand-primary)' }}>{stats.systemStatus}</span>
             </div>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Build Status</p>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>System Status</p>
           </div>
 
-          {/* System Load */}
+          {/* Active Endpoints */}
           <div
             className="backdrop-blur-sm rounded-xl p-6 transition-all"
             style={{
@@ -136,9 +141,9 @@ export default async function DeveloperDashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>12%</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.activeEndpoints}</span>
             </div>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>System Load</p>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active Endpoints</p>
           </div>
         </div>
 
@@ -185,7 +190,7 @@ export default async function DeveloperDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
+        {/* System Diagnostics */}
         <div
           className="backdrop-blur-sm rounded-xl p-6"
           style={{
@@ -193,27 +198,41 @@ export default async function DeveloperDashboard() {
             border: '1px solid var(--border-accent)',
           }}
         >
-          <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--brand-primary)' }}>Recent Activity</h2>
+          <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--brand-primary)' }}>System Diagnostics</h2>
           <div className="space-y-3">
-            <div
-              className="flex items-center justify-between p-3 rounded-lg"
-              style={{ background: 'var(--surface-2)' }}
-            >
-              <div className="flex items-center space-x-3">
-                <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: 'var(--brand-primary)' }}
-                ></div>
-                <div>
-                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>Developer login successful</p>
-                  <p className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>{developerEmail}</p>
+            {diagnostics.map((diagnostic) => (
+              <div
+                key={diagnostic.id}
+                className="flex items-center justify-between p-3 rounded-lg"
+                style={{ background: 'var(--surface-2)' }}
+              >
+                <div className="flex items-center space-x-3">
+                  <div
+                    className="w-2 h-2 rounded-full"
+                    style={{
+                      backgroundColor: diagnostic.status === 'healthy'
+                        ? 'rgb(34, 197, 94)'
+                        : diagnostic.status === 'warning'
+                        ? 'rgb(234, 179, 8)'
+                        : 'rgb(239, 68, 68)'
+                    }}
+                  ></div>
+                  <div>
+                    <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{diagnostic.component}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{diagnostic.message}</p>
+                  </div>
                 </div>
+                <span className="text-xs uppercase font-mono" style={{
+                  color: diagnostic.status === 'healthy'
+                    ? 'rgb(34, 197, 94)'
+                    : diagnostic.status === 'warning'
+                    ? 'rgb(234, 179, 8)'
+                    : 'rgb(239, 68, 68)'
+                }}>
+                  {diagnostic.status}
+                </span>
               </div>
-              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Just now</span>
-            </div>
-            <div className="text-center py-8" style={{ color: 'var(--text-tertiary)' }}>
-              <p className="text-sm">No recent activity</p>
-            </div>
+            ))}
           </div>
         </div>
       </div>
