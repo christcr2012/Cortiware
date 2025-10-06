@@ -149,6 +149,7 @@ export default function ProviderShellClient({ children }: { children: React.Reac
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <NotificationsBell />
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               Cross-Client Management
             </div>
@@ -172,6 +173,55 @@ export default function ProviderShellClient({ children }: { children: React.Reac
       <main className="p-6 overflow-auto">
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
+    </div>
+  );
+}
+
+function NotificationsBell() {
+  const [open, setOpen] = (require('react') as typeof import('react')).useState(false);
+  const [items, setItems] = (require('react') as typeof import('react')).useState<Array<{ id: string; title: string; severity: string }>>([]);
+  const [loading, setLoading] = (require('react') as typeof import('react')).useState(false);
+  (require('react') as typeof import('react')).useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    fetch('/api/provider/notifications?limit=6')
+      .then((r) => r.json())
+      .then((j) => setItems(j.items || []))
+      .finally(() => setLoading(false));
+  }, [open]);
+  return (
+    <div className="relative">
+      <button
+        aria-label="Notifications"
+        onClick={() => setOpen((v: boolean) => !v)}
+        className="w-9 h-9 rounded-lg flex items-center justify-center"
+        style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)', color: 'var(--brand-primary)' }}
+      >
+        bell
+      </button>
+      {open && (
+        <div className="absolute right-0 mt-2 w-80 rounded-xl shadow-lg z-50"
+          style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)', backdropFilter: 'blur(10px)' }}
+        >
+          <div className="p-3 border-b" style={{ borderColor: 'var(--border-accent)' }}>
+            <div className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Notifications</div>
+          </div>
+          <div className="max-h-96 overflow-auto">
+            {loading ? (
+              <div className="p-4 text-sm" style={{ color: 'var(--text-secondary)' }}>Loading...</div>
+            ) : items.length === 0 ? (
+              <div className="p-4 text-sm" style={{ color: 'var(--text-secondary)' }}>No notifications</div>
+            ) : (
+              items.map((n) => (
+                <div key={n.id} className="p-3 border-b" style={{ borderColor: 'var(--border-accent)' }}>
+                  <div className="text-sm" style={{ color: 'var(--text-primary)' }}>{n.title}</div>
+                  <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{n.severity}</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

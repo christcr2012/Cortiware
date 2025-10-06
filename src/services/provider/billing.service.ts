@@ -225,13 +225,22 @@ export async function getDunningQueue(): Promise<Array<{
   });
   const orgMap = new Map(orgs.map(o => [o.id, o.name]));
 
+  // Compute attempt counts per invoice (retry-* references)
+  const invoiceIds = invoices.map(i => i.id);
+  const attempts = await prisma.payment.findMany({
+    where: { invoiceId: { in: invoiceIds }, reference: { startsWith: 'retry-' } },
+    select: { invoiceId: true },
+  });
+  const attemptMap = new Map<string, number>();
+  for (const a of attempts) attemptMap.set(a.invoiceId!, (attemptMap.get(a.invoiceId!) || 0) + 1);
+
   return invoices.map((inv) => ({
     invoiceId: inv.id,
     orgId: inv.orgId,
     orgName: orgMap.get(inv.orgId) || 'Unknown',
     amountCents: Math.round(parseFloat(inv.amount.toString()) * 100),
     dueDate: inv.issuedAt.toISOString(),
-    attemptCount: 0, // TODO: Add attempt tracking
+    attemptCount: attemptMap.get(inv.id) || 0,
   }));
 }
 

@@ -1,11 +1,13 @@
 # GPT-5 Next Phase Handoff Document
 
-**Date**: 2025-10-06  
-**From**: Sonnet 4.5  
-**To**: GPT-5  
+**Date**: 2025-10-06
+**From**: Sonnet 4.5
+**To**: GPT-5
 **Status**: Provider Portal Core Complete - Ready for Next Phase
 
 ---
+- New: Provider Control Center Blueprint → Reference/PROVIDER_CONTROL_CENTER_BLUEPRINT.md
+
 
 ## Executive Summary
 
@@ -23,6 +25,21 @@ Sonnet 4.5 has successfully completed the Provider Portal core implementation as
 - Next.js build (successful)
 
 ---
+
+### New in this session (by GPT‑5)
+- Provider: Dunning retry engine implemented
+  - Service: src/services/provider/dunning.service.ts (off-session Stripe retries)
+  - Routes: POST /api/provider/billing/retry (single), POST /api/provider/billing/retry/run (batch)
+- Provider: Invoice PDF export implemented
+  - Service: exportInvoicePdfBuffer in src/services/provider/invoices.service.ts
+  - Route: GET /api/provider/invoices/[id]/pdf
+  - Billing page renders HTML preview + PDF link
+- Owner Portal: scaffolded end-to-end
+  - Shell/Layout: src/app/(owner)
+  - Routes: /owner, /owner/subscription, /owner/billing, /owner/usage, /owner/addons, /owner/team, /owner/security, /owner/api, /owner/incidents, /owner/support, /owner/settings, /owner/theme
+  - Blueprint: Reference/OWNER_PORTAL_BLUEPRINT.md (full IA, contracts, guardrails)
+- Auth: Owner-only guard helper added at src/lib/auth-owner.ts (isOwner, assertOwnerOr403)
+
 
 ## What Sonnet 4.5 Built
 
@@ -181,6 +198,14 @@ Created 2 new ingestion endpoints:
    - Idempotency: Full conflict detection with 409 responses
 
 2. **POST /api/federation/usage**
+
+### Added this session: Monetization Blueprint
+See Reference/MONETIZATION_BLUEPRINT.md
+- Data models for plans/prices/offers/overrides/global config/invites
+- Provider APIs and UI to manage monetization
+- Onboarding token flow and owner onboarding route
+- Provider KPIs with deep-links
+
    - Usage data ingestion
    - Creates UsageMeter records
    - Validates window start/end timestamps
@@ -623,6 +648,15 @@ F. **Invoice Generation**
 4. **Specify** the Payment Processor Integration
 5. **Create** detailed implementation plans for Sonnet 4.5
 6. **Document** architecture decisions and patterns
+
+### Next Actions for Sonnet 4.5 (Owner + Provider UI)
+- Owner Subscription: wire UI button to POST /api/owner/subscription/portal and handle redirect to portal URL
+- Owner Usage: wire CSV export button to GET /api/owner/usage/export?orgId=..., render getUsageSummary() chart
+- Owner Billing: render invoices/payments list and link to /api/provider/invoices/[id]/pdf for downloads
+- Owner Enforcement: apply src/lib/auth-owner.assertOwnerOr403 in new /api/owner/* routes and hide owner-only controls when not owner
+- Provider Billing: upgrade dunning row status badges and add inline toast summary for batch run results
+- Tests: add unit tests for auth-owner and owner services; integration tests asserting owner-only access on new routes
+
 7. **Update** handoff documents with new specifications
 
 ---
@@ -633,8 +667,8 @@ All code is in the `main` branch of the GitHub repository.
 Progress tracking is in `Reference/SONNET_PROGRESS_TRACKER.md`.
 Original specifications are in `Reference/Provider/` directory.
 
-**Build Status**: ✅ Passing  
-**TypeScript**: ✅ 0 errors  
+**Build Status**: ✅ Passing
+**TypeScript**: ✅ 0 errors
 **Deployment**: ✅ Ready for Vercel
 
 ---

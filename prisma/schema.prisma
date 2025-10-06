@@ -16,7 +16,7 @@ model Org {
   updatedAt    DateTime @updatedAt
 
   // AI Cost Control & Monetization - PROVIDER MODEL
-  aiMonthlyBudgetCents Int      @default(5000)  // $50 provider cost limit  
+  aiMonthlyBudgetCents Int      @default(5000)  // $50 provider cost limit
   aiCreditBalance     Int      @default(1000)   // 1k credits = $50 worth (1 credit = $0.05 client-facing)
   aiPlan              AiPlan   @default(BASE)   // Client subscription tier
   aiAlerts            Json     @default("{}")   // Usage alert thresholds
@@ -52,6 +52,9 @@ model Org {
   subscriptions   Subscription[]   @relation("OrgSubscriptions")
   usageMeters     UsageMeter[]     @relation("OrgUsageMeters")
   addonPurchases  AddonPurchase[]  @relation("OrgAddonPurchases")
+
+  incidents      Incident[]      @relation("OrgIncidents")
+  notifications  Notification[]  @relation("OrgNotifications")
 
   /// brandConfig stores white-label brand settings such as name, colors, and logo URL.
   /// It is JSON to allow arbitrary keys like { name: "Mountain Vista", color: "#123456", logoUrl: "https://..." }
@@ -370,6 +373,7 @@ model Invoice {
   status     String   @default("draft")
   issuedAt   DateTime @default(now())
   items      Json     @default("[]")
+  lineItems  InvoiceLine[]
 
   customer Customer? @relation(fields: [customerId], references: [id])
   org      Org       @relation(fields: [orgId], references: [id])
@@ -385,8 +389,20 @@ model Payment {
   receivedAt DateTime @default(now())
   reference  String?
 
+  // Enhancements for Stripe/dunning
+  status                 String   @default("succeeded") // 'pending' | 'succeeded' | 'failed' | 'refunded'
+  stripePaymentIntentId  String?
+  stripeChargeId         String?
+  failureReason          String?
+  retryCount             Int      @default(0)
+  lastRetryAt            DateTime?
+
   invoice Invoice? @relation(fields: [invoiceId], references: [id])
   org     Org      @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, status])
+  @@index([stripePaymentIntentId])
+  @@index([stripeChargeId])
 }
 
 model Rfp {
@@ -659,7 +675,7 @@ enum LeadStatus {
 // AI Plan Tiers for Monetization - CLIENT SUBSCRIPTION TIERS
 enum AiPlan {
   BASE    // MVP: Free lead generation, $100/conversion only
-  PRO     // $97/month: Advanced AI, unlimited leads, priority support  
+  PRO     // $97/month: Advanced AI, unlimited leads, priority support
   ELITE   // $297/month: Market intelligence, priority RFPs, dedicated support
 }
 
@@ -685,7 +701,7 @@ model AiUsageEvent {
 
 // Monthly AI usage rollups for dashboard and billing
 model AiMonthlySummary {
-  id          String   @id @default(cuid()) 
+  id          String   @id @default(cuid())
   orgId       String
   monthKey    String   // Format: "2025-01" for January 2025
   tokensIn    Int      @default(0)
@@ -810,4 +826,88 @@ model FederationKey {
 
   @@index([tenantId, scope])
   @@index([keyId, disabledAt])
+}
+
+// ============================================================================
+// PROVIDER CONTROL CENTER - NEW MODELS (GPT-5)
+// ============================================================================
+
+/// Incident lifecycle tracking with SLA fields
+model Incident {
+  id                   String   @id @default(cuid())
+  orgId                String
+  severity             IncidentSeverity
+  status               IncidentStatus    @default(OPEN)
+  title                String
+  description          String
+  assigneeUserId       String?
+  slaResponseDeadline  DateTime?
+  slaResolveDeadline   DateTime?
+  acknowledgedAt       DateTime?
+  resolvedAt           DateTime?
+  closedAt             DateTime?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  org Org @relation("OrgIncidents", fields: [orgId], references: [id])
+
+  @@index([orgId, status, createdAt])
+  @@index([orgId, severity])
+}
+
+/// InvoiceLine ties granular charges to Invoices
+model InvoiceLine {
+  id              String   @id @default(cuid())
+  invoiceId       String
+  description     String
+  lineType        InvoiceLineType
+  quantity        Int      @default(1)
+  unitPriceCents  Int
+  amountCents     Int
+  sourceType      String?
+  sourceId        String?
+  createdAt       DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([sourceType, sourceId])
+}
+
+/// Provider in-app notifications
+model Notification {
+  id        String   @id @default(cuid())
+  orgId     String?
+  audience  String   // 'provider' | 'developer'
+  type      String
+  title     String
+  body      String
+  severity  String   // 'info' | 'warning' | 'error'
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  org Org? @relation("OrgNotifications", fields: [orgId], references: [id])
+
+  @@index([orgId, createdAt])
+}
+
+enum IncidentSeverity {
+  P1
+  P2
+  P3
+}
+
+enum IncidentStatus {
+  OPEN
+  ACK
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum InvoiceLineType {
+  subscription
+  usage
+  addon
+  one_time
 }
