@@ -232,6 +232,210 @@ Created 3 production-ready scripts with dry-run support:
 
 ## What GPT-5 Should Build Next
 
+### CRITICAL PRIORITY: Make Provider Portal Fully Functional
+
+**Goal**: Design everything needed to make the current provider portal pages actually work end-to-end with real data flow.
+
+#### 1. Stripe Payment Processing Integration (HIGHEST PRIORITY)
+
+**Context**: Provider-side payment processing will use Stripe. Stripe credentials are already configured in `.env.local`.
+
+**Environment Variables (Already Configured in .env.local)**:
+- `STRIPE_SECRET_KEY` - Stripe test secret key (sk_test_...)
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe test publishable key (pk_test_...)
+- `STRIPE_WEBHOOK_SECRET` - Webhook signing secret (whsec_...)
+
+**Note**: These are TEST mode keys. For production deployment, replace with LIVE mode keys from Stripe dashboard.
+
+**Stripe Account Details**:
+- Account ID: acct_1RzjtY7lvYBvNgEX (visible in Stripe dashboard)
+- Test mode is enabled
+- Webhook endpoint needs to be configured in Stripe dashboard: `https://your-domain.vercel.app/api/webhooks/stripe`
+
+**Design Requirements**:
+
+A. **Stripe Service Layer** (`src/services/provider/stripe.service.ts`)
+   - Initialize Stripe client with secret key
+   - Create customer in Stripe when org is created
+   - Create subscription in Stripe → sync to local Subscription model
+   - Create usage records in Stripe → sync to local UsageMeter model
+   - Process one-time charges → sync to local AddonPurchase model
+   - Handle payment intents and payment methods
+   - Implement retry logic for failed API calls
+
+B. **Webhook Handler** (`src/app/api/webhooks/stripe/route.ts`)
+   - Verify webhook signature using STRIPE_WEBHOOK_SECRET
+   - Handle events:
+     * `customer.subscription.created` → create Subscription record
+     * `customer.subscription.updated` → update Subscription record
+     * `customer.subscription.deleted` → mark Subscription as canceled
+     * `invoice.payment_succeeded` → create Payment record
+     * `invoice.payment_failed` → trigger dunning workflow
+     * `charge.refunded` → update AddonPurchase status
+   - Create Activity records for all events
+   - Idempotent processing (check if event already processed)
+
+C. **Payment Model Enhancement**
+   - Add `status` field: 'pending' | 'succeeded' | 'failed' | 'refunded'
+   - Add `stripePaymentIntentId` field
+   - Add `stripeChargeId` field
+   - Add `failureReason` field
+   - Add `retryCount` field
+   - Add `lastRetryAt` field
+   - Add indexes for Stripe IDs
+
+D. **Subscription Sync Service**
+   - Bidirectional sync: Stripe ↔ Local DB
+   - Handle plan changes (upgrade/downgrade)
+   - Handle trial periods
+   - Calculate MRR/ARR from Stripe data
+   - Sync billing cycles and renewal dates
+
+E. **Usage Metering Integration**
+   - Report usage to Stripe Billing Meters API
+   - Sync usage records from Stripe → UsageMeter model
+   - Handle rating and invoicing through Stripe
+   - Support multiple meter types (API calls, storage, etc.)
+
+F. **Invoice Generation**
+   - Create invoices in Stripe
+   - Sync invoice data to local Invoice model
+   - Add `stripeInvoiceId` field to Invoice model
+   - Generate invoice line items from:
+     * Subscription charges
+     * Usage-based charges (from UsageMeter)
+     * One-time charges (from AddonPurchase)
+   - Handle invoice finalization and payment collection
+
+#### 2. Complete Data Flow for Each Provider Portal Page
+
+**A. /provider/subscriptions Page**
+- Design: How subscriptions are created (Stripe API → local DB)
+- Design: How plan changes are processed (Stripe API → webhook → local DB)
+- Design: How cancellations work (Stripe API → webhook → local DB)
+- Design: How MRR/ARR calculations stay accurate (real-time vs cached)
+- Design: How trial periods are tracked and converted
+- Implement: Subscription creation UI (if needed for testing)
+- Implement: Plan change workflow
+- Implement: Cancellation workflow with reason tracking
+
+**B. /provider/usage Page**
+- Design: How usage data flows: Client → Federation API → UsageMeter → Stripe
+- Design: Rating configuration (price per unit by meter type)
+- Design: Billing cycle alignment (monthly, daily, real-time)
+- Design: Usage aggregation and reporting
+- Implement: Rating configuration UI
+- Implement: Manual usage adjustment UI (for corrections)
+- Implement: Usage export functionality
+
+**C. /provider/addons Page**
+- Design: How one-time purchases are created (Stripe Checkout → webhook → AddonPurchase)
+- Design: SKU catalog management (where SKUs are defined)
+- Design: Refund workflow (Stripe API → webhook → AddonPurchase update)
+- Design: Revenue attribution (which stream does each SKU belong to)
+- Implement: SKU catalog management UI
+- Implement: Manual charge creation UI
+- Implement: Refund processing UI
+
+**D. /provider/incidents Page**
+- Design: Dedicated Incident model (vs Activity placeholder)
+- Design: Incident lifecycle (open → ack → in_progress → resolved → closed)
+- Design: SLA definitions (response time, resolution time by severity)
+- Design: Escalation rules (auto-escalate after X hours)
+- Design: Incident-to-org relationships (which org reported it)
+- Design: Incident-to-user assignments (who's working on it)
+- Implement: Incident creation form
+- Implement: Incident detail view with timeline
+- Implement: SLA configuration UI
+- Implement: Escalation workflow
+
+**E. /provider/audit Page**
+- Design: What events should be audited (all DB writes? API calls?)
+- Design: Audit log retention policy (how long to keep logs)
+- Design: Search and filter capabilities (by user, entity, date range)
+- Design: Export functionality (CSV, JSON)
+- Implement: Advanced search UI
+- Implement: Audit log export
+- Implement: Audit log retention job
+
+**F. /provider/billing Page (Enhancement)**
+- Design: Revenue by stream visualization (chart/graph)
+- Design: Unbilled leads tracking (leads not yet converted to invoices)
+- Design: AI cost reconciliation (AiUsageEvent → billing)
+- Design: Payment reconciliation (Stripe payments → local Payment records)
+- Implement: Revenue stream breakdown chart
+- Implement: Unbilled leads report
+- Implement: AI cost allocation report
+
+**G. /provider/analytics Page (Enhancement)**
+- Design: Trend analysis (revenue, users, usage over time)
+- Design: Funnel visualization (lead → qualified → converted)
+- Design: Cohort analysis (retention by signup month)
+- Design: Revenue mix chart (by stream)
+- Implement: Interactive charts (using Chart.js or similar)
+- Implement: Date range selector
+- Implement: Export to CSV/Excel
+
+#### 3. Background Jobs Integration with Stripe
+
+**A. Nightly Rating Job Enhancement**
+- Integrate with Stripe Billing Meters API
+- Create invoice line items in Stripe (not just local DB)
+- Handle rating errors and retries
+- Send notifications on rating completion
+
+**B. Dunning Retries Job Enhancement**
+- Integrate with Stripe payment retry API
+- Send dunning emails via SendGrid/AWS SES
+- Track retry attempts in Payment model
+- Escalate to manual review after final retry
+- Create Activity records for each retry
+
+**C. Monthly AI Rollups Job Enhancement**
+- Calculate AI cost allocation per org
+- Create invoices for AI usage (if applicable)
+- Sync AI costs to Stripe as line items
+- Generate AI usage reports
+
+#### 4. Notification System
+
+**Design Requirements**:
+- Email notifications for:
+  * Payment succeeded
+  * Payment failed (dunning)
+  * Subscription created/canceled
+  * Invoice generated
+  * Incident created/escalated
+  * SLA breach
+- In-app notifications (bell icon in provider portal)
+- Notification preferences (per provider user)
+- Email templates (using SendGrid dynamic templates)
+
+**Implementation**:
+- Create `src/services/notifications.service.ts`
+- Create email templates in SendGrid
+- Create Notification model for in-app notifications
+- Create notification preferences UI
+
+#### 5. Invoice Line Items System
+
+**Design Requirements**:
+- Create InvoiceLine model:
+  * `id`, `invoiceId`, `description`, `quantity`, `unitPrice`, `amount`
+  * `lineType`: 'subscription' | 'usage' | 'addon' | 'one_time'
+  * `sourceId`: ID of source record (Subscription, UsageMeter, AddonPurchase)
+  * `createdAt`
+- Rating job creates invoice lines from UsageMeter records
+- Subscription charges create invoice lines automatically
+- Addon purchases create invoice lines on purchase
+- Invoice finalization sums all lines and creates Stripe invoice
+
+**Implementation**:
+- Add InvoiceLine model to Prisma schema
+- Update nightly-rating.ts to create invoice lines
+- Create invoice finalization service
+- Create invoice PDF generation (using PDFKit or similar)
+
 ### High Priority (Architecture & Design)
 
 1. **Incident Management System**
