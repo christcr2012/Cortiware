@@ -39,13 +39,6 @@ export default function AccountantShellClient({ children }: { children: React.Re
           <AccNavLink href="/accountant/reports" active={active('/accountant/reports')}>
             Reports
           </AccNavLink>
-
-          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-yellow-400/50 uppercase tracking-wider">
-            Configuration
-          </div>
-          <AccNavLink href="/accountant/settings" active={active('/accountant/settings')}>
-            Settings
-          </AccNavLink>
         </nav>
       </aside>
 
