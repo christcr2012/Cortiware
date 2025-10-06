@@ -675,3 +675,60 @@ Original specifications are in `Reference/Provider/` directory.
 
 *End of Handoff Document*
 
+
+
+---
+
+## Session Update — 2025-10-06 (by GPT‑5)
+
+This section records work completed in this session to keep this handoff current and safe to resume after a context reset.
+
+Delivered
+- Prisma monetization models added and migrated:
+  - PricePlan, PlanPrice, Offer, Coupon, TenantPriceOverride, GlobalMonetizationConfig, OnboardingInvite
+  - Migration applied: prisma/migrations/20251006114311_add_monetization_models
+  - Seed updated: creates Starter/Pro/Enterprise with monthly/yearly prices; sets default plan/price and 14‑day trial
+- Provider Monetization APIs (provider‑only):
+  - GET/POST/PATCH /api/provider/monetization/plans
+  - GET/POST/PATCH /api/provider/monetization/prices
+  - GET/POST/PATCH /api/provider/monetization/offers
+  - GET/POST/PATCH /api/provider/monetization/coupons
+  - GET/POST/DELETE /api/provider/monetization/overrides
+  - GET/PATCH /api/provider/monetization/global-config
+  - GET/POST /api/provider/monetization/invites (signed token generation stub)
+- Provider UI: new /provider/monetization page (lists plans/prices and shows global defaults)
+- Owner additions:
+  - GET /api/owner/usage/series (30‑day sparkline)
+  - POST /api/owner/subscription/change (Checkout for plan change)
+  - KPI tiles on /owner and /provider dashboards now deep‑link to relevant pages
+- Dunning metadata: provider billing service shows real attemptCount via Payment retries aggregation
+
+Build/Checks
+- prisma generate/migrate: OK; db seed: OK
+- npx tsc --noEmit: 0 errors
+- npm run build: success
+- Git pushes: 0fc25d0747, 2e28c850f3
+
+How to resume safely in a fresh chat
+1) Pull latest main; ensure envs present (.env, .env.local). Minimum: PROVIDER_EMAIL/PROVIDER_PASSWORD, STRIPE_* keys.
+2) Prisma:
+   - npx prisma migrate deploy
+   - npx prisma db seed (idempotent)
+3) Build/typecheck: npm run -s build && npx tsc --noEmit
+4) Smoke:
+   - GET /api/provider/monetization/plans → 200
+   - Open /provider/monetization (requires provider cookie)
+   - Owner: GET /api/owner/usage/series → 200
+5) Continue with Next Priorities (below).
+
+Next Priorities (immediately after this update)
+- Onboarding token flow:
+  - /api/onboarding/validate and /accept; Owner onboarding route /onboarding/[token]
+  - One‑time use + expiry; audit entries; webhook reconciliation
+- Provider Monetization UI controls (CRUD) for offers/coupons/overrides/invites and global config edits
+- Provider revenue analytics (MRR/ARR/churn/trials) with drill‑through
+- Global apply tooling (preview, schedule, rollback)
+- Tests: precedence resolution; token signing/validation; provider‑only route guards; owner APIs enforce ownership
+
+Notes
+- See Reference/MONETIZATION_BLUEPRINT.md for the full spec; data model now implemented (v1).
