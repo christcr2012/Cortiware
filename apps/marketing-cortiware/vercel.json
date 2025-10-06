@@ -1,0 +1,13 @@
+{
+  "buildCommand": "cd ../.. && npm run build -- --filter=marketing-cortiware",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && npm install",
+  "rewrites": [
+    {
+      "source": "/app/:path*",
+      "destination": "https://tenant-app.vercel.app/:path*"
+    }
+  ]
+}
+

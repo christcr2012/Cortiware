@@ -298,25 +298,33 @@ npm run dev
 # 6. Open browser to http://localhost:5000
 ```
 
-### Vercel Deployment
+### Vercel Deployment (Monorepo)
 
-**Steps:**
+**Phase 2 Update:** The project is now a Turborepo monorepo with 4 separate apps.
+
+**See Full Guide:** `ops/vercel/VERCEL_DEPLOYMENT_GUIDE.md`
+
+**Quick Steps:**
 1. Push code to GitHub
-2. Go to https://vercel.com and import project
-3. Connect GitHub repository
-4. Configure environment variables in Vercel dashboard:
-   - Go to Project Settings → Environment Variables
-   - Add all variables from `.env.local`
-   - Set for Production, Preview, and Development environments
-5. Deploy
+2. Create 4 Vercel projects (one per app):
+   - `cortiware-marketing-robinson` (robinsonaisystems.com)
+   - `cortiware-marketing-cortiware` (cortiware.com)
+   - `cortiware-tenant-app` (*.cortiware.com)
+   - `cortiware-provider-portal` (internal, accessed via /portal)
+3. Configure each project:
+   - **Root Directory:** `apps/[app-name]`
+   - **Build Command:** `cd ../.. && npm run build -- --filter=[app-name]`
+   - **Install Command:** `cd ../.. && npm install`
+4. Add environment variables to each project
+5. Configure domains:
+   - robinsonaisystems.com → marketing-robinson
+   - cortiware.com → marketing-cortiware
+   - *.cortiware.com → tenant-app (requires Pro plan)
+6. Deploy
 
-**Important:** Set `outputFileTracingRoot` in `next.config.js` to silence lockfile warnings:
-```js
-module.exports = {
-  outputFileTracingRoot: __dirname,
-  // ... rest of config
-}
-```
+**Rewrites:**
+- `robinsonaisystems.com/portal/*` → provider-portal app
+- `cortiware.com/app/*` → tenant-app
 
 ---
 
@@ -552,6 +560,6 @@ For issues or questions:
 
 ---
 
-**Document Status:** ✅ Current through Phase 1 & Phase 3 (Complete)
-**Next Update:** After Phase 2 (Monorepo & Multi-Domain)
+**Document Status:** ✅ Current through Phase 1, Phase 2 (Partial), & Phase 3 (Complete)
+**Next Update:** After Phase 2 completion (Provider portal migration)
 

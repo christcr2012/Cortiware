@@ -1,0 +1,13 @@
+{
+  "buildCommand": "cd ../.. && npm run build -- --filter=marketing-robinson",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && npm install",
+  "rewrites": [
+    {
+      "source": "/portal/:path*",
+      "destination": "https://provider-portal.vercel.app/:path*"
+    }
+  ]
+}
+
