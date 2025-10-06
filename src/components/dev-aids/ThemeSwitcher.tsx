@@ -5,18 +5,26 @@ import {
   ThemeName,
   ThemeScope,
   setTheme,
-  initTheme,
+  getTheme,
   getAllThemes,
+  DEFAULT_THEME,
 } from "@/lib/theme";
 
 export function ThemeSwitcher({ scope }: { scope: ThemeScope }) {
-  const [value, setValue] = React.useState<ThemeName>(initTheme(scope));
+  // Start with null to avoid hydration mismatch, then set from localStorage after mount
+  const [value, setValue] = React.useState<ThemeName | null>(null);
   const [isApplying, setIsApplying] = React.useState(false);
   const allThemes = getAllThemes();
 
   React.useEffect(() => {
-    // Ensure attribute reflects stored theme on mount and when scope changes
-    initTheme(scope);
+    // Get theme from localStorage after component mounts (client-side only)
+    const currentTheme = getTheme(scope);
+    setValue(currentTheme);
+
+    // Apply theme to document if not already applied
+    if (document.documentElement.getAttribute('data-theme') !== currentTheme) {
+      document.documentElement.setAttribute('data-theme', currentTheme);
+    }
   }, [scope]);
 
   async function handleThemeClick(themeId: ThemeName) {
@@ -75,11 +83,13 @@ export function ThemeSwitcher({ scope }: { scope: ThemeScope }) {
         gap: 12,
       }}>
         {allThemes.map(theme => {
-          const isSelected = value === theme.id;
+          // Only show selection state after hydration to avoid mismatch
+          const isSelected = value !== null && value === theme.id;
           return (
             <button
               key={theme.id}
               onClick={() => handleThemeClick(theme.id)}
+              suppressHydrationWarning
               style={{
                 padding: 12,
                 borderRadius: 8,
