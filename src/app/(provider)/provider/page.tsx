@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
+import { getProviderStats, getRecentActivity } from '@/services/provider/stats.service';
 
 /**
  * Provider Dashboard - Cross-Client Administration
@@ -20,6 +21,10 @@ export default async function ProviderDashboardPage() {
                         cookieStore.get('provider-session')?.value ||
                         cookieStore.get('ws_provider')?.value ||
                         'provider@system';
+
+  // Fetch real statistics
+  const stats = await getProviderStats();
+  const recentActivity = await getRecentActivity(5);
 
   return (
     <div
@@ -71,7 +76,7 @@ export default async function ProviderDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>0</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.totalClients}</span>
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Clients</p>
           </div>
@@ -93,9 +98,9 @@ export default async function ProviderDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>0</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.activeUsers}</span>
             </div>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active Users</p>
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Active Users (30d)</p>
           </div>
 
           {/* System Health */}
@@ -115,7 +120,7 @@ export default async function ProviderDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>100%</span>
+              <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.systemHealth}%</span>
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>System Health</p>
           </div>
@@ -137,7 +142,7 @@ export default async function ProviderDashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <span className="text-sm font-bold" style={{ color: 'var(--brand-primary)' }}>ONLINE</span>
+              <span className="text-sm font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.apiStatus}</span>
             </div>
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>API Status</p>
           </div>
@@ -196,25 +201,41 @@ export default async function ProviderDashboardPage() {
         >
           <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--brand-primary)' }}>Recent Activity</h2>
           <div className="space-y-3">
-            <div
-              className="flex items-center justify-between p-3 rounded-lg"
-              style={{ background: 'var(--surface-2)' }}
-            >
-              <div className="flex items-center space-x-3">
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity) => (
                 <div
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: 'var(--brand-primary)' }}
-                ></div>
-                <div>
-                  <p className="text-sm" style={{ color: 'var(--text-primary)' }}>Provider login successful</p>
-                  <p className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>{providerEmail}</p>
+                  key={activity.id}
+                  className="flex items-center justify-between p-3 rounded-lg"
+                  style={{ background: 'var(--surface-2)' }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{
+                        backgroundColor: activity.type === 'invoice_paid'
+                          ? 'rgb(34, 197, 94)'
+                          : activity.type === 'user_signup'
+                          ? 'rgb(59, 130, 246)'
+                          : 'var(--brand-primary)'
+                      }}
+                    ></div>
+                    <div>
+                      <p className="text-sm" style={{ color: 'var(--text-primary)' }}>{activity.message}</p>
+                      {activity.orgName && (
+                        <p className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>{activity.orgName}</p>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                    {formatRelativeTime(activity.timestamp)}
+                  </span>
                 </div>
+              ))
+            ) : (
+              <div className="text-center py-8" style={{ color: 'var(--text-tertiary)' }}>
+                <p className="text-sm">No recent activity</p>
               </div>
-              <span className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Just now</span>
-            </div>
-            <div className="text-center py-8" style={{ color: 'var(--text-tertiary)' }}>
-              <p className="text-sm">No recent activity</p>
-            </div>
+            )}
           </div>
         </div>
       </div>
@@ -225,5 +246,22 @@ export default async function ProviderDashboardPage() {
       </div>
     </div>
   );
+}
+
+/**
+ * Format timestamp as relative time
+ */
+function formatRelativeTime(date: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
 }
 
