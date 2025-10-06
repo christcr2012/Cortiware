@@ -27,8 +27,8 @@ export default async function RootLayout({
   console.log('[RootLayout] Theme cookies:', { adminTheme, clientTheme, finalTheme: theme });
 
   return (
-    <html lang="en" data-theme={theme}>
-      <body>
+    <html lang="en" data-theme={theme} suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <ThemeInit serverTheme={theme} />
         {children}
       </body>
