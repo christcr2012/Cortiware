@@ -8,7 +8,8 @@ import type { BrandConfig } from '@/lib/types/me';
 
 /**
  * Client-side shell for authenticated app pages
- * Uses client's brand configuration (NOT provider green theme)
+ * Uses client scope theme (controlled by Owner)
+ * Respects the Owner's theme selection
  */
 export default function AppShellClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -17,40 +18,8 @@ export default function AppShellClient({ children }: { children: React.ReactNode
 
   // Extract brand config
   const brandConfig: BrandConfig = org?.brandConfig || {};
-  const brandName = brandConfig.name || 'Robinson Solutions';
+  const brandName = brandConfig.name || 'Robinson AI Systems';
   const brandLogoUrl = brandConfig.logoUrl;
-  const rawBrandColor = brandConfig.color;
-
-  // Validate color
-  const validateColor = (color: string | undefined): string | null => {
-    if (!color) return null;
-    const hexPattern = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/;
-    const namedColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'gray', 'black', 'white'];
-    if (hexPattern.test(color)) return color;
-    if (namedColors.includes(color.toLowerCase())) return color;
-    return null;
-  };
-
-  const brandColor = validateColor(rawBrandColor);
-
-  // Dynamic styles based on client's brand
-  const dynamicStyles: React.CSSProperties & Record<string, string> = {};
-  if (brandColor) {
-    dynamicStyles['--brand'] = brandColor;
-    dynamicStyles['--brand-2'] = brandColor;
-    if (brandColor.startsWith('#')) {
-      let hex = brandColor.slice(1);
-      if (hex.length === 3) {
-        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-      }
-      if (hex.length === 6) {
-        const r = parseInt(hex.slice(0, 2), 16);
-        const g = parseInt(hex.slice(2, 4), 16);
-        const b = parseInt(hex.slice(4, 6), 16);
-        dynamicStyles['--ring'] = `rgba(${r}, ${g}, ${b}, 0.27)`;
-      }
-    }
-  }
 
   return (
     <div
@@ -58,13 +27,22 @@ export default function AppShellClient({ children }: { children: React.ReactNode
       style={{
         gridTemplateColumns: '260px 1fr',
         gridTemplateRows: '80px 1fr',
-        ...dynamicStyles,
+        background: 'var(--bg-main)',
       }}
     >
       {/* Sidebar */}
-      <aside style={{ gridRow: '1 / span 2' }} className="border-r border-white/10 bg-gray-900">
+      <aside
+        style={{
+          gridRow: '1 / span 2',
+          borderRight: '1px solid var(--border-primary)',
+          background: 'var(--glass-bg)',
+        }}
+      >
         {/* Logo */}
-        <div className="h-20 flex items-center justify-center border-b border-white/10 px-4">
+        <div
+          className="h-20 flex items-center justify-center px-4"
+          style={{ borderBottom: '1px solid var(--border-primary)' }}
+        >
           <Link href="/dashboard" aria-label="Home" className="block text-center">
             {brandLogoUrl ? (
               <img
@@ -123,21 +101,32 @@ export default function AppShellClient({ children }: { children: React.ReactNode
 
       {/* Top bar */}
       <header
-        className="border-b border-white/10"
         style={{
-          background: 'linear-gradient(180deg, rgba(17,24,39,0.8), rgba(31,41,55,0.8))',
+          background: 'var(--glass-bg-light)',
+          borderBottom: '1px solid var(--border-primary)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
         }}
       >
         <div className="h-20 px-6 flex items-center justify-between">
-          <div className="text-lg font-semibold text-gray-100">{brandName}</div>
+          <div className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>{brandName}</div>
           <div className="flex items-center gap-4">
-            <Link href="/profile" className="text-sm text-gray-300 hover:text-white transition-colors">
+            <Link
+              href="/profile"
+              className="text-sm transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
+            >
               Profile
             </Link>
             <form action="/api/auth/logout" method="post">
-              <button className="text-sm px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+              <button
+                className="text-sm px-4 py-2 rounded-lg transition-colors"
+                style={{
+                  background: 'var(--surface-hover)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-accent)',
+                }}
+              >
                 Sign out
               </button>
             </form>
@@ -146,7 +135,7 @@ export default function AppShellClient({ children }: { children: React.ReactNode
       </header>
 
       {/* Content */}
-      <main className="p-6 bg-gray-950">
+      <main className="p-6" style={{ background: 'var(--bg-secondary)' }}>
         <div className="max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
@@ -157,9 +146,19 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
   return (
     <Link
       href={href}
-      className={`block px-4 py-2 transition-colors ${
-        active ? 'text-white bg-blue-600/20 border-l-4 border-blue-500' : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-      }`}
+      className="block px-4 py-2 transition-colors border-l-4"
+      style={
+        active
+          ? {
+              color: 'var(--text-primary)',
+              background: 'var(--surface-hover)',
+              borderLeftColor: 'var(--brand-primary)',
+            }
+          : {
+              color: 'var(--text-secondary)',
+              borderLeftColor: 'transparent',
+            }
+      }
     >
       {children}
     </Link>

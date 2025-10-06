@@ -56,8 +56,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">Dashboard</h1>
-        <p className="text-gray-400">Overview of your workflow management</p>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Dashboard</h1>
+        <p style={{ color: 'var(--text-secondary)' }}>Overview of your workflow management</p>
       </div>
 
       {/* KPI Cards */}
@@ -90,26 +90,38 @@ export default function DashboardPage() {
 
       {/* Billing Summary */}
       {kpis && kpis.monthBillableCount > 0 && (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-          <h2 className="text-xl font-semibold text-white mb-4">Billing Summary</h2>
+        <div
+          className="rounded-xl p-6"
+          style={{
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--border-accent)',
+          }}
+        >
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Billing Summary</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-2xl font-bold text-white">{kpis.monthBillableCount}</div>
-              <div className="text-sm text-gray-400">Billable Leads This Month</div>
+              <div className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{kpis.monthBillableCount}</div>
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Billable Leads This Month</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-green-400">
+              <div className="text-2xl font-bold" style={{ color: 'var(--brand-primary)' }}>
                 ${kpis.monthBillableAmountUSD.toLocaleString()}
               </div>
-              <div className="text-sm text-gray-400">Total Amount</div>
+              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Amount</div>
             </div>
           </div>
         </div>
       )}
 
       {/* Quick Actions */}
-      <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-        <h2 className="text-xl font-semibold text-white mb-4">Quick Actions</h2>
+      <div
+        className="rounded-xl p-6"
+        style={{
+          background: 'var(--glass-bg)',
+          border: '1px solid var(--border-accent)',
+        }}
+      >
+        <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ActionButton href="/leads" label="View Leads" />
           <ActionButton href="/contacts" label="Manage Contacts" />
@@ -121,18 +133,19 @@ export default function DashboardPage() {
 }
 
 function KpiCard({ label, value, icon, color }: { label: string; value: number; icon: string; color: string }) {
-  const colorClasses = {
-    blue: 'border-blue-500/30 bg-blue-500/5',
-    green: 'border-green-500/30 bg-green-500/5',
-    red: 'border-red-500/30 bg-red-500/5',
-    purple: 'border-purple-500/30 bg-purple-500/5',
+  // Use theme CSS variables instead of hardcoded colors
+  const colorStyles = {
+    blue: { border: '1px solid var(--border-accent)', background: 'var(--glass-bg)' },
+    green: { border: '1px solid var(--border-accent)', background: 'var(--glass-bg)' },
+    red: { border: '1px solid var(--border-accent)', background: 'var(--glass-bg)' },
+    purple: { border: '1px solid var(--border-accent)', background: 'var(--glass-bg)' },
   }[color];
 
   return (
-    <div className={`${colorClasses} border rounded-xl p-6`}>
+    <div className="rounded-xl p-6" style={colorStyles}>
       <div className="text-3xl mb-2">{icon}</div>
-      <div className="text-3xl font-bold text-white mb-1">{value.toLocaleString()}</div>
-      <div className="text-sm text-gray-400">{label}</div>
+      <div className="text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{value.toLocaleString()}</div>
+      <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{label}</div>
     </div>
   );
 }
@@ -141,7 +154,12 @@ function ActionButton({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="block px-4 py-3 bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 rounded-lg text-blue-400 text-center font-medium transition-all"
+      className="block px-4 py-3 rounded-lg text-center font-medium transition-all"
+      style={{
+        background: 'var(--surface-hover)',
+        border: '1px solid var(--border-accent)',
+        color: 'var(--brand-primary)',
+      }}
     >
       {label}
     </a>
