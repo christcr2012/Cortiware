@@ -81,45 +81,67 @@ This guide covers deploying the Cortiware monorepo to Vercel with separate proje
 
 **⚠️ CRITICAL: Renaming Vercel projects can break authentication, tokens, and OIDC.**
 
-**DO NOT rename your existing Vercel project.** Instead, use this strategy:
+Your current project is named "mountain-vista" which needs to be changed. Here's the safe approach:
 
-#### Option A: Keep Existing Project (Recommended)
-- **Keep** your existing Vercel project name as-is
-- **Update** its settings to point to `apps/provider-portal`
-- **Create** 3 new projects with proper names:
-  - `cortiware-marketing-robinson`
-  - `cortiware-marketing-cortiware`
-  - `cortiware-tenant-app`
+#### Recommended: Create New, Migrate, Then Delete Old
 
-**Why?** Renaming breaks:
+**Why not just rename?** Renaming breaks:
 - Authentication tokens (PROVIDER_SESSION_SECRET, etc.)
 - Federation keys (FED_HMAC_MASTER_KEY)
 - OIDC configurations (OIDC_ISSUER_URL, OIDC_CLIENT_ID)
 - Stripe webhooks (STRIPE_WEBHOOK_SECRET)
 - Any hardcoded URLs in your database
+- Vercel deployment URLs that may be referenced elsewhere
 
-#### Option B: Fresh Start (If Absolutely Necessary)
-If you MUST have clean project names:
+**Safe Migration Process:**
 
-1. **Before deleting anything:**
-   - Export all environment variables from existing project
-   - Document all domain configurations
-   - Note all webhook URLs
-   - Backup database connection strings
+1. **Export from "mountain-vista" project:**
+   - Go to Settings → Environment Variables
+   - Click "..." → Download as .env file
+   - Save as `mountain-vista-backup.env`
+   - Document current domain configurations
+   - Note any webhook URLs
 
-2. **Create new projects first:**
-   - Deploy all 4 new projects
-   - Configure all environment variables
-   - Test thoroughly
+2. **Create 4 new projects with proper names:**
+   - `cortiware-provider-portal` (replaces mountain-vista)
+   - `cortiware-marketing-robinson`
+   - `cortiware-marketing-cortiware`
+   - `cortiware-tenant-app`
 
-3. **Update external services:**
-   - Stripe: Update webhook URLs
+3. **Configure new provider-portal project:**
+   - Import all environment variables from backup
+   - Set Root Directory: `apps/provider-portal`
+   - Set Build Command: `cd ../.. && npm run build -- --filter=provider-portal`
+   - Deploy and test thoroughly
+
+4. **Update external services (if any):**
+   - Stripe: Update webhook URLs to new deployment URL
    - OIDC providers: Update redirect URIs
    - Any APIs: Update callback URLs
+   - Database: Update any stored URLs
 
-4. **Only then delete old project**
+5. **Test new provider-portal deployment:**
+   - Verify authentication works
+   - Test federation keys
+   - Check OIDC login
+   - Verify all API endpoints
+   - Test database connections
 
-**Recommendation:** Use Option A. The project name is internal to Vercel and doesn't affect your users.
+6. **Only after everything works, delete "mountain-vista":**
+   - Go to mountain-vista project → Settings → Advanced
+   - Scroll to "Delete Project"
+   - Confirm deletion
+
+**Timeline:** Plan for 1-2 hours to migrate safely. Don't rush this step.
+
+#### Alternative: Keep "mountain-vista" Temporarily
+
+If you want to deploy quickly:
+1. Keep "mountain-vista" running as-is
+2. Create 3 new projects (marketing-robinson, marketing-cortiware, tenant-app)
+3. Migrate "mountain-vista" to proper name later when you have time
+
+**Recommendation:** Do the full migration now while you're setting up the monorepo. It's the cleanest approach.
 
 ---
 
@@ -140,47 +162,73 @@ If you MUST have clean project names:
 
 ---
 
-## Step 1: Update Existing Vercel Project (Provider Portal)
+## Step 1: Export Environment Variables from "mountain-vista"
 
-**If you have an existing Vercel project deployed, update it instead of creating a new one.**
+**Before creating new projects, export all your existing configuration.**
 
-### 1.1 Update Existing Project Settings
+### 1.1 Download Environment Variables
 
-1. Go to your existing Vercel project dashboard
-2. **Settings → General:**
-   - **Project Name:** Leave as-is (DO NOT rename - see Step 0.3)
-   - **Root Directory:** Change to `apps/provider-portal`
+1. Go to your "mountain-vista" project on Vercel
+2. **Settings → Environment Variables**
+3. Click "..." (three dots) at the top right
+4. Select "Download as .env file"
+5. Save as `mountain-vista-backup.env` in a safe location (NOT in your git repo)
+
+### 1.2 Document Current Configuration
+
+Make note of:
+- **Domains:** Any custom domains attached
+- **Webhooks:** Stripe webhook URLs, OIDC redirect URIs
+- **Deployment URL:** Current production URL (e.g., `mountain-vista.vercel.app`)
+- **Git Branch:** Which branch is set as production
+
+### 1.3 Verify Critical Variables Exist
+
+Open `mountain-vista-backup.env` and verify these exist:
+```
+DATABASE_URL
+PROVIDER_SESSION_SECRET
+TENANT_COOKIE_SECRET
+DEVELOPER_SESSION_SECRET
+ACCOUNTANT_SESSION_SECRET
+FED_HMAC_MASTER_KEY
+PROVIDER_CREDENTIALS
+DEVELOPER_CREDENTIALS
+```
+
+If any are missing, copy them from Vercel dashboard before proceeding.
+
+---
+
+## Step 2: Create New Vercel Projects
+
+**Create 4 new projects with proper names to replace "mountain-vista".**
+
+### 2.1 Create Project: provider-portal (Replaces mountain-vista)
+
+1. Go to https://vercel.com/new
+2. Click "Add New" → "Project"
+3. Select `Cortiware` repository
+4. Configure:
+   - **Project Name:** `cortiware-provider-portal`
    - **Framework Preset:** Next.js
+   - **Root Directory:** `apps/provider-portal`
    - **Build Command:** `cd ../.. && npm run build -- --filter=provider-portal`
    - **Output Directory:** `.next`
    - **Install Command:** `cd ../.. && npm install`
    - **Node.js Version:** 22.x
 
-3. **Settings → Git:**
-   - **Production Branch:** `main` (or your preferred branch)
-   - Ensure GitHub repository is connected
+5. **Import Environment Variables:**
+   - Click "Environment Variables"
+   - Click "Import .env"
+   - Upload `mountain-vista-backup.env`
+   - Ensure all variables are set for Production, Preview, and Development
 
-4. **Settings → Environment Variables:**
-   - Keep all existing variables (they should work with monorepo)
-   - Verify these critical variables exist:
-     ```
-     DATABASE_URL
-     PROVIDER_SESSION_SECRET
-     TENANT_COOKIE_SECRET
-     DEVELOPER_SESSION_SECRET
-     ACCOUNTANT_SESSION_SECRET
-     FED_HMAC_MASTER_KEY
-     PROVIDER_CREDENTIALS
-     DEVELOPER_CREDENTIALS
-     ```
+6. Click "Deploy"
+7. **Wait for deployment to complete**
+8. **Test thoroughly before proceeding**
 
-5. **Redeploy:**
-   - Go to Deployments tab
-   - Click "..." on latest deployment
-   - Select "Redeploy"
-   - Verify build succeeds with new monorepo structure
-
-### 1.2 Create Project: marketing-robinson
+### 2.2 Create Project: marketing-robinson
 
 1. Click "Add New" → "Project"
 2. Select `Cortiware` repository
@@ -191,10 +239,10 @@ If you MUST have clean project names:
    - **Build Command:** `cd ../.. && npm run build -- --filter=marketing-robinson`
    - **Output Directory:** `.next`
    - **Install Command:** `cd ../.. && npm install`
-4. Add Environment Variables (see Section 3)
+4. Add Environment Variables (see Section 4)
 5. Click "Deploy"
 
-### 1.3 Create Project: marketing-cortiware
+### 2.3 Create Project: marketing-cortiware
 
 1. Click "Add New" → "Project"
 2. Select `Cortiware` repository
@@ -205,10 +253,10 @@ If you MUST have clean project names:
    - **Build Command:** `cd ../.. && npm run build -- --filter=marketing-cortiware`
    - **Output Directory:** `.next`
    - **Install Command:** `cd ../.. && npm install`
-4. Add Environment Variables (see Section 3)
+4. Add Environment Variables (see Section 4)
 5. Click "Deploy"
 
-### 1.4 Create Project: tenant-app
+### 2.4 Create Project: tenant-app
 
 1. Click "Add New" → "Project"
 2. Select `Cortiware` repository
@@ -219,18 +267,114 @@ If you MUST have clean project names:
    - **Build Command:** `cd ../.. && npm run build -- --filter=tenant-app`
    - **Output Directory:** `.next`
    - **Install Command:** `cd ../.. && npm install`
-4. Add Environment Variables (see Section 3)
+4. Add Environment Variables (see Section 4)
 5. Click "Deploy"
-
-### 1.5 Create Project: provider-portal (Future)
-
-**Note:** Provider portal will be moved to `apps/provider-portal` in a future step. For now, it remains at the root.
 
 ---
 
-## Step 2: Configure Domains
+## Step 3: Test New Provider Portal Deployment
 
-### 2.1 Add Domain: robinsonaisystems.com
+**⚠️ CRITICAL: Test thoroughly before deleting "mountain-vista"**
+
+### 3.1 Verify Build Success
+
+1. Go to `cortiware-provider-portal` project
+2. Check Deployments tab
+3. Verify latest deployment shows "Ready"
+4. Click on deployment URL
+
+### 3.2 Test Authentication
+
+1. Navigate to `/provider` route
+2. Test provider login with credentials
+3. Verify session cookies are set correctly
+4. Test logout functionality
+
+### 3.3 Test Federation & APIs
+
+1. Test federation key endpoints: `/api/federation/keys`
+2. Verify OIDC configuration: `/api/federation/oidc`
+3. Test incident tracking: `/provider/incidents`
+4. Check analytics: `/provider/analytics`
+
+### 3.4 Test Database Connection
+
+1. Verify Prisma client connects
+2. Test reading data from database
+3. Test writing data (create a test incident)
+4. Verify audit logging works
+
+### 3.5 Document New URLs
+
+Make note of:
+- **New Production URL:** `cortiware-provider-portal.vercel.app`
+- **Any issues encountered:** Document for troubleshooting
+
+---
+
+## Step 4: Update External Services (If Applicable)
+
+**Only if you have external integrations configured.**
+
+### 4.1 Stripe Webhooks
+
+If you have Stripe webhooks configured:
+
+1. Go to Stripe Dashboard → Developers → Webhooks
+2. Find webhook pointing to `mountain-vista.vercel.app`
+3. Update URL to `cortiware-provider-portal.vercel.app`
+4. Test webhook delivery
+
+### 4.2 OIDC Redirect URIs
+
+If you have OIDC providers configured:
+
+1. Go to your OIDC provider dashboard (Auth0, Okta, etc.)
+2. Find redirect URIs containing `mountain-vista.vercel.app`
+3. Update to `cortiware-provider-portal.vercel.app`
+4. Test OIDC login flow
+
+### 4.3 API Callbacks
+
+If you have any APIs with callback URLs:
+
+1. Update callback URLs from old to new deployment URL
+2. Test API integrations
+
+---
+
+## Step 5: Delete "mountain-vista" Project
+
+**⚠️ ONLY do this after everything is tested and working!**
+
+### 5.1 Final Verification
+
+- [ ] New provider portal fully functional
+- [ ] Authentication working
+- [ ] Database connections working
+- [ ] All external services updated
+- [ ] No errors in deployment logs
+- [ ] Team members can access new URL
+
+### 5.2 Delete Old Project
+
+1. Go to "mountain-vista" project on Vercel
+2. **Settings → Advanced**
+3. Scroll to bottom: "Delete Project"
+4. Type project name to confirm
+5. Click "Delete"
+
+### 5.3 Clean Up
+
+1. Remove `mountain-vista-backup.env` from your local machine (contains secrets)
+2. Update any documentation referencing old URLs
+3. Notify team members of new URLs
+
+---
+
+## Step 6: Configure Domains
+
+### 6.1 Add Domain: robinsonaisystems.com
 
 1. Go to `cortiware-marketing-robinson` project
 2. Settings → Domains
@@ -242,7 +386,7 @@ If you MUST have clean project names:
    CNAME www   cname.vercel-dns.com
    ```
 
-### 2.2 Add Domain: cortiware.com
+### 6.2 Add Domain: cortiware.com
 
 1. Go to `cortiware-marketing-cortiware` project
 2. Settings → Domains
@@ -254,7 +398,7 @@ If you MUST have clean project names:
    CNAME www   cname.vercel-dns.com
    ```
 
-### 2.3 Add Wildcard Domain: *.cortiware.com
+### 6.3 Add Wildcard Domain: *.cortiware.com
 
 1. Go to `cortiware-tenant-app` project
 2. Settings → Domains
@@ -268,9 +412,9 @@ If you MUST have clean project names:
 
 ---
 
-## Step 3: Environment Variables
+## Step 7: Environment Variables
 
-### 3.1 Shared Variables (All Projects)
+### 7.1 Shared Variables (All Projects)
 
 Add these to **all 4 projects**:
 
@@ -307,7 +451,7 @@ TWILIO_PHONE_NUMBER="+1..."
 OPENAI_API_KEY="sk-..."
 ```
 
-### 3.2 App-Specific Variables
+### 7.2 App-Specific Variables
 
 **marketing-robinson:**
 ```bash
@@ -335,9 +479,9 @@ NEXT_PUBLIC_BASE_URL="https://robinsonaisystems.com"
 
 ---
 
-## Step 4: Test Rewrites
+## Step 8: Test Rewrites
 
-### 4.1 Test /portal Rewrite
+### 8.1 Test /portal Rewrite
 
 1. Deploy marketing-robinson
 2. Deploy provider-portal (when moved to apps/)
@@ -345,7 +489,7 @@ NEXT_PUBLIC_BASE_URL="https://robinsonaisystems.com"
 4. Should rewrite to provider-portal app
 5. Verify: Provider login page loads
 
-### 4.2 Test /app Rewrite
+### 8.2 Test /app Rewrite
 
 1. Deploy marketing-cortiware
 2. Deploy tenant-app
@@ -353,7 +497,7 @@ NEXT_PUBLIC_BASE_URL="https://robinsonaisystems.com"
 4. Should rewrite to tenant-app
 5. Verify: Tenant app page loads
 
-### 4.3 Test Wildcard Subdomain
+### 8.3 Test Wildcard Subdomain
 
 1. Deploy tenant-app
 2. Visit: `https://demo.cortiware.com`
@@ -362,7 +506,7 @@ NEXT_PUBLIC_BASE_URL="https://robinsonaisystems.com"
 
 ---
 
-## Step 5: Vercel CLI Deployment (Optional)
+## Step 9: Vercel CLI Deployment (Optional)
 
 For local testing and CI/CD:
 
@@ -382,7 +526,7 @@ vercel --prod --cwd apps/marketing-robinson
 
 ---
 
-## Step 6: Continuous Deployment
+## Step 10: Continuous Deployment
 
 Vercel automatically deploys on git push:
 
@@ -397,11 +541,11 @@ Vercel automatically deploys on git push:
 
 ---
 
-## Step 7: Add New Branding Assets
+## Step 11: Add New Branding Assets
 
 After removing old logos/favicons, add your new Cortiware branding:
 
-### 7.1 Create New Favicons
+### 11.1 Create New Favicons
 
 1. **Generate favicons:**
    - Use a tool like https://realfavicongenerator.net/
@@ -426,7 +570,7 @@ After removing old logos/favicons, add your new Cortiware branding:
    └── android-chrome-192x192.png
    ```
 
-### 7.2 Update Metadata
+### 11.2 Update Metadata
 
 Update each app's `layout.tsx`:
 
@@ -441,7 +585,7 @@ export const metadata: Metadata = {
 };
 ```
 
-### 7.3 Add Logo Components
+### 11.3 Add Logo Components
 
 Create logo components in `packages/ui/`:
 
@@ -456,7 +600,7 @@ export function Logo({ className }: { className?: string }) {
 }
 ```
 
-### 7.4 Commit New Assets
+### 11.4 Commit New Assets
 
 ```bash
 git add -A

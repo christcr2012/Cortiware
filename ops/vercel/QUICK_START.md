@@ -65,9 +65,9 @@ git push
 
 ## Step 3: Vercel Project Strategy (IMPORTANT)
 
-### ⚠️ DO NOT Rename Existing Vercel Project
+### ⚠️ Your "mountain-vista" Project Needs Replacing
 
-**Why?** Renaming breaks:
+**Why not just rename?** Renaming breaks:
 - Authentication tokens
 - Federation keys
 - OIDC configurations
@@ -75,34 +75,42 @@ git push
 
 ### Recommended Approach
 
-**Keep your existing Vercel project** and:
+**Create 4 new projects** (including replacement for mountain-vista):
 
-1. **Update existing project settings:**
-   - Settings → General → Root Directory: `apps/provider-portal`
-   - Settings → General → Build Command: `cd ../.. && npm run build -- --filter=provider-portal`
-   - Keep all environment variables as-is
+1. **Export environment variables from mountain-vista:**
+   - Settings → Environment Variables → "..." → Download as .env
+   - Save as `mountain-vista-backup.env`
 
-2. **Create 3 new projects:**
+2. **Create 4 new projects:**
+   - `cortiware-provider-portal` (replaces mountain-vista)
    - `cortiware-marketing-robinson`
    - `cortiware-marketing-cortiware`
    - `cortiware-tenant-app`
 
----
+3. **Test new provider-portal thoroughly**
 
-## Step 4: Update Existing Vercel Project (15 minutes)
-
-1. Go to your Vercel project dashboard
-2. **Settings → General:**
-   - Root Directory: `apps/provider-portal`
-   - Build Command: `cd ../.. && npm run build -- --filter=provider-portal`
-   - Install Command: `cd ../.. && npm install`
-3. **Redeploy:**
-   - Deployments tab → Latest deployment → "..." → Redeploy
-4. **Verify:** Build succeeds with monorepo structure
+4. **Delete mountain-vista only after everything works**
 
 ---
 
-## Step 5: Create New Projects (30 minutes)
+## Step 4: Export from mountain-vista (10 minutes)
+
+1. Go to mountain-vista project on Vercel
+2. **Settings → Environment Variables**
+3. Click "..." → Download as .env file
+4. Save as `mountain-vista-backup.env` (NOT in git repo)
+5. Verify all critical variables are present:
+   - DATABASE_URL
+   - PROVIDER_SESSION_SECRET
+   - FED_HMAC_MASTER_KEY
+   - PROVIDER_CREDENTIALS
+   - DEVELOPER_CREDENTIALS
+
+---
+
+## Step 5: Create New Projects (45 minutes)
+
+### provider-portal (Replaces mountain-vista)
 
 ### marketing-robinson
 ```
