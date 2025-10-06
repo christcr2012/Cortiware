@@ -1,56 +1,42 @@
-// src/lib/theme.ts
-// Theme utilities with separate scopes for admin (Provider/Developer) and client (Tenant/Accountant/vendor)
+/**
+ * Theme Management - Centralized API
+ * 
+ * Single entry point for all theme-related functionality.
+ * All theme switchers and components should import from this file.
+ * 
+ * Architecture:
+ * - themes/theme-registry.ts: Theme definitions and metadata
+ * - themes/theme-utils.ts: Theme manipulation utilities
+ * - theme.ts (this file): Public API that re-exports everything
+ */
 
-export type ThemeName =
-  // Futuristic themes
-  | 'futuristic-green'
-  | 'sapphire-blue'
-  | 'crimson-tech'
-  | 'cyber-purple'
-  | 'graphite-orange'
-  | 'neon-aqua'
-  // Shadcn-inspired themes
-  | 'shadcn-slate'
-  | 'shadcn-zinc'
-  | 'shadcn-rose'
-  | 'shadcn-emerald'
-  // SaaS-inspired themes
-  | 'stripe-clean'
-  | 'linear-minimal'
-  | 'notion-warm'
-  | 'vercel-contrast'
-  | 'figma-creative';
+// Re-export types
+export type { ThemeName, ThemeScope, ThemeMetadata } from './themes/theme-registry';
 
-export type ThemeScope = 'admin' | 'client';
+// Re-export registry functions
+export {
+  THEME_REGISTRY,
+  getAllThemes,
+  getThemesByCategory,
+  getThemeMetadata,
+  getThemeCategories,
+  getThemesGrouped,
+  DEFAULT_THEME,
+  THEME_STORAGE_KEYS,
+  THEME_COOKIE_NAMES,
+} from './themes/theme-registry';
 
-const DEFAULTS: Record<ThemeScope, ThemeName> = {
-  admin: 'futuristic-green',
-  client: 'futuristic-green',
-};
-
-const STORAGE_KEYS: Record<ThemeScope, string> = {
-  admin: 'rs_admin_theme',
-  client: 'rs_client_theme',
-};
-
-export function getTheme(scope: ThemeScope): ThemeName {
-  if (typeof window === 'undefined') return DEFAULTS[scope];
-  const raw = window.localStorage.getItem(STORAGE_KEYS[scope]);
-  return (raw as ThemeName) || DEFAULTS[scope];
-}
-
-export function setTheme(scope: ThemeScope, theme: ThemeName) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEYS[scope], theme);
-  // Apply theme to document root via data-theme
-  document.documentElement.setAttribute('data-theme', theme);
-}
-
-export function initTheme(scope: ThemeScope) {
-  const theme = getTheme(scope);
-  if (typeof document !== 'undefined') {
-    document.documentElement.setAttribute('data-theme', theme);
-  }
-  return theme;
-}
+// Re-export utility functions
+export {
+  getTheme,
+  setTheme,
+  initTheme,
+  getThemeFromCookie,
+  applyThemeToElement,
+  removeThemeFromElement,
+  watchThemeChanges,
+  getThemeVariable,
+  isThemeDark,
+  getContrastColor,
+} from './themes/theme-utils';
 
