@@ -259,3 +259,11 @@ export function extractDeveloperToken(getCookie: (name: string) => string | unde
  * Validates HMAC signatures for machine-to-provider requests.
  */
 export { withHmacAuth } from '@/lib/hmac/with-hmac-auth';
+
+/**
+ * Audit Logging Wrapper
+ *
+ * Re-export from audit/with-audit-log for convenience.
+ * Automatically logs audit events with correlation IDs.
+ */
+export { withAuditLog } from '@/lib/audit/with-audit-log';
