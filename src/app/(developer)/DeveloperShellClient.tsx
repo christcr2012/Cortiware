@@ -58,6 +58,13 @@ export default function DeveloperShellClient({ children }: { children: React.Rea
           <DevNavLink href="/developer/diagnostics" active={active('/developer/diagnostics')}>
             Federation Diagnostics
           </DevNavLink>
+
+          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-green-400/50 uppercase tracking-wider">
+            Configuration
+          </div>
+          <DevNavLink href="/developer/settings" active={active('/developer/settings')}>
+            Settings
+          </DevNavLink>
         </nav>
       </aside>
 
