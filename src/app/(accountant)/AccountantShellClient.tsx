@@ -3,6 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/**
+ * Accountant Portal Shell
+ * Uses client scope theme (controlled by Owner)
+ * Accountant portal respects the Owner's theme selection
+ */
 export default function AccountantShellClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const active = (p: string) => Boolean(pathname === p || pathname?.startsWith(p + '/'));
@@ -13,19 +18,34 @@ export default function AccountantShellClient({ children }: { children: React.Re
       style={{
         gridTemplateColumns: '280px 1fr',
         gridTemplateRows: '80px 1fr',
-        background: 'linear-gradient(135deg, #1a1a0a 0%, #2e2e1a 100%)',
+        background: 'var(--bg-main)',
       }}
     >
       <aside
-        style={{ gridRow: '1 / span 2' }}
-        className="border-r border-yellow-500/20 bg-gradient-to-b from-gray-900/50 to-black/50"
+        style={{
+          gridRow: '1 / span 2',
+          borderRight: '1px solid var(--border-primary)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(10px)',
+        }}
       >
-        <div className="h-20 flex items-center justify-center border-b border-yellow-500/20 px-4">
+        <div
+          className="h-20 flex items-center justify-center px-4"
+          style={{ borderBottom: '1px solid var(--border-primary)' }}
+        >
           <div className="text-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              Robinson Solutions
+            <div
+              className="text-2xl font-bold bg-clip-text text-transparent"
+              style={{ backgroundImage: 'var(--brand-gradient)' }}
+            >
+              Robinson AI Systems
             </div>
-            <div className="text-xs text-yellow-400/70 font-mono tracking-wider">ACCOUNTANT PORTAL</div>
+            <div
+              className="text-xs font-mono tracking-wider"
+              style={{ color: 'var(--brand-primary)', opacity: 0.7 }}
+            >
+              ACCOUNTANT PORTAL
+            </div>
           </div>
         </div>
 
@@ -43,16 +63,29 @@ export default function AccountantShellClient({ children }: { children: React.Re
       </aside>
 
       <header
-        className="border-b border-yellow-500/20"
         style={{
-          background: 'linear-gradient(180deg, rgba(234,179,8,0.05), rgba(202,138,4,0.02))',
+          background: 'var(--glass-bg-light)',
+          borderBottom: '1px solid var(--border-primary)',
           backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
         }}
       >
         <div className="h-20 px-6 flex items-center justify-between">
-          <div className="text-sm text-yellow-400/70 font-mono">ACCOUNTANT ACCESS</div>
+          <div
+            className="text-sm font-mono"
+            style={{ color: 'var(--brand-primary)', opacity: 0.7 }}
+          >
+            ACCOUNTANT ACCESS
+          </div>
           <form action="/api/accountant/logout" method="post">
-            <button className="text-sm px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400 border border-yellow-500/30 rounded-lg transition-all font-mono">
+            <button
+              className="text-sm px-4 py-2 rounded-lg transition-all font-mono"
+              style={{
+                background: 'var(--surface-hover)',
+                color: 'var(--brand-primary)',
+                border: '1px solid var(--border-accent)',
+              }}
+            >
               LOGOUT
             </button>
           </form>
@@ -70,11 +103,20 @@ function AccNavLink({ href, active, children }: { href: string; active: boolean;
   return (
     <Link
       href={href}
-      className={`block px-4 py-2.5 transition-all ${
+      className="block px-4 py-2.5 transition-all border-l-4"
+      style={
         active
-          ? 'text-yellow-400 bg-yellow-500/10 border-l-4 border-yellow-500'
-          : 'text-gray-400 hover:text-yellow-300 hover:bg-yellow-500/5 border-l-4 border-transparent'
-      }`}
+          ? {
+              color: 'var(--brand-primary)',
+              background: 'var(--surface-hover)',
+              borderLeftColor: 'var(--brand-primary)',
+              boxShadow: 'var(--shadow-glow)',
+            }
+          : {
+              color: 'var(--text-secondary)',
+              borderLeftColor: 'transparent',
+            }
+      }
     >
       {children}
     </Link>

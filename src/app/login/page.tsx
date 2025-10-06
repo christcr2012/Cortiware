@@ -22,14 +22,28 @@ export default async function LoginPage(
 
   
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%)' }}>
-      <div className="max-w-md w-full bg-gray-900/50 backdrop-blur-sm rounded-2xl p-8 shadow-2xl border border-green-500/30">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--bg-main)' }}>
+      <div
+        className="max-w-md w-full backdrop-blur-sm rounded-2xl p-8 shadow-2xl"
+        style={{
+          background: 'var(--glass-bg)',
+          border: '1px solid var(--border-accent)',
+        }}
+      >
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-2">
-            Robinson Solutions
+          <h1
+            className="text-4xl font-bold bg-clip-text text-transparent mb-2"
+            style={{ backgroundImage: 'var(--brand-gradient)' }}
+          >
+            Robinson AI Systems
           </h1>
-          <p className="text-green-400/70 text-sm font-mono tracking-wider">UNIFIED LOGIN • ALL PORTALS</p>
-          <p className="text-gray-400 text-xs mt-2">Provider • Developer • Accountant • Client Access</p>
+          <p
+            className="text-sm font-mono tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.7 }}
+          >
+            UNIFIED LOGIN • ALL PORTALS
+          </p>
+          <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }}>Provider • Developer • Accountant • Client Access</p>
         </div>
 
         {error === 'missing' && (
@@ -54,7 +68,11 @@ export default async function LoginPage(
           <input type="hidden" name="next" value={next} />
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-green-400/90 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium mb-2"
+              style={{ color: 'var(--brand-primary)', opacity: 0.9 }}
+            >
               Email Address
             </label>
             <input
@@ -63,13 +81,22 @@ export default async function LoginPage(
               type="email"
               autoComplete="email"
               required
-              className="w-full px-4 py-3 bg-gray-900/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all hover:border-green-500/50"
+              className="w-full px-4 py-3 rounded-lg transition-all focus:outline-none"
+              style={{
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border-accent)',
+                color: 'var(--text-primary)',
+              }}
               placeholder="you@company.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-green-400/90 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium mb-2"
+              style={{ color: 'var(--brand-primary)', opacity: 0.9 }}
+            >
               Password
             </label>
             <input
@@ -78,24 +105,34 @@ export default async function LoginPage(
               type="password"
               autoComplete="current-password"
               required
-              className="w-full px-4 py-3 bg-gray-900/50 border border-green-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all hover:border-green-500/50"
+              className="w-full px-4 py-3 rounded-lg transition-all focus:outline-none"
+              style={{
+                background: 'var(--surface-2)',
+                border: '1px solid var(--border-accent)',
+                color: 'var(--text-primary)',
+              }}
               placeholder="••••••••"
             />
           </div>
 
           <button
             type="submit"
-            className="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-lg transition-all transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg shadow-green-500/20"
+            className="w-full py-3 px-4 font-semibold rounded-lg transition-all transform hover:scale-[1.02] focus:outline-none"
+            style={{
+              backgroundImage: 'var(--brand-gradient)',
+              color: 'white',
+              boxShadow: 'var(--shadow-glow)',
+            }}
           >
             Sign In
           </button>
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-600 font-mono">
-            ROBINSON SOLUTIONS PLATFORM
+          <p className="text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
+            ROBINSON AI SYSTEMS PLATFORM
           </p>
-          <p className="text-xs text-gray-700 mt-1 font-mono">
+          <p className="text-xs mt-1 font-mono" style={{ color: 'var(--text-tertiary)' }}>
             CLIENT PORTAL • SECURE ACCESS
           </p>
         </div>
