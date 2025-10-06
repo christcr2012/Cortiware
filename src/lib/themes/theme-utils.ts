@@ -21,22 +21,20 @@ export function getTheme(scope: ThemeScope): ThemeName {
 
 /**
  * Set theme in localStorage and apply to document
+ *
+ * NOTE: This does NOT persist to cookie. The caller should handle
+ * persisting to the server via /api/theme if needed.
  */
 export function setTheme(scope: ThemeScope, theme: ThemeName): void {
   if (typeof window === 'undefined') return;
-  
+
   const key = THEME_STORAGE_KEYS[scope];
   localStorage.setItem(key, theme);
-  
-  // Apply theme to document
+
+  // Apply theme to document immediately
   document.documentElement.setAttribute('data-theme', theme);
-  
-  // Persist to cookie for SSR
-  fetch('/api/theme', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ theme, scope }),
-  }).catch(err => console.error('Failed to persist theme:', err));
+
+  console.log('[setTheme] Applied theme:', { scope, theme, key });
 }
 
 /**

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
-import { ThemeInit } from './theme-init';
 
 export const metadata: Metadata = {
   title: 'StreamFlow - Workflow Management Platform',
@@ -29,7 +28,6 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme={theme} suppressHydrationWarning>
       <body suppressHydrationWarning>
-        <ThemeInit serverTheme={theme} />
         {children}
       </body>
     </html>
