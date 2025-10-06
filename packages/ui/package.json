@@ -1,0 +1,16 @@
+{
+  "name": "@cortiware/ui",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./index.tsx",
+  "types": "./index.tsx",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}
+

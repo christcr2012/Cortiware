@@ -1,0 +1,9 @@
+{
+  "extends": "@cortiware/config/typescript",
+  "compilerOptions": {
+    "outDir": "./dist"
+  },
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": ["node_modules", "dist"]
+}
+
