@@ -10,6 +10,15 @@ const THEMES: ThemeName[] = [
   'cyber-purple',
   'graphite-orange',
   'neon-aqua',
+  'shadcn-slate',
+  'shadcn-zinc',
+  'shadcn-rose',
+  'shadcn-emerald',
+  'stripe-clean',
+  'linear-minimal',
+  'notion-warm',
+  'vercel-contrast',
+  'figma-creative',
 ];
 
 export function ThemeSwitcher({ scope }: { scope: ThemeScope }) {

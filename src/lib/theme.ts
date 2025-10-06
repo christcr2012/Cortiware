@@ -2,12 +2,24 @@
 // Theme utilities with separate scopes for admin (Provider/Developer) and client (Tenant/Accountant/vendor)
 
 export type ThemeName =
+  // Futuristic themes
   | 'futuristic-green'
   | 'sapphire-blue'
   | 'crimson-tech'
   | 'cyber-purple'
   | 'graphite-orange'
-  | 'neon-aqua';
+  | 'neon-aqua'
+  // Shadcn-inspired themes
+  | 'shadcn-slate'
+  | 'shadcn-zinc'
+  | 'shadcn-rose'
+  | 'shadcn-emerald'
+  // SaaS-inspired themes
+  | 'stripe-clean'
+  | 'linear-minimal'
+  | 'notion-warm'
+  | 'vercel-contrast'
+  | 'figma-creative';
 
 export type ThemeScope = 'admin' | 'client';
 
