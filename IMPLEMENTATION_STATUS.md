@@ -48,25 +48,23 @@
 ## 🚧 IN PROGRESS / TODO
 
 ### 1. Real Data Flows (Replace Mocks)
-**Priority:** HIGH  
-**Status:** TODO
+**Priority:** HIGH
+**Status:** ✅ COMPLETE
 
-Current state:
-- Provider portal uses mock data for incidents, billing, analytics
-- Developer portal uses mock data for diagnostics
-- Accountant portal uses mock data for financials
+Completed:
+- ✅ Provider portal now uses real database queries for stats
+- ✅ Developer portal now uses real system diagnostics
+- ✅ Accountant portal now uses real financial data
+- ✅ Created provider stats service (`src/services/provider/stats.service.ts`)
+- ✅ Created developer stats service (`src/services/developer/stats.service.ts`)
+- ✅ Created accountant stats service (`src/services/accountant/stats.service.ts`)
+- ✅ All dashboards show real client/user/lead/revenue/invoice data
+- ✅ Recent activity feeds show actual database records
 
-Tasks:
-- [ ] Wire provider incidents to real database queries
-- [ ] Wire provider billing to real Stripe data
-- [ ] Wire provider analytics to real usage data
-- [ ] Wire developer diagnostics to real system metrics
-- [ ] Wire accountant financials to real invoice/payment data
-
-Files to update:
-- `src/app/(provider)/provider/page.tsx` - Replace MOCK_INCIDENTS, MOCK_BILLING
-- `src/app/(developer)/developer/page.tsx` - Replace mock diagnostics
-- `src/app/(accountant)/accountant/page.tsx` - Replace mock financials
+Files updated:
+- ✅ `src/app/(provider)/provider/page.tsx` - Real stats and activity
+- ✅ `src/app/(developer)/developer/page.tsx` - Real diagnostics
+- ✅ `src/app/(accountant)/accountant/page.tsx` - Real financials
 
 ### 2. Client Portal Pages
 **Priority:** HIGH  
