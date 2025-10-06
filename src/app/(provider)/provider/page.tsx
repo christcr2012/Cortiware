@@ -125,27 +125,29 @@ export default async function ProviderDashboardPage() {
             <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>System Health</p>
           </div>
 
-          {/* API Status */}
-          <div
-            className="backdrop-blur-sm rounded-xl p-6 transition-all"
-            style={{
-              background: 'var(--glass-bg)',
-              border: '1px solid var(--border-accent)',
-            }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div
-                className="w-12 h-12 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: 'var(--surface-hover)' }}
-              >
-                <svg className="w-6 h-6" style={{ color: 'var(--brand-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+          {/* Leads */}
+          <a href="/provider/leads" className="block focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-xl" style={{ outlineColor: 'var(--brand-primary)' }}>
+            <div
+              className="backdrop-blur-sm rounded-xl p-6 transition-all hover:scale-[1.01]"
+              style={{
+                background: 'var(--glass-bg)',
+                border: '1px solid var(--border-accent)',
+              }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div
+                  className="w-12 h-12 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: 'var(--surface-hover)' }}
+                >
+                  <svg className="w-6 h-6" style={{ color: 'var(--brand-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h12" />
+                  </svg>
+                </div>
+                <span className="text-3xl font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.totalLeads}</span>
               </div>
-              <span className="text-sm font-bold" style={{ color: 'var(--brand-primary)' }}>{stats.apiStatus}</span>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Leads (click to manage)</p>
             </div>
-            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>API Status</p>
-          </div>
+          </a>
         </div>
 
         {/* Quick Actions */}

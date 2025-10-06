@@ -66,6 +66,12 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider" active={active('/provider') && pathname === '/provider'}>
             Dashboard
           </ProviderNavLink>
+          <ProviderNavLink href="/provider/leads" active={active('/provider/leads')}>
+            Leads
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/ai" active={active('/provider/ai')}>
+            AI
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/clients" active={active('/provider/clients')}>
             Client Accounts
           </ProviderNavLink>
