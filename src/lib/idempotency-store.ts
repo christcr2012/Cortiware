@@ -1,39 +1,80 @@
-// Simple in-memory idempotency store
-// TODO: Upgrade to Redis/Upstash or Postgres table for production
+/**
+ * Idempotency Store - Request Deduplication
+ *
+ * Current: In-memory store (single instance)
+ * Production: Redis/Vercel KV for multi-instance deployments
+ *
+ * Per GUARDRAILS_INFRA.md:
+ * - Methods: POST, PUT
+ * - Key format: ${route}|${keyId}|${idempotencyKey}
+ * - Value: { bodyHash, status, headers, body, createdAt }
+ * - TTL: 24 hours
+ * - Body hash: SHA-256 hex of raw request body (UTF-8)
+ * - Conflict rule: same key + different bodyHash → 409
+ * - Replay rule: same key + same bodyHash → return stored response
+ */
 
 import crypto from 'crypto';
 
-type IdempotencyEntry = {
-  requestHash: string;
-  response: {
-    status: number;
-    body: any;
-  };
+export type IdempotencyEntry = {
+  bodyHash: string;
+  status: number;
+  headers?: Record<string, string>;
+  body: any;
+  createdAt: number;
   expiresAt: number;
 };
 
+export type IdempotencyCheckResult =
+  | { replay: false }
+  | { replay: true; response: { status: number; headers?: Record<string, string>; body: any } }
+  | { conflict: true };
+
+// In-memory store (TODO: Replace with Redis/Vercel KV)
 const store = new Map<string, IdempotencyEntry>();
 
 // Cleanup expired entries every 10 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of store.entries()) {
-    if (entry.expiresAt < now) {
-      store.delete(key);
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of store.entries()) {
+      if (entry.expiresAt < now) {
+        store.delete(key);
+      }
     }
-  }
-}, 10 * 60 * 1000);
-
-function hashRequest(body: string): string {
-  return crypto.createHash('sha256').update(body).digest('hex');
+  }, 10 * 60 * 1000);
 }
 
+/**
+ * Hash request body using SHA-256
+ *
+ * Per GUARDRAILS_INFRA.md: SHA-256 hex of raw request body (UTF-8)
+ *
+ * @param body - Raw request body string
+ * @returns SHA-256 hex hash
+ */
+function hashRequestBody(body: string): string {
+  return crypto.createHash('sha256').update(body, 'utf8').digest('hex');
+}
+
+/**
+ * Check idempotency for a request
+ *
+ * Per GUARDRAILS_INFRA.md:
+ * - Same key + same bodyHash → replay stored response
+ * - Same key + different bodyHash → 409 conflict
+ * - New key → allow request to proceed
+ *
+ * @param key - Idempotency key (format: ${route}|${keyId}|${idempotencyKey})
+ * @param requestBody - Raw request body string
+ * @returns Idempotency check result
+ */
 export async function checkIdempotency(
   key: string,
   requestBody: string
-): Promise<{ replay: false } | { replay: true; response: { status: number; body: any } } | { conflict: true }> {
+): Promise<IdempotencyCheckResult> {
   const entry = store.get(key);
-  const requestHash = hashRequest(requestBody);
+  const bodyHash = hashRequestBody(requestBody);
 
   if (!entry) {
     // First time seeing this key
@@ -47,28 +88,65 @@ export async function checkIdempotency(
     return { replay: false };
   }
 
-  if (entry.requestHash === requestHash) {
-    // Same request body, replay response
-    return { replay: true, response: entry.response };
+  if (entry.bodyHash === bodyHash) {
+    // Same request body, replay stored response
+    return {
+      replay: true,
+      response: {
+        status: entry.status,
+        headers: entry.headers,
+        body: entry.body,
+      },
+    };
   }
 
-  // Different request body with same key = conflict
+  // Different request body with same key = conflict (409)
   return { conflict: true };
 }
 
+/**
+ * Record idempotency entry for a request
+ *
+ * Per GUARDRAILS_INFRA.md:
+ * - TTL: 24 hours (configurable via IDEMPOTENCY_TTL_HOURS env var)
+ * - Store: bodyHash, status, headers, body, createdAt, expiresAt
+ *
+ * @param key - Idempotency key (format: ${route}|${keyId}|${idempotencyKey})
+ * @param requestBody - Raw request body string
+ * @param response - Response to store (status, headers, body)
+ */
 export async function recordIdempotency(
   key: string,
   requestBody: string,
-  response: { status: number; body: any }
+  response: { status: number; headers?: Record<string, string>; body: any }
 ): Promise<void> {
-  const ttlMinutes = parseInt(process.env.IDEMPOTENCY_TTL_MINUTES || '1440', 10);
-  const expiresAt = Date.now() + ttlMinutes * 60 * 1000;
-  const requestHash = hashRequest(requestBody);
+  // Default TTL: 24 hours (per GUARDRAILS_INFRA.md)
+  const ttlHours = parseInt(process.env.IDEMPOTENCY_TTL_HOURS || '24', 10);
+  const now = Date.now();
+  const expiresAt = now + ttlHours * 60 * 60 * 1000;
+  const bodyHash = hashRequestBody(requestBody);
 
   store.set(key, {
-    requestHash,
-    response,
+    bodyHash,
+    status: response.status,
+    headers: response.headers,
+    body: response.body,
+    createdAt: now,
     expiresAt,
   });
+}
+
+/**
+ * Generate idempotency key
+ *
+ * Format per GUARDRAILS_INFRA.md: ${route}|${keyId}|${idempotencyKey}
+ *
+ * @param route - API route path
+ * @param keyId - API key ID or user identifier
+ * @param idempotencyKey - Client-provided idempotency key
+ * @returns Formatted idempotency key
+ */
+export function getIdempotencyKey(route: string, keyId: string, idempotencyKey: string): string {
+  return `idem:${route}:${keyId}:${idempotencyKey}`;
 }
 
