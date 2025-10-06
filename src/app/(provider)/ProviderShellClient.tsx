@@ -75,8 +75,37 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/clients" active={active('/provider/clients')}>
             Client Accounts
           </ProviderNavLink>
+
+          <div
+            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
+            Revenue Streams
+          </div>
+          <ProviderNavLink href="/provider/subscriptions" active={active('/provider/subscriptions')}>
+            Subscriptions
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/usage" active={active('/provider/usage')}>
+            Usage Metering
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/addons" active={active('/provider/addons')}>
+            Add-ons
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/billing" active={active('/provider/billing')}>
             Billing & Revenue
+          </ProviderNavLink>
+
+          <div
+            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
+            Operations
+          </div>
+          <ProviderNavLink href="/provider/incidents" active={active('/provider/incidents')}>
+            Incidents & SLA
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/audit" active={active('/provider/audit')}>
+            Audit Log
           </ProviderNavLink>
           <ProviderNavLink href="/provider/analytics" active={active('/provider/analytics')}>
             Analytics
