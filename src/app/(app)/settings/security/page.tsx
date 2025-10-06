@@ -122,30 +122,47 @@ export default function SecuritySettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
+    <div className="min-h-screen p-8" style={{ background: 'var(--bg-main)' }}>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-white mb-8">Security Settings</h1>
+        <h1 className="text-3xl font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Security Settings</h1>
 
         {/* Two-Factor Authentication Section */}
-        <div className="bg-gray-800 rounded-lg p-6 mb-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Two-Factor Authentication</h2>
-          
+        <div
+          className="rounded-lg p-6 mb-6"
+          style={{
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--border-accent)',
+          }}
+        >
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Two-Factor Authentication</h2>
+
           {error && (
-            <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded mb-4">
+            <div
+              className="px-4 py-3 rounded mb-4"
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgb(239, 68, 68)',
+                color: 'rgb(239, 68, 68)',
+              }}
+            >
               {error}
             </div>
           )}
 
           {!totpEnabled && enrollmentStep === 'initial' && (
             <div>
-              <p className="text-gray-300 mb-4">
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Add an extra layer of security to your account by enabling two-factor authentication.
                 You'll need to enter a code from your authenticator app when you log in.
               </p>
               <button
                 onClick={handleEnableTOTP}
                 disabled={loading}
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                className="px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                style={{
+                  background: 'var(--brand-primary)',
+                  color: 'var(--text-primary)',
+                }}
               >
                 {loading ? 'Loading...' : 'Enable 2FA'}
               </button>
@@ -154,8 +171,8 @@ export default function SecuritySettingsPage() {
 
           {enrollmentStep === 'scan' && (
             <div>
-              <h3 className="text-lg font-semibold text-white mb-4">Step 1: Scan QR Code</h3>
-              <p className="text-gray-300 mb-4">
+              <h3 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Step 1: Scan QR Code</h3>
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.)
               </p>
               {qrCode && (
@@ -163,22 +180,22 @@ export default function SecuritySettingsPage() {
                   <img src={qrCode} alt="TOTP QR Code" className="w-64 h-64" />
                 </div>
               )}
-              <p className="text-gray-400 text-sm mb-4">
-                Can't scan? Enter this code manually: <code className="bg-gray-700 px-2 py-1 rounded">{secret}</code>
+              <p className="text-sm mb-4" style={{ color: 'var(--text-tertiary)' }}>
+                Can't scan? Enter this code manually: <code className="px-2 py-1 rounded" style={{ background: 'var(--surface-2)' }}>{secret}</code>
               </p>
-              
-              <h3 className="text-lg font-semibold text-white mb-4 mt-6">Step 2: Save Backup Codes</h3>
-              <p className="text-gray-300 mb-4">
+
+              <h3 className="text-lg font-semibold mb-4 mt-6" style={{ color: 'var(--text-primary)' }}>Step 2: Save Backup Codes</h3>
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Save these backup codes in a safe place. You can use them to log in if you lose access to your authenticator app.
               </p>
-              <div className="bg-gray-900 p-4 rounded-lg mb-4 font-mono text-sm">
+              <div className="p-4 rounded-lg mb-4 font-mono text-sm" style={{ background: 'var(--surface-2)' }}>
                 {backupCodes.map((code, i) => (
-                  <div key={i} className="text-gray-300">{code}</div>
+                  <div key={i} style={{ color: 'var(--text-secondary)' }}>{code}</div>
                 ))}
               </div>
 
-              <h3 className="text-lg font-semibold text-white mb-4 mt-6">Step 3: Verify</h3>
-              <p className="text-gray-300 mb-4">
+              <h3 className="text-lg font-semibold mb-4 mt-6" style={{ color: 'var(--text-primary)' }}>Step 3: Verify</h3>
+              <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
                 Enter the 6-digit code from your authenticator app to complete setup:
               </p>
               <div className="flex gap-4">
@@ -188,12 +205,21 @@ export default function SecuritySettingsPage() {
                   onChange={(e) => setVerificationCode(e.target.value)}
                   placeholder="000000"
                   maxLength={6}
-                  className="bg-gray-700 text-white px-4 py-2 rounded-lg w-32 text-center text-lg font-mono"
+                  className="px-4 py-2 rounded-lg w-32 text-center text-lg font-mono"
+                  style={{
+                    background: 'var(--surface-2)',
+                    color: 'var(--text-primary)',
+                    border: '1px solid var(--border-accent)',
+                  }}
                 />
                 <button
                   onClick={handleVerifyTOTP}
                   disabled={loading || verificationCode.length !== 6}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                  className="px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                  style={{
+                    background: 'var(--brand-primary)',
+                    color: 'var(--text-primary)',
+                  }}
                 >
                   {loading ? 'Verifying...' : 'Verify & Enable'}
                 </button>
@@ -203,12 +229,23 @@ export default function SecuritySettingsPage() {
 
           {enrollmentStep === 'complete' && (
             <div>
-              <div className="bg-green-500/10 border border-green-500 text-green-500 px-4 py-3 rounded mb-4">
+              <div
+                className="px-4 py-3 rounded mb-4"
+                style={{
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgb(34, 197, 94)',
+                  color: 'rgb(34, 197, 94)',
+                }}
+              >
                 ✅ Two-factor authentication enabled successfully!
               </div>
               <button
                 onClick={() => setEnrollmentStep('initial')}
-                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium"
+                className="px-6 py-2 rounded-lg font-medium"
+                style={{
+                  background: 'var(--surface-hover)',
+                  color: 'var(--text-primary)',
+                }}
               >
                 Done
               </button>
@@ -217,13 +254,24 @@ export default function SecuritySettingsPage() {
 
           {totpEnabled && enrollmentStep === 'initial' && (
             <div>
-              <div className="bg-green-500/10 border border-green-500 text-green-500 px-4 py-3 rounded mb-4">
+              <div
+                className="px-4 py-3 rounded mb-4"
+                style={{
+                  background: 'rgba(34, 197, 94, 0.1)',
+                  border: '1px solid rgb(34, 197, 94)',
+                  color: 'rgb(34, 197, 94)',
+                }}
+              >
                 ✅ Two-factor authentication is enabled
               </div>
               <button
                 onClick={handleDisableTOTP}
                 disabled={loading}
-                className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                className="px-6 py-2 rounded-lg font-medium disabled:opacity-50"
+                style={{
+                  background: 'rgb(220, 38, 38)',
+                  color: 'white',
+                }}
               >
                 {loading ? 'Loading...' : 'Disable 2FA'}
               </button>
@@ -232,9 +280,15 @@ export default function SecuritySettingsPage() {
         </div>
 
         {/* Password Change Section */}
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-xl font-semibold text-white mb-4">Change Password</h2>
-          <p className="text-gray-300 mb-4">
+        <div
+          className="rounded-lg p-6"
+          style={{
+            background: 'var(--glass-bg)',
+            border: '1px solid var(--border-accent)',
+          }}
+        >
+          <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Change Password</h2>
+          <p className="mb-4" style={{ color: 'var(--text-secondary)' }}>
             Coming soon...
           </p>
         </div>

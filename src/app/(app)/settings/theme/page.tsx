@@ -16,32 +16,39 @@ export default async function ClientThemeSettingsPage() {
   return (
     <div className="space-y-8 p-6">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2">
+        <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>
           Theme Settings
         </h1>
-        <p className="text-gray-400">
+        <p style={{ color: 'var(--text-secondary)' }}>
           Customize the appearance of your client portal
         </p>
       </div>
 
       {/* Theme Settings Card */}
       <div
-        className="rounded-xl border border-white/10 p-6"
+        className="rounded-xl p-6"
         style={{
-          background: 'linear-gradient(135deg, rgba(17,24,39,0.8) 0%, rgba(31,41,55,0.8) 100%)',
+          background: 'var(--glass-bg)',
+          border: '1px solid var(--border-primary)',
           backdropFilter: 'blur(10px)',
         }}
       >
-        <h2 className="text-xl font-semibold text-white mb-4">Theme Customization</h2>
-        <div className="flex items-start gap-3 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-6">
-          <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Theme Customization</h2>
+        <div
+          className="flex items-start gap-3 p-4 rounded-lg mb-6"
+          style={{
+            background: 'var(--surface-hover)',
+            border: '1px solid var(--border-accent)',
+          }}
+        >
+          <svg className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--brand-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div>
-            <p className="text-blue-300 text-sm font-medium mb-1">
+            <p className="text-sm font-medium mb-1" style={{ color: 'var(--brand-primary)' }}>
               Unified Client-Side Theme
             </p>
-            <p className="text-gray-400 text-sm">
+            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
               This theme applies to all client-side portals: Owner portal, Accountant portal, and future vendor portals.
               Only Owner accounts can change this setting. Accountants will see the theme you select here.
             </p>
