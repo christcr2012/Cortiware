@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 function clearAccountantCookies(url: URL) {
-  const res = NextResponse.redirect(new URL('/accountant/login', url), 303);
+  // Redirect to unified login page
+  const res = NextResponse.redirect(new URL('/login', url), 303);
   const expire = 'Thu, 01 Jan 1970 00:00:00 GMT';
   const common = 'Path=/; HttpOnly; SameSite=Lax';
   ['rs_accountant', 'accountant-session', 'ws_accountant'].forEach((name) => {
