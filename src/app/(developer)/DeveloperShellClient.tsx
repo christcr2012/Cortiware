@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 
 /**
  * Provider Developer Portal Shell
- * Part of provider-side system with masculine green theme
+ * Uses theme CSS variables for dynamic theming
  * For provider developers working on the platform
  */
 export default function DeveloperShellClient({ children }: { children: React.ReactNode }) {
@@ -18,25 +18,43 @@ export default function DeveloperShellClient({ children }: { children: React.Rea
       style={{
         gridTemplateColumns: '280px 1fr',
         gridTemplateRows: '80px 1fr',
-        background: 'linear-gradient(135deg, #0a0f0d 0%, #111816 100%)',
+        background: 'var(--bg-main)',
       }}
     >
       {/* Sidebar */}
       <aside
-        style={{ gridRow: '1 / span 2' }}
-        className="border-r border-green-500/20 bg-gradient-to-b from-gray-900/50 to-black/50 backdrop-blur-sm"
+        style={{
+          gridRow: '1 / span 2',
+          borderRight: '1px solid var(--border-primary)',
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(10px)',
+        }}
       >
-        <div className="h-20 flex items-center justify-center border-b border-green-500/20 px-4">
+        <div
+          className="h-20 flex items-center justify-center px-4"
+          style={{ borderBottom: '1px solid var(--border-primary)' }}
+        >
           <div className="text-center">
-            <div className="text-2xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-              Robinson Solutions
+            <div
+              className="text-2xl font-bold bg-clip-text text-transparent"
+              style={{ backgroundImage: 'var(--brand-gradient)' }}
+            >
+              Robinson AI Systems
             </div>
-            <div className="text-xs text-green-400/70 font-mono tracking-wider">DEVELOPER PORTAL</div>
+            <div
+              className="text-xs font-mono tracking-wider"
+              style={{ color: 'var(--brand-primary)', opacity: 0.7 }}
+            >
+              DEVELOPER PORTAL
+            </div>
           </div>
         </div>
 
         <nav className="py-4 text-sm">
-          <div className="px-4 mb-2 text-xs font-semibold text-green-400/50 uppercase tracking-wider">
+          <div
+            className="px-4 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
             Development
           </div>
           <DevNavLink href="/developer" active={active('/developer') && pathname === '/developer'}>
@@ -52,14 +70,20 @@ export default function DeveloperShellClient({ children }: { children: React.Rea
             API Explorer
           </DevNavLink>
 
-          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-green-400/50 uppercase tracking-wider">
+          <div
+            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
             Diagnostics
           </div>
           <DevNavLink href="/developer/diagnostics" active={active('/developer/diagnostics')}>
             Federation Diagnostics
           </DevNavLink>
 
-          <div className="px-4 mt-6 mb-2 text-xs font-semibold text-green-400/50 uppercase tracking-wider">
+          <div
+            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
             Configuration
           </div>
           <DevNavLink href="/developer/settings" active={active('/developer/settings')}>
@@ -69,17 +93,29 @@ export default function DeveloperShellClient({ children }: { children: React.Rea
       </aside>
 
       <header
-        className="border-b border-green-500/20"
         style={{
-          background: 'linear-gradient(180deg, rgba(16,185,129,0.05), rgba(5,150,105,0.02))',
+          background: 'var(--glass-bg-light)',
+          borderBottom: '1px solid var(--border-primary)',
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
         }}
       >
         <div className="h-20 px-6 flex items-center justify-between">
-          <div className="text-sm text-green-400/70 font-mono">DEVELOPER ACCESS</div>
+          <div
+            className="text-sm font-mono"
+            style={{ color: 'var(--brand-primary)', opacity: 0.7 }}
+          >
+            DEVELOPER ACCESS
+          </div>
           <form action="/api/developer/logout" method="post">
-            <button className="text-sm px-4 py-2 bg-green-600/20 hover:bg-green-600/30 text-green-400 border border-green-500/30 rounded-lg transition-all font-mono hover:shadow-lg hover:shadow-green-500/20">
+            <button
+              className="text-sm px-4 py-2 rounded-lg transition-all font-mono"
+              style={{
+                background: 'var(--surface-hover)',
+                color: 'var(--brand-primary)',
+                border: '1px solid var(--border-accent)',
+              }}
+            >
               LOGOUT
             </button>
           </form>
@@ -97,11 +133,20 @@ function DevNavLink({ href, active, children }: { href: string; active: boolean;
   return (
     <Link
       href={href}
-      className={`block px-4 py-2.5 transition-all ${
+      className="block px-4 py-2.5 transition-all border-l-4"
+      style={
         active
-          ? 'text-green-400 bg-green-500/10 border-l-4 border-green-500 shadow-lg shadow-green-500/10'
-          : 'text-gray-400 hover:text-green-300 hover:bg-green-500/5 border-l-4 border-transparent'
-      }`}
+          ? {
+              color: 'var(--brand-primary)',
+              background: 'var(--surface-hover)',
+              borderLeftColor: 'var(--brand-primary)',
+              boxShadow: 'var(--shadow-glow)',
+            }
+          : {
+              color: 'var(--text-secondary)',
+              borderLeftColor: 'transparent',
+            }
+      }
     >
       {children}
     </Link>
