@@ -1,4 +1,4 @@
-# StreamFlow Architecture - Complete System Separation
+# Cortiware Architecture - Complete System Separation
 
 ## Critical Architectural Principle
 
