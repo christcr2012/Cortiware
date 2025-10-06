@@ -825,9 +825,73 @@ model FederationKey {
   scope      String    // 'events' | 'usage' | 'billing' | 'all'
   createdAt  DateTime  @default(now())
   disabledAt DateTime? // When key was disabled (soft delete)
+  rotatedAt  DateTime? // When key was last rotated
+  lastUsedAt DateTime? // Last time key was used for authentication
 
   @@index([tenantId, scope])
   @@index([keyId, disabledAt])
+}
+
+/// OIDCConfig stores OIDC/OAuth provider configuration for federation
+model OIDCConfig {
+  id            String    @id @default(cuid())
+  enabled       Boolean   @default(false)
+  issuerUrl     String    // OIDC issuer URL
+  clientId      String    // OAuth client ID
+  clientSecret  String    // Encrypted OAuth client secret
+  scopes        String    @default("openid profile email") // Space-separated scopes
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastTestedAt  DateTime? // Last successful connection test
+}
+
+/// ProviderIntegration tracks external provider connections
+model ProviderIntegration {
+  id          String    @id @default(cuid())
+  name        String    // Provider name (e.g., "Acme Corp")
+  type        String    // 'oidc' | 'saml' | 'api_key'
+  config      Json      @default("{}") // Provider-specific configuration
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastSyncAt  DateTime? // Last successful sync
+
+  @@index([type, enabled])
+}
+
+/// AuditEvent stores provider-side audit trail
+model AuditEvent {
+  id          String   @id @default(cuid())
+  actorType   String   // 'provider' | 'system' | 'user'
+  actorId     String?  // Provider user ID or system identifier
+  action      String   // 'create' | 'update' | 'delete' | 'access'
+  entityType  String   // 'federation_key' | 'oidc_config' | 'client' | etc.
+  entityId    String?  // ID of affected entity
+  metadata    Json     @default("{}") // Additional context (redacted PII)
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([createdAt])
+}
+
+/// AnalyticsSnapshot stores daily aggregated metrics for caching
+model AnalyticsSnapshot {
+  id              String   @id @default(cuid())
+  snapshotDate    DateTime @db.Date // Date of snapshot
+  mrrCents        Int      @default(0) // Monthly Recurring Revenue in cents
+  arrCents        Int      @default(0) // Annual Recurring Revenue in cents
+  activeClients   Int      @default(0)
+  newClients      Int      @default(0)
+  churnedClients  Int      @default(0)
+  totalRevenue    Int      @default(0) // Total revenue in cents
+  metricsJson     Json     @default("{}") // Additional metrics
+  createdAt       DateTime @default(now())
+
+  @@unique([snapshotDate])
+  @@index([snapshotDate])
 }
 
 // ============================================================================

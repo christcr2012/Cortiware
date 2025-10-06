@@ -1,13 +1,27 @@
 import { NextRequest } from 'next/server';
 import { jsonOk, jsonError } from '@/lib/api/response';
 import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { withAudit } from '@/lib/api/audit-middleware';
+import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-
-// Mock storage - in production would use database
-const keys: Array<{ id: string; name: string; key: string; createdAt: string; lastUsed: string | null }> = [];
+import bcrypt from 'bcryptjs';
 
 const getHandler = async (req: NextRequest) => {
   try {
+    const keys = await prisma.federationKey.findMany({
+      where: { disabledAt: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        tenantId: true,
+        keyId: true,
+        scope: true,
+        createdAt: true,
+        lastUsedAt: true,
+        rotatedAt: true,
+      },
+    });
+
     return jsonOk({ keys });
   } catch (error) {
     console.error('Error listing federation keys:', error);
@@ -18,23 +32,35 @@ const getHandler = async (req: NextRequest) => {
 const postHandler = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    const { name } = body;
+    const { tenantId, scope = 'all' } = body;
 
-    if (!name) {
-      return jsonError(400, 'invalid_request', 'Name is required');
+    if (!tenantId) {
+      return jsonError(400, 'invalid_request', 'tenantId is required');
     }
 
-    const key = {
-      id: crypto.randomUUID(),
-      name,
-      key: `fed_${crypto.randomBytes(32).toString('hex')}`,
-      createdAt: new Date().toISOString(),
-      lastUsed: null
-    };
+    // Generate key pair
+    const keyId = `fed_${crypto.randomBytes(16).toString('hex')}`;
+    const secret = crypto.randomBytes(32).toString('hex');
+    const secretHash = await bcrypt.hash(secret, 10);
 
-    keys.push(key);
+    const key = await prisma.federationKey.create({
+      data: {
+        tenantId,
+        keyId,
+        secretHash,
+        scope,
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        keyId: true,
+        scope: true,
+        createdAt: true,
+      },
+    });
 
-    return jsonOk({ key });
+    // Return secret only once (never stored plaintext)
+    return jsonOk({ key: { ...key, secret } });
   } catch (error) {
     console.error('Error creating federation key:', error);
     return jsonError(500, 'internal_error', 'Failed to create key');
@@ -42,5 +68,12 @@ const postHandler = async (req: NextRequest) => {
 };
 
 export const GET = compose(withProviderAuth())(getHandler);
-export const POST = compose(withProviderAuth())(postHandler);
+export const POST = compose(withProviderAuth())(
+  withAudit(postHandler, {
+    action: 'create',
+    entityType: 'federation_key',
+    actorType: 'provider',
+    redactFields: ['secret', 'secretHash'],
+  })
+);
 
