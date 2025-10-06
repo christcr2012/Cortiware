@@ -19,7 +19,7 @@ export async function run() {
 
   // Test developer diagnostics service
   const diag = await developerFederationService.getDiagnostics();
-  assert(diag.service === 'robinson-solutions-api', 'diagnostics returns service name');
+  assert(diag.service === 'cortiware-api', 'diagnostics returns service name');
   assert(typeof diag.version === 'string', 'diagnostics returns version');
   assert(typeof diag.time === 'string', 'diagnostics returns timestamp');
   assert(typeof diag.environment === 'string', 'diagnostics returns environment');

@@ -1,12 +1,40 @@
-# StreamFlow Implementation Status
+# Cortiware Implementation Status
 
-**Date:** 2025-10-06  
-**Agent:** Sonnet 4.5  
-**Phase:** Post-Theme System Completion
+**Product:** Cortiware (formerly StreamFlow/WorkStream)
+**Company:** Robinson AI Systems
+**Date:** 2025-10-06
+**Agent:** Sonnet 4.5
+**Phase:** Post-Onboarding & Monetization + Audit/Metrics
 
 ---
 
 ## ✅ COMPLETED
+
+### Onboarding & Monetization (GPT-5 + Sonnet 4.5)
+- ✅ Public onboarding flow (`/onboarding` with optional `?t=TOKEN`)
+- ✅ Invite-based onboarding with HMAC-SHA256 tokens
+- ✅ Provider monetization UI (Plans, Prices, Invites, Coupons, Offers, Overrides)
+- ✅ Global monetization config (default plan/price, trial days, public toggle)
+- ✅ Stripe integration during onboarding (optional, with fallback)
+- ✅ Real pricing calculation from `PlanPrice.unitAmountCents`
+- ✅ Coupon discount application (percentOff, amountOffCents)
+- ✅ Offer discount application with best-benefit logic
+- ✅ Optional coupon code support in public onboarding
+- ✅ Payment method status display in owner subscription page
+- ✅ Pagination for coupons/offers (limit, offset, total count)
+- ✅ Filtering for coupons (code, active) and offers (active)
+- ✅ Delete endpoints for coupons and offers
+- ✅ Inline delete buttons in provider UI
+
+### Observability & Audit (Sonnet 4.5)
+- ✅ Audit log service (`src/services/audit-log.service.ts`)
+- ✅ Metrics tracking service (`src/services/metrics.service.ts`)
+- ✅ Audit logging on onboarding events (accepted, public_attempt, public_success)
+- ✅ Audit logging on monetization changes (create, update, delete)
+- ✅ Funnel metrics tracking (invite_created, invite_accepted, public_attempt, public_success)
+- ✅ Provider audit log viewer (`/provider/audit`)
+- ✅ Developer audit log viewer (`/developer/audit`)
+- ✅ Unit test guard (UNIT_TESTS=1 disables audit/metrics writes)
 
 ### Theme System (17 files)
 - ✅ All portals converted to CSS variables
@@ -67,7 +95,7 @@ Files updated:
 - ✅ `src/app/(accountant)/accountant/page.tsx` - Real financials
 
 ### 2. Client Portal Pages
-**Priority:** HIGH  
+**Priority:** HIGH
 **Status:** TODO
 
 Missing pages:
@@ -82,7 +110,7 @@ Missing pages:
 These pages exist in `src/_disabled/pages/` but need to be migrated to App Router.
 
 ### 3. Provider Portal Pages
-**Priority:** MEDIUM  
+**Priority:** MEDIUM
 **Status:** Partially Complete
 
 Current state:
@@ -96,7 +124,7 @@ Missing:
 - [ ] `/provider/federation` - Federation management interface
 
 ### 4. API Endpoints (v2)
-**Priority:** MEDIUM  
+**Priority:** MEDIUM
 **Status:** Stubs Only
 
 Current state:
@@ -112,7 +140,7 @@ Tasks:
 - [ ] Wire to Prisma database
 
 ### 5. Guardrails Implementation
-**Priority:** MEDIUM  
+**Priority:** MEDIUM
 **Status:** Partially Complete
 
 Current state:
@@ -130,7 +158,7 @@ Tasks:
 - [ ] Add audit log viewer in provider/developer portals
 
 ### 6. Database Schema
-**Priority:** MEDIUM  
+**Priority:** MEDIUM
 **Status:** Needs Review
 
 Tasks:
@@ -141,7 +169,7 @@ Tasks:
 - [ ] Seed test data
 
 ### 7. Testing
-**Priority:** MEDIUM  
+**Priority:** MEDIUM
 **Status:** TODO
 
 Tasks:
@@ -152,7 +180,7 @@ Tasks:
 - [ ] Test 401/403/429/409 error paths
 
 ### 8. Design System Expansion
-**Priority:** LOW  
+**Priority:** LOW
 **Status:** TODO
 
 Tasks:
@@ -164,7 +192,7 @@ Tasks:
 - [ ] Data tables with sorting/filtering
 
 ### 9. API Explorer Automation
-**Priority:** LOW  
+**Priority:** LOW
 **Status:** Partially Complete
 
 Current state:
@@ -178,10 +206,19 @@ Tasks:
 - [ ] Add interactive API testing UI
 
 ### 10. Documentation
-**Priority:** LOW  
+**Priority:** LOW
 **Status:** Partially Complete
 
 Current state:
+- Onboarding + Monetization (latest):
+  - ✅ Invite token verify/accept; ✅ Public self-serve onboarding; ✅ Provider UI for plans/prices/invites/global defaults; ✅ Coupons/Offers/Overrides UI
+  - ✅ Guardrails: Idempotency + Rate limit applied to onboarding accept endpoints
+  - ✅ Pricing: Placeholder subscriptions now record real priceCents; invite coupons applied
+  - ✅ Owner UX: Subscription page shows payment-method nudge
+  - ✅ Unit tests expanded: accept-public API and onboarding service
+
+  - ✅ Typecheck/Build; ✅ Unit test for token verification
+
 - Architecture docs: ✅ Complete
 - Handoff docs: ✅ Complete
 - API specs: ✅ Complete (in Reference/)

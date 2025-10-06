@@ -27,8 +27,34 @@ type RateLimitEntry = {
   resetAt: number;
 };
 
-// In-memory store (TODO: Replace with Redis/Vercel KV)
+// In-memory store (fallback when Redis not configured)
 const store = new Map<string, RateLimitEntry>();
+
+// Redis support
+async function getFromRedis(key: string): Promise<RateLimitEntry | null> {
+  const { getRedis } = await import('./redis');
+  const redis = getRedis();
+  if (!redis) return null;
+
+  try {
+    const data = await redis.get(`ratelimit:${key}`);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function setToRedis(key: string, entry: RateLimitEntry, ttlMs: number): Promise<void> {
+  const { getRedis } = await import('./redis');
+  const redis = getRedis();
+  if (!redis) return;
+
+  try {
+    await redis.setex(`ratelimit:${key}`, Math.ceil(ttlMs / 1000), JSON.stringify(entry));
+  } catch (error) {
+    console.error('Redis setex error:', error);
+  }
+}
 
 // Cleanup old entries every 5 minutes
 if (typeof setInterval !== 'undefined') {
@@ -54,12 +80,26 @@ export async function checkRateLimit(
   config: RateLimitConfig
 ): Promise<RateLimitResult> {
   const now = Date.now();
-  const entry = store.get(key);
+
+  // Try Redis first, fallback to in-memory
+  let entry = await getFromRedis(key);
+  const usingRedis = entry !== null;
+
+  if (!usingRedis) {
+    entry = store.get(key) || null;
+  }
 
   if (!entry || entry.resetAt < now) {
     // New window - initialize with first request
     const resetAt = now + config.windowMs;
-    store.set(key, { count: 1, resetAt });
+    const newEntry = { count: 1, resetAt };
+
+    if (usingRedis || process.env.REDIS_URL) {
+      await setToRedis(key, newEntry, config.windowMs);
+    } else {
+      store.set(key, newEntry);
+    }
+
     return {
       allowed: true,
       remaining: config.max - 1,
@@ -80,7 +120,13 @@ export async function checkRateLimit(
 
   // Increment count (consume token)
   entry.count++;
-  store.set(key, entry);
+
+  if (usingRedis || process.env.REDIS_URL) {
+    await setToRedis(key, entry, entry.resetAt - now);
+  } else {
+    store.set(key, entry);
+  }
+
   return {
     allowed: true,
     remaining: config.max - entry.count,

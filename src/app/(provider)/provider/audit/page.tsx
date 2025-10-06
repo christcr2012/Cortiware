@@ -28,6 +28,51 @@ export default async function ProviderAuditPage(props: any) {
         </p>
       </header>
 
+      {/* Filters */}
+      <div className="rounded-xl p-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>
+        <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Filters</h2>
+        <form method="get" className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Entity</label>
+            <input
+              type="text"
+              name="entity"
+              defaultValue={sp?.entity || ''}
+              placeholder="e.g., onboarding, coupon"
+              className="w-full px-3 py-2 rounded-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Org ID</label>
+            <input
+              type="text"
+              name="orgId"
+              defaultValue={sp?.orgId || ''}
+              placeholder="Filter by organization"
+              className="w-full px-3 py-2 rounded-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+            />
+          </div>
+          <div className="flex items-end gap-2">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg"
+              style={{ background: 'var(--brand-primary)', color: 'var(--bg-main)' }}
+            >
+              Apply Filters
+            </button>
+            <a
+              href="/provider/audit"
+              className="px-4 py-2 rounded-lg"
+              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+            >
+              Clear
+            </a>
+          </div>
+        </form>
+      </div>
+
       {/* KPI Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-xl p-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>

@@ -10,7 +10,8 @@ export const GET = guard(async (_req: NextRequest) => {
     const data = await developerFederationService.getDiagnostics();
     return jsonOk(data);
   } catch (e) {
-    return jsonError(501, 'NotImplemented', 'Developer diagnostics not implemented');
+    const error = e as Error;
+    return jsonError(500, 'InternalError', error.message || 'Failed to get diagnostics');
   }
 });
 

@@ -56,14 +56,24 @@ export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
     }
 
     // Determine identifier (cookie token or IP)
-    const jar = await cookies();
-    const identifier =
-      jar.get('rs_provider')?.value ||
-      jar.get('rs_developer')?.value ||
-      jar.get('rs_user')?.value ||
-      req.headers.get('x-forwarded-for')?.split(',')[0] ||
-      req.headers.get('x-real-ip') ||
-      'unknown';
+    let identifier: string | null = null;
+    try {
+      const jar = await cookies();
+      identifier =
+        jar.get('rs_provider')?.value ||
+        jar.get('rs_developer')?.value ||
+        jar.get('rs_user')?.value ||
+        null;
+    } catch {
+      // Not in Next request scope (tests)
+      identifier = null;
+    }
+    if (!identifier) {
+      identifier =
+        req.headers.get('x-forwarded-for')?.split(',')[0] ||
+        req.headers.get('x-real-ip') ||
+        'unknown';
+    }
 
     const route = new URL(req.url).pathname;
     const key = getRateLimitKey(preset, identifier, route);

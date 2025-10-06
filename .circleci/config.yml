@@ -1,7 +1,7 @@
 version: 2.1
 
 # ============================================================================
-# CIRCLECI CONFIGURATION FOR ROBINSON SOLUTIONS (STREAMFLOW)
+# CIRCLECI CONFIGURATION FOR CORTIWARE BY ROBINSON AI SYSTEMS
 # ============================================================================
 # This pipeline runs on every push to test code quality and deploy to Vercel
 # ============================================================================
@@ -65,10 +65,10 @@ jobs:
           command: npm run build
           no_output_timeout: 10m
       
-      # Run tests (if you have them)
+      # Run unit tests
       - run:
-          name: Run Tests
-          command: npm test || echo "No tests configured yet"
+          name: Run Unit Tests
+          command: npm run test:unit
       
       # Store test results
       - store_test_results:

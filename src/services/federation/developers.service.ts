@@ -22,7 +22,7 @@ export interface DeveloperFederationService {
 export const developerFederationService: DeveloperFederationService = {
   async getDiagnostics() {
     return {
-      service: 'robinson-solutions-api',
+      service: 'cortiware-api',
       version: process.env.VERCEL_GIT_COMMIT_SHA?.substring(0, 7) || 'dev',
       time: new Date().toISOString(),
       environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'development',

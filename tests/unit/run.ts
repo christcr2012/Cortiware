@@ -5,6 +5,12 @@ import { run as runFedCfg } from './federation.config.test';
 import { run as runAuthHelpers } from './middleware.auth.test';
 import { run as runFedServices } from './federation.services.test';
 import { run as runOwnerAuth } from './owner.auth.test';
+import { run as runOnboardToken } from './onboarding.token.test';
+import { run as runAcceptPublic } from './onboarding.accept-public.api.test';
+import { run as runAcceptService } from './onboarding.accept.service.test';
+import { run as runNegativePaths } from './onboarding.negative-paths.test';
+
+process.env.UNIT_TESTS = '1';
 
 async function main() {
   const results = [
@@ -15,6 +21,10 @@ async function main() {
     await runAuthHelpers(),
     await runFedServices(),
     await runOwnerAuth(),
+    await runOnboardToken(),
+    await runAcceptPublic(),
+    await runAcceptService(),
+    await runNegativePaths(),
   ];
   const totals = results.reduce((acc, r) => ({
     passed: acc.passed + r.passed,

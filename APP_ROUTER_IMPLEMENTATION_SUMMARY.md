@@ -2,11 +2,35 @@
 
 ## What Was Done
 
-I've completely rebuilt the StreamFlow application using Next.js App Router with **proper architectural separation** between Provider, Developer, Accountant, and Client systems.
+I've completely rebuilt the Cortiware application using Next.js App Router with **proper architectural separation** between Provider, Developer, Accountant, and Client systems.
 
 ---
 
 ## The Problem You Identified
+
+### Onboarding + Monetization (New)
+- Public onboarding page: `/onboarding` supports invite token `?t=TOKEN` and public mode when enabled
+- API routes:
+  - `GET /api/onboarding/verify` (validate invite token)
+  - `POST /api/onboarding/accept` (accept invite → create org + owner)
+  - `POST /api/onboarding/accept-public` (public self‑serve when enabled)
+- Provider Monetization controls expanded:
+  - Plans, Prices, Invites, Global Defaults (publicOnboarding, defaults)
+  - Coupons (`/api/provider/monetization/coupons`), Offers (`/offers`), Tenant Overrides (`/overrides`)
+- All new code follows App Router separation and provider env‑auth rules.
+- Stripe integration during onboarding (when configured):
+  - Creates Stripe customer for org and subscription using PlanPrice.stripePriceId, with trial days when applicable
+  - Falls back to local placeholder subscription when Stripe is not configured
+  - Pricing & Discounts:
+    - Placeholder subscription now records actual priceCents from PlanPrice.unitAmountCents
+    - Invite coupons applied (percentOff or amountOffCents) with best discount
+  - Guardrails on onboarding:
+    - POST /api/onboarding/accept and /accept-public wrapped with withRateLimit('auth') + withIdempotencyRequired()
+  - Owner UX:
+    - Subscription page shows a payment-method nudge when trialing or $0 price and routes to Billing Portal
+
+
+
 
 You warned me about a critical issue: **"client side features were mixed in with some of the provider side pages"**
 

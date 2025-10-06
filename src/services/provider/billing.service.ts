@@ -117,13 +117,17 @@ export async function getRevenueByStream(): Promise<RevenueByStream> {
 
 /**
  * Get unbilled converted leads
+ * Returns leads that have been converted but not yet invoiced
  */
 export async function getUnbilledLeads(): Promise<UnbilledLead[]> {
   const leads = await prisma.lead.findMany({
     where: {
       status: 'CONVERTED',
       convertedAt: { not: null },
-      // TODO: Add filter for not invoiced
+      // Filter for leads not yet associated with a LeadInvoiceLine
+      LeadInvoiceLine: {
+        none: {},
+      },
     },
     select: {
       id: true,

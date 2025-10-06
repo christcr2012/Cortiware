@@ -1,8 +1,14 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import MonetizationClient from './MonetizationClient';
 
 async function fetchJSON(path: string) {
-  const res = await fetch(path, { cache: 'no-store' });
+  // Use absolute URL for server-side fetching in development
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+                  (process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '');
+  const url = baseUrl ? `${baseUrl}${path}` : path;
+
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) return null;
   return res.json();
 }
@@ -14,9 +20,9 @@ export default async function ProviderMonetizationPage() {
   }
 
   const [plans, prices, cfg] = await Promise.all([
-    fetchJSON(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/provider/monetization/plans`),
-    fetchJSON(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/provider/monetization/prices`),
-    fetchJSON(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/provider/monetization/global-config`),
+    fetchJSON('/api/provider/monetization/plans'),
+    fetchJSON('/api/provider/monetization/prices'),
+    fetchJSON('/api/provider/monetization/global-config'),
   ]);
 
   return (
@@ -52,6 +58,17 @@ export default async function ProviderMonetizationPage() {
               </ul>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Provider Controls */}
+      <section>
+        <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>Controls</h2>
+        {/* Client-side controls for creating plans/prices, invites, and toggling global defaults */}
+        {/* Keep server code thin; fetch and mutate via route handlers with provider cookies */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <div>
+          <MonetizationClient />
         </div>
       </section>
     </div>

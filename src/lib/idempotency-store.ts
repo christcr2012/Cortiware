@@ -30,8 +30,37 @@ export type IdempotencyCheckResult =
   | { replay: true; response: { status: number; headers?: Record<string, string>; body: any } }
   | { conflict: true };
 
-// In-memory store (TODO: Replace with Redis/Vercel KV)
+// In-memory store (fallback when Redis not configured)
 const store = new Map<string, IdempotencyEntry>();
+
+// Redis support
+async function getFromRedis(key: string): Promise<IdempotencyEntry | null> {
+  const { getRedis } = await import('./redis');
+  const redis = getRedis();
+  if (!redis) return null;
+
+  try {
+    const data = await redis.get(`idempotency:${key}`);
+    return data ? JSON.parse(data) : null;
+  } catch {
+    return null;
+  }
+}
+
+async function setToRedis(key: string, entry: IdempotencyEntry): Promise<void> {
+  const { getRedis } = await import('./redis');
+  const redis = getRedis();
+  if (!redis) return;
+
+  try {
+    const ttlSeconds = Math.ceil((entry.expiresAt - Date.now()) / 1000);
+    if (ttlSeconds > 0) {
+      await redis.setex(`idempotency:${key}`, ttlSeconds, JSON.stringify(entry));
+    }
+  } catch (error) {
+    console.error('Redis setex error:', error);
+  }
+}
 
 // Cleanup expired entries every 10 minutes
 if (typeof setInterval !== 'undefined') {
@@ -73,7 +102,14 @@ export async function checkIdempotency(
   key: string,
   requestBody: string
 ): Promise<IdempotencyCheckResult> {
-  const entry = store.get(key);
+  // Try Redis first, fallback to in-memory
+  let entry = await getFromRedis(key);
+  const usingRedis = entry !== null;
+
+  if (!usingRedis) {
+    entry = store.get(key) || null;
+  }
+
   const bodyHash = hashRequestBody(requestBody);
 
   if (!entry) {
@@ -126,14 +162,21 @@ export async function recordIdempotency(
   const expiresAt = now + ttlHours * 60 * 60 * 1000;
   const bodyHash = hashRequestBody(requestBody);
 
-  store.set(key, {
+  const entry: IdempotencyEntry = {
     bodyHash,
     status: response.status,
     headers: response.headers,
     body: response.body,
     createdAt: now,
     expiresAt,
-  });
+  };
+
+  // Store in Redis if configured, otherwise in-memory
+  if (process.env.REDIS_URL) {
+    await setToRedis(key, entry);
+  } else {
+    store.set(key, entry);
+  }
 }
 
 /**

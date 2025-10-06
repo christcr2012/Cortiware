@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
   const { orgId, planId, priceId, type, percentOff, amountOffCents, priceCents, startsAt, endsAt, reason } = body || {};
   if (!orgId) return NextResponse.json({ ok: false, error: 'missing_org' }, { status: 400 });
   const item = await prisma.tenantPriceOverride.create({ data: { orgId, planId, priceId, type, percentOff, amountOffCents, priceCents, startsAt, endsAt, reason } });
+  try { const { logMonetizationChange } = await import('@/services/audit-log.service'); await logMonetizationChange({ entity:'override', action:'create', id:item.id, orgId: orgId, newValue:item as any, reason }); } catch {}
   return NextResponse.json({ ok: true, item }, { status: 201 });
 }
 
@@ -32,7 +33,9 @@ export async function DELETE(req: NextRequest) {
   const url = new URL(req.url);
   const id = url.searchParams.get('id');
   if (!id) return NextResponse.json({ ok: false, error: 'missing_id' }, { status: 400 });
+  const before = await prisma.tenantPriceOverride.findUnique({ where: { id } });
   await prisma.tenantPriceOverride.delete({ where: { id } });
+  try { const { logMonetizationChange } = await import('@/services/audit-log.service'); await logMonetizationChange({ entity:'override', action:'delete', id:id, orgId: before?.orgId, oldValue:before as any }); } catch {}
   return NextResponse.json({ ok: true });
 }
 

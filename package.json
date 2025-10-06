@@ -1,5 +1,5 @@
 {
-  "name": "robinson-solutions",
+  "name": "cortiware",
   "private": true,
   "version": "0.0.1",
   "engines": {
@@ -33,6 +33,7 @@
     "daisyui": "^5.1.27",
     "flowbite": "^3.1.2",
     "flowbite-react": "^0.12.9",
+    "ioredis": "^5.8.1",
     "next": "^15.1.0",
     "openai": "^5.23.0",
     "otplib": "^12.0.1",
@@ -41,6 +42,7 @@
     "qrcode": "^1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "recharts": "^3.2.1",
     "stripe": "^14.25.0",
     "swr": "^2.2.5",
     "twilio": "4.22.0",
