@@ -53,6 +53,8 @@ model Org {
   usageMeters     UsageMeter[]     @relation("OrgUsageMeters")
   addonPurchases  AddonPurchase[]  @relation("OrgAddonPurchases")
 
+  tenantOverrides  TenantPriceOverride[]
+
   incidents      Incident[]      @relation("OrgIncidents")
   notifications  Notification[]  @relation("OrgNotifications")
 
@@ -910,4 +912,153 @@ enum InvoiceLineType {
   usage
   addon
   one_time
+}
+
+
+// ============================================================================
+// MONETIZATION CORE (Plans, Prices, Offers, Coupons, Overrides, Global Config)
+// ============================================================================
+
+enum BillingCadence {
+  MONTHLY
+  YEARLY
+}
+
+enum OverrideType {
+  FREE
+  DISCOUNT
+  CUSTOM_AMOUNT
+}
+
+model PricePlan {
+  id          String      @id @default(cuid())
+  key         String      @unique           // e.g. "starter", "pro", "enterprise"
+  name        String
+  description String?
+  active      Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  prices      PlanPrice[]
+  offers      Offer[]
+  overrides   TenantPriceOverride[]
+  asDefaultFor GlobalMonetizationConfig[]
+  invites     OnboardingInvite[]
+}
+
+model PlanPrice {
+  id              String         @id @default(cuid())
+  planId          String
+  currency        String         @default("usd")
+  unitAmountCents Int            // 999 = $9.99
+  cadence         BillingCadence @default(MONTHLY)
+  trialDays       Int?           @default(0)
+  active          Boolean        @default(true)
+  stripePriceId   String?        // optional mapping
+  createdAt       DateTime       @default(now())
+  overrides   TenantPriceOverride[]
+  asDefaultFor GlobalMonetizationConfig[]
+  invites     OnboardingInvite[]
+
+  updatedAt       DateTime       @updatedAt
+
+  plan PricePlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@index([planId, active])
+  @@index([stripePriceId])
+}
+
+model Offer {
+  id              String      @id @default(cuid())
+  name            String
+  percentOff      Int?        // 1..100
+  amountOffCents  Int?
+  duration        String?     // 'once' | 'repeating' | 'forever'
+  durationMonths  Int?
+  appliesToPlanId String?
+  startsAt        DateTime?
+  endsAt          DateTime?
+  active          Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  appliesToPlan PricePlan? @relation(fields: [appliesToPlanId], references: [id])
+  invites       OnboardingInvite[]
+}
+
+model Coupon {
+  id              String      @id @default(cuid())
+  code            String      @unique
+  name            String?
+  percentOff      Int?
+  amountOffCents  Int?
+  duration        String?     // 'once' | 'repeating' | 'forever'
+  durationMonths  Int?
+  startsAt        DateTime?
+  endsAt          DateTime?
+  maxRedemptions  Int?
+  active          Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  invites       OnboardingInvite[]
+}
+
+model TenantPriceOverride {
+  id              String        @id @default(cuid())
+  orgId           String
+  planId          String?
+  priceId         String?
+  type            OverrideType  @default(DISCOUNT)
+  percentOff      Int?
+  amountOffCents  Int?
+  priceCents      Int?
+  startsAt        DateTime?
+  endsAt          DateTime?
+  reason          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  org   Org       @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  plan  PricePlan? @relation(fields: [planId], references: [id])
+  price PlanPrice? @relation(fields: [priceId], references: [id])
+
+  @@index([orgId])
+  @@index([planId])
+  @@index([priceId])
+}
+
+model GlobalMonetizationConfig {
+  id               String   @id @default(cuid())
+  defaultPlanId    String?
+  defaultPriceId   String?
+  defaultTrialDays Int?     @default(0)
+  publicOnboarding Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  defaultPlan  PricePlan? @relation(fields: [defaultPlanId], references: [id])
+  defaultPrice PlanPrice? @relation(fields: [defaultPriceId], references: [id])
+}
+
+model OnboardingInvite {
+  id         String   @id @default(cuid())
+  token      String   @unique
+  email      String?
+  planId     String?
+  priceId    String?
+  offerId    String?
+  couponId   String?
+  trialDays  Int?     @default(0)
+  expiresAt  DateTime
+  usedAt     DateTime?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  plan   PricePlan? @relation(fields: [planId], references: [id])
+  price  PlanPrice? @relation(fields: [priceId], references: [id])
+  offer  Offer?     @relation(fields: [offerId], references: [id])
+  coupon Coupon?    @relation(fields: [couponId], references: [id])
+
+  @@index([expiresAt, usedAt])
 }

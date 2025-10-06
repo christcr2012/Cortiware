@@ -121,6 +121,59 @@ async function seedRBAC(opts: { ownerEmail: string; providerEmail: string; orgId
   if (providerUser) await ensureUserRole(providerUser.id, providerRole.id, null);
 }
 
+/** Seed monetization plans, prices, and global defaults (idempotent) */
+async function seedMonetization() {
+  const plans = [
+    { key: "starter", name: "Starter", description: "Core features for small teams" },
+    { key: "pro", name: "Professional", description: "Advanced features and higher limits" },
+    { key: "enterprise", name: "Enterprise", description: "Custom limits and priority support" },
+  ];
+
+  const createdPlans: Record<string, { id: string }> = {};
+  for (const p of plans) {
+    const plan = await prisma.pricePlan.upsert({
+      where: { key: p.key },
+      update: { name: p.name, description: p.description, active: true },
+      create: { key: p.key, name: p.name, description: p.description, active: true },
+      select: { id: true },
+    });
+    createdPlans[p.key] = plan;
+  }
+
+  // Helper to ensure a price exists
+  async function ensurePrice(planId: string, amountCents: number, cadence: "MONTHLY" | "YEARLY", stripePriceId?: string | null, trialDays?: number | null) {
+    const existing = await prisma.planPrice.findFirst({
+      where: { planId, unitAmountCents: amountCents, cadence },
+      select: { id: true },
+    });
+    if (!existing) {
+      await prisma.planPrice.create({
+        data: { planId, unitAmountCents: amountCents, cadence, currency: "usd", active: true, stripePriceId: stripePriceId ?? null, trialDays: trialDays ?? 0 },
+      });
+    }
+  }
+
+  // Starter: $19/mo, $190/yr
+  await ensurePrice(createdPlans.starter.id, 1900, "MONTHLY");
+  await ensurePrice(createdPlans.starter.id, 19000, "YEARLY");
+
+  // Pro: $49/mo, $490/yr
+  await ensurePrice(createdPlans.pro.id, 4900, "MONTHLY");
+  await ensurePrice(createdPlans.pro.id, 49000, "YEARLY");
+
+  // Enterprise: $199/mo, $1990/yr
+  await ensurePrice(createdPlans.enterprise.id, 19900, "MONTHLY");
+  await ensurePrice(createdPlans.enterprise.id, 199000, "YEARLY");
+
+  // Set global defaults if missing (Starter monthly, 14-day trial)
+  const starterMonthly = await prisma.planPrice.findFirst({ where: { planId: createdPlans.starter.id, cadence: "MONTHLY", active: true }, select: { id: true } });
+  const cfg = await prisma.globalMonetizationConfig.findFirst();
+  if (!cfg && starterMonthly) {
+    await prisma.globalMonetizationConfig.create({ data: { defaultPlanId: createdPlans.starter.id, defaultPriceId: starterMonthly.id, defaultTrialDays: 14, publicOnboarding: true } });
+  }
+}
+
+
 /** Seed a few demo leads (one converted & billable) */
 async function seedDemoLeads(orgId: string) {
   const now = new Date();
@@ -263,6 +316,9 @@ async function main() {
 
   // ---- 4) RBAC ----
   await seedRBAC({ ownerEmail: OWNER_EMAIL, providerEmail: PROVIDER_EMAIL, orgId: org.id });
+
+  // ---- 5) Monetization (plans, prices, defaults) ----
+  await seedMonetization();
 
   console.log("✅ Seed complete.");
 }
