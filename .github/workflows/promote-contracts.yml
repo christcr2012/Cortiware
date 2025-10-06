@@ -1,0 +1,43 @@
+name: Promote Contracts Snapshot
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to promote from (should be main after successful deploy)'
+        required: false
+        default: 'main'
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Promote contracts
+        run: npm run contracts:promote
+
+      - name: Commit and push
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions"
+            git config user.email "github-actions@github.com"
+            git add contracts/previous.json
+            git commit -m "chore(contracts): promote current to previous"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+

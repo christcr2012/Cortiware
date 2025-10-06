@@ -1,5 +1,6 @@
 // prisma/seed.ts
 import { PrismaClient, Role, LeadSource, LeadStatus, Prisma } from "@prisma/client";
+import { createOwnerIfMissing } from "@/lib/tenant";
 import crypto from "node:crypto";
 
 const prisma = new PrismaClient();
@@ -240,11 +241,7 @@ async function main() {
   const org = await getOrCreateOrg(ORG_NAME);
 
   // ---- 2) Users ----
-  const owner = await prisma.user.upsert({
-    where: { email: OWNER_EMAIL },
-    update: { orgId: org.id, role: Role.OWNER, status: "active" },
-    create: { orgId: org.id, email: OWNER_EMAIL, name: "Business Owner", role: Role.OWNER, status: "active" },
-  });
+  const owner = await createOwnerIfMissing({ orgId: org.id, email: OWNER_EMAIL, name: "Business Owner" });
   console.log("👤 Owner user:", owner.email);
 
   const staff = await prisma.user.upsert({

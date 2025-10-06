@@ -10,13 +10,19 @@ export const metadata: Metadata = {
  * Root Layout for App Router
  * Minimal wrapper - authentication and navigation handled per route group
  */
-export default function RootLayout({
+import { cookies } from 'next/headers';
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const adminTheme = cookieStore.get('rs_admin_theme')?.value;
+  const clientTheme = cookieStore.get('rs_client_theme')?.value;
+  const theme = adminTheme || clientTheme || 'futuristic-green';
   return (
-    <html lang="en">
+    <html lang="en" data-theme={theme}>
       <body>{children}</body>
     </html>
   );

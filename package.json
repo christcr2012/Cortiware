@@ -17,7 +17,11 @@
     "typecheck": "tsc --noEmit",
     "test": "echo \"No tests configured yet\" && exit 0",
     "test:unit": "tsx tests/unit/run.ts",
-    "test:e2e": "tsx tests/e2e/run.ts"
+    "test:e2e": "tsx tests/e2e/run.ts",
+    "contracts:gen": "node scripts/generate-contract-snapshot.js",
+    "contracts:diff": "node scripts/diff-contracts.js --fail-on-breaking",
+    "contracts:check": "npm run contracts:gen && node scripts/diff-contracts.js --fail-on-breaking",
+    "contracts:promote": "node scripts/promote-contracts.js"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",

@@ -52,6 +52,7 @@ interface AuditLogParams {
   userAgent: string;
   deviceFingerprint?: string;
   failureReason?: string;
+  method?: string;
   metadata?: Record<string, any>;
 }
 
@@ -72,8 +73,7 @@ export async function logAuthEvent(params: AuditLogParams): Promise<void> {
           ipAddress: params.ipAddress,
           userAgent: params.userAgent,
           deviceFingerprint: params.deviceFingerprint,
-          failureReason: params.failureReason,
-          metadata: params.metadata || {},
+          method: params.method ?? 'password',
         },
       });
     }
@@ -115,6 +115,7 @@ export async function logLoginSuccess(
     ipAddress,
     userAgent,
     deviceFingerprint,
+    metadata: { method },
   });
 }
 

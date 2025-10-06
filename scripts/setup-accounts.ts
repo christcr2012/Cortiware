@@ -109,7 +109,7 @@ async function createAccount(
         email,
         passwordHash: hashedPassword,
         name,
-        role,
+        role: role as any,
         orgId,
         isActive: true,
         isLocked: false,

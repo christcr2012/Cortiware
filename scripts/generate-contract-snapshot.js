@@ -1,30 +1,48 @@
 #!/usr/bin/env node
-/* Simple contract snapshot generator (placeholder). Reads v2 contract docs and creates a hash.
- * Output: contracts/current.json
+/* Contract snapshot generator
+ * Scans Reference/repo-docs/docs/api/** for .md files and writes contracts/current.json
  */
 const fs = require('fs');
+const fsp = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
 
-const CONTRACT_DIR = path.join(__dirname, '..', 'docs', 'api', 'v2', 'contracts');
-const OUT_DIR = path.join(__dirname, '..', 'contracts');
+const API_ROOT = path.join(process.cwd(), 'Reference', 'repo-docs', 'docs', 'api');
+const OUT_DIR = path.join(process.cwd(), 'contracts');
 
-function hashContent(content) {
-  return crypto.createHash('sha256').update(content, 'utf8').digest('hex');
+function sha256(buf) {
+  return crypto.createHash('sha256').update(buf).digest('hex');
 }
 
-function main() {
-  const files = fs.readdirSync(CONTRACT_DIR).filter(f => f.endsWith('.md'));
-  const entries = files.map(f => {
-    const full = path.join(CONTRACT_DIR, f);
-    const content = fs.readFileSync(full, 'utf8');
-    return { file: f, sha256: hashContent(content) };
-  });
-  const snapshot = { generatedAt: new Date().toISOString(), entries };
+async function walk(dir, acc = []) {
+  const ents = await fsp.readdir(dir, { withFileTypes: true });
+  for (const ent of ents) {
+    const p = path.join(dir, ent.name);
+    if (ent.isDirectory()) await walk(p, acc);
+    else if (ent.isFile() && p.endsWith('.md')) acc.push(p);
+  }
+  return acc;
+}
+
+async function main() {
+  if (!fs.existsSync(API_ROOT)) {
+    console.error('API docs directory not found:', API_ROOT);
+    process.exit(1);
+  }
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
-  fs.writeFileSync(path.join(OUT_DIR, 'current.json'), JSON.stringify(snapshot, null, 2));
-  console.log('Wrote contracts/current.json');
+
+  const files = (await walk(API_ROOT)).sort();
+  const entries = [];
+  for (const f of files) {
+    const buf = await fsp.readFile(f);
+    const rel = path.relative(process.cwd(), f).replace(/\\\\/g, '/');
+    entries.push({ file: rel, sha256: sha256(buf) });
+  }
+  const outFile = path.join(OUT_DIR, 'current.json');
+  const snapshot = { generatedAt: new Date().toISOString(), entries };
+  await fsp.writeFile(outFile, JSON.stringify(snapshot, null, 2));
+  console.log(`Wrote ${outFile} with ${entries.length} entries`);
 }
 
-main();
+main().catch((e)=>{ console.error(e); process.exit(1); });
 

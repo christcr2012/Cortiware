@@ -237,7 +237,7 @@ async function authenticateDatabaseUser(
 
   // If user has PROVIDER or DEVELOPER role, skip database authentication
   // These roles use environment-based authentication, not database
-  if (user.role === 'PROVIDER' || user.role === 'DEVELOPER') {
+  if ((user.role as any) === 'PROVIDER' || (user.role as any) === 'DEVELOPER') {
     return { success: false };
   }
 
@@ -359,7 +359,7 @@ async function authenticateDatabaseUser(
     accountType = 'accountant';
     redirectUrl = '/accountant';
     cookieName = 'rs_accountant';
-  } else if (user.role === 'VENDOR') {
+  } else if ((user.role as any) === 'VENDOR') {
     accountType = 'vendor';
     redirectUrl = '/vendor';
     cookieName = 'rs_vendor';
