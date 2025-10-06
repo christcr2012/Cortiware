@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import '../styles/globals.css';
+import { ThemeInit } from './theme-init';
 
 export const metadata: Metadata = {
   title: 'StreamFlow - Workflow Management Platform',
@@ -21,9 +22,16 @@ export default async function RootLayout({
   const adminTheme = cookieStore.get('rs_admin_theme')?.value;
   const clientTheme = cookieStore.get('rs_client_theme')?.value;
   const theme = adminTheme || clientTheme || 'futuristic-green';
+
+  // Debug logging (remove in production)
+  console.log('[RootLayout] Theme cookies:', { adminTheme, clientTheme, finalTheme: theme });
+
   return (
     <html lang="en" data-theme={theme}>
-      <body>{children}</body>
+      <body>
+        <ThemeInit serverTheme={theme} />
+        {children}
+      </body>
     </html>
   );
 }

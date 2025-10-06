@@ -20,27 +20,33 @@ export function ThemeSwitcher({ scope }: { scope: ThemeScope }) {
   }, [scope]);
 
   async function handleThemeClick(themeId: ThemeName) {
+    console.log('[ThemeSwitcher] Applying theme:', { themeId, scope });
     setIsApplying(true);
     setValue(themeId);
 
     // Apply theme immediately to document for instant visual feedback
     setTheme(scope, themeId);
+    console.log('[ThemeSwitcher] Theme applied to document:', document.documentElement.getAttribute('data-theme'));
 
     // Persist to server (sets cookie)
     try {
-      await fetch('/api/theme', {
+      const response = await fetch('/api/theme', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ scope, theme: themeId })
       });
 
+      const result = await response.json();
+      console.log('[ThemeSwitcher] Server response:', result);
+
       // Reload page to apply theme from server-side (cookie)
       // This ensures the theme persists across navigation
       setTimeout(() => {
+        console.log('[ThemeSwitcher] Reloading page...');
         window.location.reload();
-      }, 300);
+      }, 500);
     } catch (error) {
-      console.error('Failed to persist theme:', error);
+      console.error('[ThemeSwitcher] Failed to persist theme:', error);
       setIsApplying(false);
     }
   }
