@@ -15,14 +15,33 @@ export function compose(...wrappers: Wrapper[]): Wrapper {
   return (handler) => wrappers.reduceRight((acc, w) => w(acc), handler);
 }
 
+/**
+ * Rate Limit Presets per GUARDRAILS_INFRA.md
+ *
+ * - AUTH: 10s window, 20 requests (login/signup protection)
+ * - API: 60s window, 100 requests (general API calls)
+ * - ANALYTICS: 600s window, 1000 requests (high-volume analytics)
+ */
 export const rateLimitPresets = {
-  api: { windowMs: 60_000, max: 60 },
-  auth: { windowMs: 60_000, max: 20 },
+  auth: { windowMs: 10_000, max: 20 },
+  api: { windowMs: 60_000, max: 100 },
+  analytics: { windowMs: 600_000, max: 1000 },
 };
 
+/**
+ * Rate Limiting Wrapper
+ *
+ * Applies rate limiting per GUARDRAILS_INFRA.md spec:
+ * - Token bucket algorithm
+ * - Proper 429 response headers (Retry-After, X-RateLimit-*)
+ * - Key format: rate:${preset}:${identifier}:${route}
+ *
+ * @param preset - Rate limit preset (auth, api, analytics)
+ * @returns Wrapper function
+ */
 export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
   return (handler) => async (req, ...args) => {
-    const { checkRateLimit, getRateLimitKey } = await import('@/lib/rate-limiter');
+    const { checkRateLimit, getRateLimitKey, getRateLimitHeaders } = await import('@/lib/rate-limiter');
 
     // Get config with optional env overrides
     const config = { ...rateLimitPresets[preset] };
@@ -31,6 +50,9 @@ export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
     }
     if (preset === 'auth' && process.env.RATE_LIMIT_AUTH_PER_MINUTE) {
       config.max = parseInt(process.env.RATE_LIMIT_AUTH_PER_MINUTE, 10);
+    }
+    if (preset === 'analytics' && process.env.RATE_LIMIT_ANALYTICS_PER_10MIN) {
+      config.max = parseInt(process.env.RATE_LIMIT_ANALYTICS_PER_10MIN, 10);
     }
 
     // Determine identifier (cookie token or IP)
@@ -47,13 +69,46 @@ export function withRateLimit(preset: keyof typeof rateLimitPresets): Wrapper {
     const key = getRateLimitKey(preset, identifier, route);
     const result = await checkRateLimit(key, config);
 
+    // Add rate limit headers to response
+    const rateLimitHeaders = getRateLimitHeaders(result);
+
     if (!result.allowed) {
-      return jsonError(429, 'RateLimited', 'Too many requests. Try again later.', {
-        resetAt: new Date(result.resetAt).toISOString(),
-      });
+      // 429 Too Many Requests with proper headers
+      return new Response(
+        JSON.stringify({
+          ok: false,
+          error: {
+            code: 'RATE_LIMIT',
+            message: 'Too many requests. Please try again later.',
+            resetAt: new Date(result.resetAt).toISOString(),
+          },
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            ...rateLimitHeaders,
+          },
+        }
+      );
     }
 
-    return handler(req, ...args);
+    // Execute handler and add rate limit headers to successful response
+    const response = await handler(req, ...args);
+
+    // Clone response to add headers
+    const newResponse = new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: new Headers(response.headers),
+    });
+
+    // Add rate limit headers
+    Object.entries(rateLimitHeaders).forEach(([key, value]) => {
+      newResponse.headers.set(key, value);
+    });
+
+    return newResponse;
   };
 }
 
@@ -194,3 +249,13 @@ export function extractDeveloperToken(getCookie: (name: string) => string | unde
   return getCookie('rs_developer') || getCookie('developer-session') || getCookie('ws_developer');
 }
 
+
+
+
+/**
+ * HMAC Authentication Wrapper
+ *
+ * Re-export from hmac/with-hmac-auth for convenience.
+ * Validates HMAC signatures for machine-to-provider requests.
+ */
+export { withHmacAuth } from '@/lib/hmac/with-hmac-auth';
