@@ -1,42 +1,61 @@
 # 🚀 Cortiware Deployment Guide
 
-**Welcome!** This guide will help you deploy your Cortiware monorepo to production.
+**Welcome!** This guide will help you deploy your Cortiware monorepo with **automated CI/CD**.
+
+---
+
+## 🎯 What's New: Automated Deployment
+
+**You no longer need to manually deploy!**
+
+- ✅ Push to `main` → Automatic deployment to Vercel
+- ✅ Quality checks run on every commit (TypeScript, lint, build, tests)
+- ✅ Zero manual deployment steps
+- ✅ Fast, reliable CI/CD pipeline powered by GitHub Actions
+
+**Setup time**: ~1 hour (down from 2 hours)
 
 ---
 
 ## 📋 Quick Start
 
-**Total Time**: ~2 hours  
-**Difficulty**: Intermediate  
-**Prerequisites**: Domains purchased, Vercel account created
+**Total Time**: ~1 hour
+**Difficulty**: Beginner-Intermediate
+**Prerequisites**: GitHub account, Vercel account, domains purchased
 
 ### Step-by-Step Checklist
 
-1. **[ ] Domain Setup** (~30 min)
+**🔐 STEP 0: GitHub Secrets Setup** (~15 min) **← START HERE!**
+   - 📖 See: `docs/GITHUB_SECRETS_SETUP.md`
+   - Get Vercel API token, org ID, project ID
+   - Add secrets to GitHub repository
+   - **This enables automated deployment!**
+
+1. **[ ] Domain Setup** (~20 min)
    - 📖 See: `docs/DOMAIN_SETUP_GUIDE.md`
    - Add domains to Vercel projects
    - Configure DNS records
    - Verify SSL certificates
 
-2. **[ ] Environment Variables** (~45 min)
+2. **[ ] Environment Variables** (~30 min)
    - 📖 See: `docs/USER_ACTION_GUIDE.md` Part 2
    - Generate secrets (HMAC, cookies, password hashes)
    - Add to Vercel projects
-   - Redeploy apps
+   - Push to `main` → auto-deploys with new env vars
 
-3. **[ ] Database Setup** (~15 min)
+3. **[ ] Database Setup** (~10 min)
    - 📖 See: `docs/USER_ACTION_GUIDE.md` Part 3
    - Create Vercel Postgres (or external)
    - Run migrations
    - Seed initial data
 
-4. **[ ] Verify Everything** (~15 min)
+4. **[ ] Verify Everything** (~10 min)
    - 📖 See: `docs/USER_ACTION_GUIDE.md` Part 4
    - Test provider portal
    - Test tenant app
    - Test SSO flow
 
-5. **[ ] Phase 2 Setup - KV** (~15 min)
+5. **[ ] Phase 2 Setup - KV** (~10 min)
    - 📖 See: `docs/USER_ACTION_GUIDE.md` Part 5
    - Create Vercel KV
    - Connect to tenant-app
