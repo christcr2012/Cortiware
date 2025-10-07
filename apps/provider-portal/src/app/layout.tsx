@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import '../styles/themes.css';
+import '../styles/theme.css';
 
 /**
  * Root Layout for Provider Portal
