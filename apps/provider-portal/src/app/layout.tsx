@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
-import '../styles/theme.css';
+import '../styles/globals.css';
 
 /**
  * Root Layout for Provider Portal
- * Applies theme from cookie and includes theme CSS
+ * Applies theme from cookie and includes global CSS (which imports theme.css)
  */
 export default async function RootLayout({
   children,
