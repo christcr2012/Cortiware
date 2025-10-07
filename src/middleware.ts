@@ -1,5 +1,6 @@
 // src/middleware.ts
 import { NextResponse, type NextRequest } from "next/server";
+import { siteProtectionMiddleware } from "./middleware/site-protection";
 
 const PUBLIC_PATHS = new Set<string>([
   "/login",
@@ -15,6 +16,12 @@ const PROTECTED_PREFIXES = ["/dashboard", "/leads", "/admin", "/reports", "/sett
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // FIRST: Check site-wide protection (if enabled)
+  const siteProtectionResponse = siteProtectionMiddleware(req);
+  if (siteProtectionResponse) {
+    return siteProtectionResponse;
+  }
 
   // Allow _next (assets), static files, favicon, etc.
   if (
