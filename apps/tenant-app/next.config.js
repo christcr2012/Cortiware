@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: require('path').join(__dirname, '../../'),
-  transpilePackages: ['@cortiware/auth-service'],
+  transpilePackages: ['@cortiware/auth-service', '@cortiware/themes', '@cortiware/db'],
   typescript: {
     ignoreBuildErrors: true,
   },

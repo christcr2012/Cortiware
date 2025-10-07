@@ -86,6 +86,17 @@ Open `mountain-vista-backup.env` and verify you see:
 - DEVELOPER_PASSWORD
 - STRIPE_SECRET_KEY
 - STRIPE_WEBHOOK_SECRET
+- AUTH_TICKET_HMAC_SECRET (for SSO between apps)
+
+### Generate New Secrets (if missing)
+
+```bash
+# Generate HMAC secret for auth tickets
+openssl rand -base64 32
+
+# Generate bcrypt hashes for emergency access
+node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('your-password', 10));"
+```
 
 ---
 

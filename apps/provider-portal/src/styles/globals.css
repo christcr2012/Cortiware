@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Ultra-Premium Design System */
-@import './theme.css';
+/* Import shared theme system from monorepo package */
+@import '@cortiware/themes/src/themes.css';
 
 /* Override Tailwind defaults with premium styling */
 body {

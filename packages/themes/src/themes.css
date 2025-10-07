@@ -1157,3 +1157,296 @@ html, body {
   --color-chart-6: #16A34A;
 }
 
+/* ========================================
+   ENTERPRISE PROFESSIONAL THEMES
+   Corporate, Finance, Healthcare, Legal
+   ======================================== */
+
+/* Theme: Corporate Blue - Enterprise-grade corporate palette */
+:root[data-theme="corporate-blue"] {
+  --bg-primary: #0b1220;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1f2937;
+  --bg-elevated: #374151;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(37, 99, 235, 0.06), transparent 60%), linear-gradient(180deg, #0b1220 0%, #111827 100%);
+  --glass-bg: rgba(17, 24, 39, 0.85);
+  --glass-border: rgba(37, 99, 235, 0.15);
+  --glass-border-accent: rgba(37, 99, 235, 0.35);
+  --surface-1: rgba(17, 24, 39, 0.9);
+  --surface-2: rgba(31, 41, 55, 0.95);
+  --surface-3: rgba(55, 65, 81, 0.98);
+  --surface-hover: rgba(75, 85, 99, 0.85);
+  --text-primary: #f3f4f6;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-muted: #6b7280;
+  --text-accent: #2563eb;
+  --brand-primary: #2563eb;
+  --brand-secondary: #1d4ed8;
+  --brand-tertiary: #3b82f6;
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(37, 99, 235, 0.12);
+  --border-secondary: rgba(37, 99, 235, 0.08);
+  --border-accent: rgba(37, 99, 235, 0.35);
+  --border-glow: rgba(37, 99, 235, 0.6);
+  --shadow-glow: 0 0 20px rgba(37, 99, 235, 0.3), 0 0 40px rgba(37, 99, 235, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(37, 99, 235, 0.5), 0 0 60px rgba(37, 99, 235, 0.25);
+}
+
+/* Theme: Modern Slate - Contemporary professional gray tones */
+:root[data-theme="modern-slate"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #475569;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(100, 116, 139, 0.05), transparent 60%), linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --glass-bg: rgba(30, 41, 59, 0.85);
+  --glass-border: rgba(148, 163, 184, 0.12);
+  --glass-border-accent: rgba(148, 163, 184, 0.3);
+  --surface-1: rgba(30, 41, 59, 0.9);
+  --surface-2: rgba(51, 65, 85, 0.95);
+  --surface-3: rgba(71, 85, 105, 0.98);
+  --surface-hover: rgba(100, 116, 139, 0.85);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: #64748b;
+  --brand-primary: #64748b;
+  --brand-secondary: #475569;
+  --brand-tertiary: #94a3b8;
+  --brand-gradient: linear-gradient(135deg, #64748b 0%, #475569 50%, #334155 100%);
+  --accent-success: #22c55e;
+  --accent-warning: #eab308;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #a855f7;
+  --border-primary: rgba(148, 163, 184, 0.15);
+  --border-secondary: rgba(148, 163, 184, 0.08);
+  --border-accent: rgba(100, 116, 139, 0.4);
+  --border-glow: rgba(100, 116, 139, 0.6);
+  --shadow-glow: 0 0 20px rgba(100, 116, 139, 0.25), 0 0 40px rgba(100, 116, 139, 0.1);
+  --shadow-glow-intense: 0 0 30px rgba(100, 116, 139, 0.4), 0 0 60px rgba(100, 116, 139, 0.2);
+}
+
+/* Theme: Executive Steel - Refined steel and charcoal aesthetic */
+:root[data-theme="executive-steel"] {
+  --bg-primary: #18181b;
+  --bg-secondary: #27272a;
+  --bg-tertiary: #3f3f46;
+  --bg-elevated: #52525b;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(71, 85, 105, 0.05), transparent 60%), linear-gradient(180deg, #18181b 0%, #27272a 100%);
+  --glass-bg: rgba(39, 39, 42, 0.85);
+  --glass-border: rgba(113, 113, 122, 0.12);
+  --glass-border-accent: rgba(113, 113, 122, 0.3);
+  --surface-1: rgba(39, 39, 42, 0.9);
+  --surface-2: rgba(63, 63, 70, 0.95);
+  --surface-3: rgba(82, 82, 91, 0.98);
+  --surface-hover: rgba(113, 113, 122, 0.85);
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-tertiary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-accent: #475569;
+  --brand-primary: #475569;
+  --brand-secondary: #334155;
+  --brand-tertiary: #64748b;
+  --brand-gradient: linear-gradient(135deg, #475569 0%, #334155 50%, #1e293b 100%);
+  --accent-success: #4ade80;
+  --accent-warning: #facc15;
+  --accent-error: #f87171;
+  --accent-info: #22d3ee;
+  --accent-purple: #c084fc;
+  --border-primary: rgba(113, 113, 122, 0.15);
+  --border-secondary: rgba(113, 113, 122, 0.08);
+  --border-accent: rgba(71, 85, 105, 0.4);
+  --border-glow: rgba(71, 85, 105, 0.6);
+  --shadow-glow: 0 0 20px rgba(71, 85, 105, 0.25), 0 0 40px rgba(71, 85, 105, 0.1);
+  --shadow-glow-intense: 0 0 30px rgba(71, 85, 105, 0.4), 0 0 60px rgba(71, 85, 105, 0.2);
+}
+
+/* Theme: Finance Navy - Deep navy for financial trust */
+:root[data-theme="finance-navy"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --bg-elevated: #475569;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(30, 58, 138, 0.08), transparent 60%), linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+  --glass-bg: rgba(30, 41, 59, 0.85);
+  --glass-border: rgba(30, 58, 138, 0.15);
+  --glass-border-accent: rgba(30, 58, 138, 0.35);
+  --surface-1: rgba(30, 41, 59, 0.9);
+  --surface-2: rgba(51, 65, 85, 0.95);
+  --surface-3: rgba(71, 85, 105, 0.98);
+  --surface-hover: rgba(100, 116, 139, 0.85);
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+  --text-accent: #1e40af;
+  --brand-primary: #1e40af;
+  --brand-secondary: #1e3a8a;
+  --brand-tertiary: #3b82f6;
+  --brand-gradient: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e3a8a 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(30, 58, 138, 0.12);
+  --border-secondary: rgba(30, 58, 138, 0.08);
+  --border-accent: rgba(30, 64, 175, 0.35);
+  --border-glow: rgba(30, 64, 175, 0.6);
+  --shadow-glow: 0 0 20px rgba(30, 64, 175, 0.3), 0 0 40px rgba(30, 64, 175, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(30, 64, 175, 0.5), 0 0 60px rgba(30, 64, 175, 0.25);
+}
+
+/* Theme: Trust Gold - Premium gold accents for wealth management */
+:root[data-theme="trust-gold"] {
+  --bg-primary: #1a1410;
+  --bg-secondary: #2a2218;
+  --bg-tertiary: #3a3020;
+  --bg-elevated: #4a3e28;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(212, 175, 55, 0.06), transparent 60%), linear-gradient(180deg, #1a1410 0%, #2a2218 100%);
+  --glass-bg: rgba(42, 34, 24, 0.85);
+  --glass-border: rgba(212, 175, 55, 0.15);
+  --glass-border-accent: rgba(212, 175, 55, 0.35);
+  --surface-1: rgba(42, 34, 24, 0.9);
+  --surface-2: rgba(58, 48, 32, 0.95);
+  --surface-3: rgba(74, 62, 40, 0.98);
+  --surface-hover: rgba(90, 76, 48, 0.85);
+  --text-primary: #faf8f5;
+  --text-secondary: #e8e0d5;
+  --text-tertiary: #c8b8a0;
+  --text-muted: #a89070;
+  --text-accent: #d4af37;
+  --brand-primary: #d4af37;
+  --brand-secondary: #b8962f;
+  --brand-tertiary: #f0c84f;
+  --brand-gradient: linear-gradient(135deg, #d4af37 0%, #b8962f 50%, #9c7e27 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(212, 175, 55, 0.12);
+  --border-secondary: rgba(212, 175, 55, 0.08);
+  --border-accent: rgba(212, 175, 55, 0.35);
+  --border-glow: rgba(212, 175, 55, 0.6);
+  --shadow-glow: 0 0 20px rgba(212, 175, 55, 0.3), 0 0 40px rgba(212, 175, 55, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(212, 175, 55, 0.5), 0 0 60px rgba(212, 175, 55, 0.25);
+}
+
+/* Theme: Quant Teal - Data-driven teal for analytics */
+:root[data-theme="quant-teal"] {
+  --bg-primary: #0a1414;
+  --bg-secondary: #0f1f1f;
+  --bg-tertiary: #152a2a;
+  --bg-elevated: #1a3535;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(20, 184, 166, 0.06), transparent 60%), linear-gradient(180deg, #0a1414 0%, #0f1f1f 100%);
+  --glass-bg: rgba(15, 31, 31, 0.85);
+  --glass-border: rgba(20, 184, 166, 0.15);
+  --glass-border-accent: rgba(20, 184, 166, 0.35);
+  --surface-1: rgba(15, 31, 31, 0.9);
+  --surface-2: rgba(21, 42, 42, 0.95);
+  --surface-3: rgba(26, 53, 53, 0.98);
+  --surface-hover: rgba(31, 64, 64, 0.85);
+  --text-primary: #f0fdf9;
+  --text-secondary: #ccfbf1;
+  --text-tertiary: #99f6e4;
+  --text-muted: #5eead4;
+  --text-accent: #14b8a6;
+  --brand-primary: #14b8a6;
+  --brand-secondary: #0d9488;
+  --brand-tertiary: #2dd4bf;
+  --brand-gradient: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(20, 184, 166, 0.12);
+  --border-secondary: rgba(20, 184, 166, 0.08);
+  --border-accent: rgba(20, 184, 166, 0.35);
+  --border-glow: rgba(20, 184, 166, 0.6);
+  --shadow-glow: 0 0 20px rgba(20, 184, 166, 0.3), 0 0 40px rgba(20, 184, 166, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(20, 184, 166, 0.5), 0 0 60px rgba(20, 184, 166, 0.25);
+}
+
+/* Theme: Clinical Blue - Calming clinical blue for healthcare */
+:root[data-theme="clinical-blue"] {
+  --bg-primary: #0c1428;
+  --bg-secondary: #111b38;
+  --bg-tertiary: #172448;
+  --bg-elevated: #1d2d58;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(30, 64, 175, 0.06), transparent 60%), linear-gradient(180deg, #0c1428 0%, #111b38 100%);
+  --glass-bg: rgba(17, 27, 56, 0.85);
+  --glass-border: rgba(30, 64, 175, 0.15);
+  --glass-border-accent: rgba(30, 64, 175, 0.35);
+  --surface-1: rgba(17, 27, 56, 0.9);
+  --surface-2: rgba(23, 36, 72, 0.95);
+  --surface-3: rgba(29, 45, 88, 0.98);
+  --surface-hover: rgba(35, 54, 104, 0.85);
+  --text-primary: #eff6ff;
+  --text-secondary: #dbeafe;
+  --text-tertiary: #bfdbfe;
+  --text-muted: #93c5fd;
+  --text-accent: #1e40af;
+  --brand-primary: #1e40af;
+  --brand-secondary: #1e3a8a;
+  --brand-tertiary: #3b82f6;
+  --brand-gradient: linear-gradient(135deg, #1e40af 0%, #1e3a8a 50%, #1e3a8a 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(30, 64, 175, 0.12);
+  --border-secondary: rgba(30, 64, 175, 0.08);
+  --border-accent: rgba(30, 64, 175, 0.35);
+  --border-glow: rgba(30, 64, 175, 0.6);
+  --shadow-glow: 0 0 20px rgba(30, 64, 175, 0.3), 0 0 40px rgba(30, 64, 175, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(30, 64, 175, 0.5), 0 0 60px rgba(30, 64, 175, 0.25);
+}
+
+/* Theme: Wellness Green - Healing green for wellness applications */
+:root[data-theme="wellness-green"] {
+  --bg-primary: #0a1410;
+  --bg-secondary: #0f1f18;
+  --bg-tertiary: #152a20;
+  --bg-elevated: #1a3528;
+  --bg-main: radial-gradient(ellipse 1400px 900px at 50% -20%, rgba(5, 150, 105, 0.06), transparent 60%), linear-gradient(180deg, #0a1410 0%, #0f1f18 100%);
+  --glass-bg: rgba(15, 31, 24, 0.85);
+  --glass-border: rgba(5, 150, 105, 0.15);
+  --glass-border-accent: rgba(5, 150, 105, 0.35);
+  --surface-1: rgba(15, 31, 24, 0.9);
+  --surface-2: rgba(21, 42, 32, 0.95);
+  --surface-3: rgba(26, 53, 40, 0.98);
+  --surface-hover: rgba(31, 64, 48, 0.85);
+  --text-primary: #f0fdf4;
+  --text-secondary: #dcfce7;
+  --text-tertiary: #bbf7d0;
+  --text-muted: #86efac;
+  --text-accent: #059669;
+  --brand-primary: #059669;
+  --brand-secondary: #047857;
+  --brand-tertiary: #10b981;
+  --brand-gradient: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+  --accent-success: #10b981;
+  --accent-warning: #f59e0b;
+  --accent-error: #ef4444;
+  --accent-info: #06b6d4;
+  --accent-purple: #8b5cf6;
+  --border-primary: rgba(5, 150, 105, 0.12);
+  --border-secondary: rgba(5, 150, 105, 0.08);
+  --border-accent: rgba(5, 150, 105, 0.35);
+  --border-glow: rgba(5, 150, 105, 0.6);
+  --shadow-glow: 0 0 20px rgba(5, 150, 105, 0.3), 0 0 40px rgba(5, 150, 105, 0.15);
+  --shadow-glow-intense: 0 0 30px rgba(5, 150, 105, 0.5), 0 0 60px rgba(5, 150, 105, 0.25);
+}
+

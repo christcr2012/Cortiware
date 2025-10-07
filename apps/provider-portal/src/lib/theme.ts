@@ -11,7 +11,7 @@
  */
 
 // Re-export types
-export type { ThemeName, ThemeScope, ThemeMetadata } from './themes/theme-registry';
+export type { ThemeName, ThemeScope, ThemeMetadata } from '@cortiware/themes';
 
 // Re-export registry functions
 export {
@@ -24,7 +24,7 @@ export {
   DEFAULT_THEME,
   THEME_STORAGE_KEYS,
   THEME_COOKIE_NAMES,
-} from './themes/theme-registry';
+} from '@cortiware/themes';
 
 // Re-export utility functions
 export {
@@ -38,5 +38,5 @@ export {
   getThemeVariable,
   isThemeDark,
   getContrastColor,
-} from './themes/theme-utils';
+} from '@cortiware/themes';
 

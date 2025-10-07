@@ -40,27 +40,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg-main)', padding:'var(--space-xl)' }}>
+      <div className="premium-card" style={{ width:'100%', maxWidth:480 }}>
         <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold" style={{ color:'var(--text-primary)', textAlign:'center' }}>
             {isEmergency ? 'Emergency Access' : 'Sign in to your account'}
           </h2>
           {isEmergency && (
-            <p className="mt-2 text-center text-sm text-red-600">
+            <p className="mt-2 text-center text-sm" style={{ color:'var(--accent-error)' }}>
               ⚠️ Emergency access mode - all actions will be audited
             </p>
           )}
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+          <div style={{ background:'var(--surface-1)', border:'1px solid var(--accent-error)', color:'var(--accent-error)', padding:'12px', borderRadius:'var(--radius-md)' }}>
             {errorMessages[error] || 'An error occurred'}
           </div>
         )}
 
         {totpRequired && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
+          <div style={{ background:'var(--surface-1)', border:'1px solid var(--accent-info)', color:'var(--accent-info)', padding:'12px', borderRadius:'var(--radius-md)' }}>
             Two-factor authentication required. Please enter your TOTP code.
           </div>
         )}
@@ -69,7 +69,7 @@ export default function LoginPage() {
           <div className="space-y-4">
             {isEmergency && (
               <div>
-                <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="role" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
                   Role
                 </label>
                 <select
@@ -77,7 +77,7 @@ export default function LoginPage() {
                   name="role"
                   value={emergencyRole}
                   onChange={(e) => setEmergencyRole(e.target.value as 'provider' | 'developer')}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="input-field"
                 >
                   <option value="provider">Provider</option>
                   <option value="developer">Developer</option>
@@ -86,7 +86,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -97,12 +97,12 @@ export default function LoginPage() {
                 required
                 value={emailParam || email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="input-field"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
                 Password
               </label>
               <input
@@ -113,13 +113,13 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="input-field"
               />
             </div>
 
             {totpRequired && (
               <div>
-                <label htmlFor="totpCode" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="totpCode" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
                   TOTP Code
                 </label>
                 <input
@@ -132,27 +132,20 @@ export default function LoginPage() {
                   onChange={(e) => setTotpCode(e.target.value)}
                   placeholder="000000"
                   maxLength={6}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="input-field"
                 />
               </div>
             )}
           </div>
 
           <div>
-            <button
-              type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
+            <button type="submit" className="btn-primary" style={{ width:'100%' }}>
               Sign in
             </button>
           </div>
 
           <div className="text-center">
-            <button
-              type="button"
-              onClick={() => setIsEmergency(!isEmergency)}
-              className="text-sm text-blue-600 hover:text-blue-500"
-            >
+            <button type="button" onClick={() => setIsEmergency(!isEmergency)} style={{ color:'var(--text-accent)' }} className="text-sm">
               {isEmergency ? 'Switch to normal login' : 'Emergency access'}
             </button>
           </div>
