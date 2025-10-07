@@ -1,0 +1,1 @@
+{"version":3,"file":"cookie.d.ts","sourceRoot":"","sources":["../src/cookie.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,SAAS,CAAC;AAE7C;;GAEG;AACH,wBAAgB,iBAAiB,CAAC,OAAO,EAAE,aAAa,GAAG,MAAM,CA2BhE;AAED;;GAEG;AACH,wBAAgB,aAAa,CAAC,WAAW,EAAE,MAAM,GAAG,MAAM,CAczD;AAED;;GAEG;AACH,wBAAgB,eAAe,CAAC,WAAW,EAAE,MAAM,GAAG,MAAM,CAc3D"}
