@@ -115,13 +115,20 @@ Open `mountain-vista-backup.env` and verify you see:
 # Database
 DATABASE_URL=postgresql://neondb_owner:npg_GwJisR3Hvlf7@ep-billowing-truth-afi1gfga-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require
 
+# SSO Ticket Secret (MUST match tenant-app)
+AUTH_TICKET_HMAC_SECRET=GENERATE_WITH_OPENSSL_RAND_BASE64_32
+
 # Provider Authentication
 PROVIDER_EMAIL=chris.tcr.2012@gmail.com
 PROVIDER_PASSWORD=Thrillicious01no
+PROVIDER_BREAKGLASS_EMAIL=breakglass-provider@example.com
+PROVIDER_BREAKGLASS_PASSWORD=GENERATE_SECURE_PASSWORD
 
 # Developer Authentication
 DEVELOPER_EMAIL=gametcr3@gmail.com
 DEVELOPER_PASSWORD=Thrillicious01no
+DEVELOPER_BREAKGLASS_EMAIL=breakglass-developer@example.com
+DEVELOPER_BREAKGLASS_PASSWORD=GENERATE_SECURE_PASSWORD
 
 # Development Mode (DISABLE IN PRODUCTION)
 DEV_ACCEPT_ANY_PROVIDER_LOGIN=false
@@ -159,6 +166,9 @@ DEVELOPER_CREDENTIALS=GENERATE_BCRYPT_HASH
 6. **Generate Missing Secrets** - Open PowerShell and run:
 
 ```powershell
+# Generate SSO ticket secret (CRITICAL - must be same in both apps)
+node -e "console.log('AUTH_TICKET_HMAC_SECRET=' + require('crypto').randomBytes(32).toString('base64'))"
+
 # Generate session secrets (32 bytes hex)
 node -e "console.log('PROVIDER_SESSION_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
 node -e "console.log('TENANT_COOKIE_SECRET=' + require('crypto').randomBytes(32).toString('hex'))"
@@ -172,6 +182,8 @@ node -e "console.log('FED_HMAC_MASTER_KEY=' + require('crypto').randomBytes(64).
 node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('chris.tcr.2012@gmail.com:Thrillicious01no', 10, (e,h) => console.log('PROVIDER_CREDENTIALS=' + h))"
 node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('gametcr3@gmail.com:Thrillicious01no', 10, (e,h) => console.log('DEVELOPER_CREDENTIALS=' + h))"
 ```
+
+**IMPORTANT:** Save the `AUTH_TICKET_HMAC_SECRET` value - you'll need it for tenant-app!
 
 7. Copy the generated values and paste them into Vercel environment variables
 
@@ -242,11 +254,47 @@ NEXT_PUBLIC_BASE_URL=https://cortiware.com
    - **Install Command:** `cd ../.. && npm install`
 
 4. **Environment Variables:**
+
+**CRITICAL:** Use the SAME `AUTH_TICKET_HMAC_SECRET` from provider-portal!
+
 ```bash
-NEXT_PUBLIC_BASE_URL=https://cortiware.com
+# Database (same as provider-portal)
+DATABASE_URL=postgresql://neondb_owner:npg_GwJisR3Hvlf7@ep-billowing-truth-afi1gfga-pooler.c-2.us-west-2.aws.neon.tech/neondb?sslmode=require
+
+# SSO Ticket Secret (MUST match provider-portal)
+AUTH_TICKET_HMAC_SECRET=COPY_FROM_PROVIDER_PORTAL
+
+# Tenant Cookie Secret
+TENANT_COOKIE_SECRET=GENERATE_WITH_OPENSSL_RAND_HEX_32
+
+# Emergency Access
+EMERGENCY_LOGIN_ENABLED=true
+PROVIDER_ADMIN_PASSWORD_HASH=GENERATE_BCRYPT_HASH
+DEVELOPER_ADMIN_PASSWORD_HASH=GENERATE_BCRYPT_HASH
+
+# Optional: IP allowlist for emergency access
+# EMERGENCY_IP_ALLOWLIST=1.2.3.4,5.6.7.8
+
+# Development Mode (DISABLE IN PRODUCTION)
+DEV_ACCEPT_ANY_TENANT_LOGIN=false
+DEV_ACCEPT_ANY_ACCOUNTANT_LOGIN=false
+DEV_ACCEPT_ANY_VENDOR_LOGIN=false
+
+# App URL
+NEXT_PUBLIC_APP_URL=https://cortiware-tenant-app.vercel.app
 ```
 
-5. Click "Deploy"
+5. **Generate Emergency Access Hashes:**
+
+```powershell
+# Generate bcrypt hashes for emergency access
+node scripts/generate-bcrypt-hash.js YourProviderEmergencyPassword
+node scripts/generate-bcrypt-hash.js YourDeveloperEmergencyPassword
+```
+
+Copy the generated hashes to `PROVIDER_ADMIN_PASSWORD_HASH` and `DEVELOPER_ADMIN_PASSWORD_HASH`
+
+6. Click "Deploy"
 
 ---
 
