@@ -2,9 +2,28 @@
 
 This guide lists all actions YOU need to take to complete the deployment and Phase 2 setup.
 
+**📚 Related Guides:**
+- **Domain Setup**: See `docs/DOMAIN_SETUP_GUIDE.md` for detailed domain configuration
+- **Phase 2 Details**: See `docs/PHASE_2_IMPLEMENTATION.md` for technical implementation details
+- **Environment Variables**: See `docs/ENVIRONMENT_VARIABLES.md` for complete reference
+
+---
+
+## Quick Start Checklist
+
+- [ ] Part 1: Domain Setup (30 min) - See `DOMAIN_SETUP_GUIDE.md`
+- [ ] Part 2: Environment Variables (45 min)
+- [ ] Part 3: Database Setup (15 min)
+- [ ] Part 4: Verify Everything Works (15 min)
+- [ ] Part 5: Phase 2 Setup - KV/Redis (15 min)
+
+**Total Time**: ~2 hours
+
 ---
 
 ## Part 1: Domain Setup (30 minutes)
+
+**📖 For detailed step-by-step instructions, see `docs/DOMAIN_SETUP_GUIDE.md`**
 
 ### Step 1: Identify Your Domains
 
