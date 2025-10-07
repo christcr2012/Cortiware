@@ -23,15 +23,16 @@ import {
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
 
-  // Get client info for rate limiting and audit logging
-  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-  const userAgent = req.headers.get('user-agent') || 'unknown';
+  try {
+    // Get client info for rate limiting and audit logging
+    const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    const userAgent = req.headers.get('user-agent') || 'unknown';
 
-  // Apply rate limiting
-  const rateLimitResponse = await applyRateLimit(req, 'auth');
-  if (rateLimitResponse) {
-    return rateLimitResponse;
-  }
+    // Apply rate limiting
+    const rateLimitResponse = await applyRateLimit(req, 'auth');
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
 
   // Parse body from form or JSON
   let email = '';
@@ -176,5 +177,11 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.redirect(new URL(`/login?error=invalid`, url), 303);
+  } catch (error) {
+    console.error('❌ Login endpoint error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Error details:', errorMessage);
+    return NextResponse.redirect(new URL(`/login?error=server_error`, url), 303);
+  }
 }
 
