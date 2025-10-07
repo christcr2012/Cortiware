@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "node ../../node_modules/next/dist/bin/next dev -p 3000",
-    "build": "prisma generate && node ../../node_modules/next/dist/bin/next build",
+    "build": "node ../../node_modules/prisma/build/index.js generate && node ../../node_modules/next/dist/bin/next build",
     "start": "node ../../node_modules/next/dist/bin/next start",
     "lint": "node ../../node_modules/next/dist/bin/next lint",
     "typecheck": "tsc --noEmit",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy",
+    "prisma:generate": "node ../../node_modules/prisma/build/index.js generate",
+    "prisma:migrate": "node ../../node_modules/prisma/build/index.js migrate dev",
+    "prisma:deploy": "node ../../node_modules/prisma/build/index.js migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
