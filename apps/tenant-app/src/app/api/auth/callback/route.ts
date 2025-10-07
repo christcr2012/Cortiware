@@ -20,20 +20,7 @@ import {
   getCookieName,
   getRedirectPath,
 } from '@cortiware/auth-service';
-
-// In-memory nonce store (Phase 1)
-// Phase 2: Replace with Redis/KV
-const nonceStore = new Map<string, number>();
-
-// Cleanup expired nonces every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [nonce, expiry] of nonceStore.entries()) {
-    if (expiry < now) {
-      nonceStore.delete(nonce);
-    }
-  }
-}, 5 * 60 * 1000);
+import { checkNonce, storeNonce } from '@cortiware/kv';
 
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
@@ -69,9 +56,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=server_error', url), 303);
   }
 
-  // Verify the ticket
+  // Verify the ticket with KV-based nonce store
   const expectedAudience = process.env.NEXT_PUBLIC_APP_URL || 'tenant-app';
-  const result = await verifyAuthTicket(token, secret, expectedAudience, nonceStore);
+
+  // Create KV-backed nonce store adapter
+  const kvNonceStore = {
+    has: async (nonce: string) => checkNonce(nonce),
+    set: async (nonce: string, expiry: number) => {
+      const ttl = Math.floor((expiry - Date.now()) / 1000);
+      await storeNonce(nonce, ttl > 0 ? ttl : 120);
+    },
+  };
+
+  const result = await verifyAuthTicket(token, secret, expectedAudience, kvNonceStore as any);
 
   if (!result.valid || !result.payload) {
     console.error('Invalid auth ticket:', result.error);

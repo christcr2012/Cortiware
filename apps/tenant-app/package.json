@@ -12,6 +12,7 @@
   "dependencies": {
     "@cortiware/auth-service": "file:../../packages/auth-service",
     "@cortiware/db": "file:../../packages/db",
+    "@cortiware/kv": "file:../../packages/kv",
     "@cortiware/themes": "file:../../packages/themes",
     "@prisma/client": "^6.16.2",
     "bcryptjs": "^3.0.2",
