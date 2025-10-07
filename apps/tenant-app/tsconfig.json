@@ -1,5 +1,5 @@
 {
-  "extends": "@cortiware/config/typescript",
+  "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
     "plugins": [
       {
