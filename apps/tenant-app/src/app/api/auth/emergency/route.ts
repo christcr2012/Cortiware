@@ -109,9 +109,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL(`/login?error=invalid`, url), 303);
   }
 
-  // Success - log with high visibility
+  // Success - log with high visibility and context
   console.warn(`🚨 EMERGENCY ${role.toUpperCase()} ACCESS: ${email} from ${ipAddress}`);
-  await logEmergencyAccess(role, email, ipAddress, userAgent);
+  await logEmergencyAccess(role, email, ipAddress, userAgent, {
+    isDirectAccess: true,
+    providerId: role === 'provider' ? email : undefined,
+    developerId: role === 'developer' ? email : undefined,
+  });
   resetRateLimit(ipAddress, 'auth-emergency');
 
   // Set cookie and redirect
