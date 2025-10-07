@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "npx next dev -p 3003",
-    "build": "npx next build",
-    "start": "npx next start",
-    "lint": "npx next lint",
+    "dev": "node ../../node_modules/.bin/next dev -p 3003",
+    "build": "node ../../node_modules/.bin/next build",
+    "start": "node ../../node_modules/.bin/next start",
+    "lint": "node ../../node_modules/.bin/next lint",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
