@@ -44,17 +44,25 @@ export function ThemeSwitcher({ scope }: { scope: ThemeScope }) {
         body: JSON.stringify({ scope, theme: themeId })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const result = await response.json();
       console.log('[ThemeSwitcher] Server response:', result);
 
-      // Reload page to apply theme from server-side (cookie)
-      // This ensures the theme persists across navigation
+      if (!result.success) {
+        throw new Error('Server returned success: false');
+      }
+
+      // Wait a bit longer to ensure cookie is set, then reload
       setTimeout(() => {
-        console.log('[ThemeSwitcher] Reloading page...');
+        console.log('[ThemeSwitcher] Reloading page to apply theme from cookie...');
         window.location.reload();
-      }, 500);
+      }, 1000);
     } catch (error) {
       console.error('[ThemeSwitcher] Failed to persist theme:', error);
+      alert(`Failed to save theme: ${error instanceof Error ? error.message : 'Unknown error'}`);
       setIsApplying(false);
     }
   }
