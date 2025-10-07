@@ -1,20 +1,20 @@
 /**
  * Tenant-App Unified Login Endpoint
- * 
+ *
  * Handles authentication for:
  * - Tenant users (OWNER, MANAGER, STAFF)
  * - Accountants
  * - Vendors
- * 
- * Does NOT handle Provider/Developer (use emergency endpoint for that)
+ * - Provider/Developer (emergency access with bcrypt hashes)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { applyRateLimit, resetRateLimit } from '@/lib/rate-limit';
-import { logLoginSuccess, logLoginFailure } from '@/lib/audit-log';
+import { logLoginSuccess, logLoginFailure, logEmergencyAccess } from '@/lib/audit-log';
 import { prisma } from '@/lib/prisma';
 import {
   authenticateDatabaseUser,
+  authenticateEmergency,
   buildCookieHeader,
   type AuthInput,
   type DatabaseUser,
@@ -113,7 +113,54 @@ export async function POST(req: NextRequest) {
     return res;
   }
 
-  // Authentication failed
+  // Database user authentication failed - try emergency access
+  // Check if emergency login is enabled and we have the required hashes
+  if (process.env.EMERGENCY_LOGIN_ENABLED === 'true') {
+    const providerHash = process.env.PROVIDER_ADMIN_PASSWORD_HASH;
+    const developerHash = process.env.DEVELOPER_ADMIN_PASSWORD_HASH;
+
+    // Try provider emergency access
+    if (providerHash) {
+      const providerResult = await authenticateEmergency(authInput, 'provider', providerHash);
+      if (providerResult.success) {
+        console.warn(`🚨 EMERGENCY PROVIDER ACCESS: ${email} from ${ipAddress}`);
+        await logEmergencyAccess('provider', email, ipAddress, userAgent, {
+          isDirectAccess: true,
+          providerId: email,
+        });
+        resetRateLimit(ipAddress, 'auth');
+        const res = NextResponse.redirect(new URL('/dashboard', url), 303);
+        const cookieHeader = buildCookieHeader({
+          name: 'rs_provider',
+          value: email,
+        });
+        res.headers.append('Set-Cookie', cookieHeader);
+        return res;
+      }
+    }
+
+    // Try developer emergency access
+    if (developerHash) {
+      const developerResult = await authenticateEmergency(authInput, 'developer', developerHash);
+      if (developerResult.success) {
+        console.warn(`🚨 EMERGENCY DEVELOPER ACCESS: ${email} from ${ipAddress}`);
+        await logEmergencyAccess('developer', email, ipAddress, userAgent, {
+          isDirectAccess: true,
+          developerId: email,
+        });
+        resetRateLimit(ipAddress, 'auth');
+        const res = NextResponse.redirect(new URL('/dashboard', url), 303);
+        const cookieHeader = buildCookieHeader({
+          name: 'rs_developer',
+          value: email,
+        });
+        res.headers.append('Set-Cookie', cookieHeader);
+        return res;
+      }
+    }
+  }
+
+  // All authentication methods failed
   console.log(`❌ Login failed: ${email}`);
   await logLoginFailure(email, ipAddress, userAgent, 'Invalid credentials');
 
