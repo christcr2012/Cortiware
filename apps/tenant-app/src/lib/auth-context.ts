@@ -17,6 +17,9 @@ export interface AuthContext {
   email: string | null;
   isAuthenticated: boolean;
   isDirectAccess: boolean;
+  userId?: string;
+  providerId?: string;
+  developerId?: string;
 }
 
 /**
@@ -36,9 +39,10 @@ export async function getAuthContext(): Promise<AuthContext> {
       email: providerCookie.value,
       isAuthenticated: true,
       isDirectAccess: true,
+      providerId: providerCookie.value,
     };
   }
-  
+
   if (developerCookie) {
     return {
       mode: 'direct-access',
@@ -46,6 +50,7 @@ export async function getAuthContext(): Promise<AuthContext> {
       email: developerCookie.value,
       isAuthenticated: true,
       isDirectAccess: true,
+      developerId: developerCookie.value,
     };
   }
   
