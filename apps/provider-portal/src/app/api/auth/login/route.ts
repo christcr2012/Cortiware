@@ -50,18 +50,18 @@ export async function POST(req: NextRequest) {
 
   // Provider config from environment
   const providerConfig: ProviderAuthConfig = {
-    email: process.env.PROVIDER_EMAIL || '',
-    password: process.env.PROVIDER_PASSWORD || '',
-    totpSecret: process.env.PROVIDER_TOTP_SECRET,
-    backupCodes: process.env.PROVIDER_BACKUP_CODES?.split(','),
+    envEmail: process.env.PROVIDER_EMAIL || '',
+    envPassword: process.env.PROVIDER_PASSWORD || '',
+    breakglassEmail: process.env.PROVIDER_BREAKGLASS_EMAIL,
+    breakglassPassword: process.env.PROVIDER_BREAKGLASS_PASSWORD,
   };
 
   // Developer config from environment
   const developerConfig: DeveloperAuthConfig = {
-    email: process.env.DEVELOPER_EMAIL || '',
-    password: process.env.DEVELOPER_PASSWORD || '',
-    totpSecret: process.env.DEVELOPER_TOTP_SECRET,
-    backupCodes: process.env.DEVELOPER_BACKUP_CODES?.split(','),
+    envEmail: process.env.DEVELOPER_EMAIL || '',
+    envPassword: process.env.DEVELOPER_PASSWORD || '',
+    breakglassEmail: process.env.DEVELOPER_BREAKGLASS_EMAIL,
+    breakglassPassword: process.env.DEVELOPER_BREAKGLASS_PASSWORD,
   };
 
   // Try provider authentication
