@@ -721,6 +721,127 @@ model AiMonthlySummary {
 }
 
 // ============================================================================
+// INFRASTRUCTURE MONITORING & COST OPTIMIZATION
+// ============================================================================
+
+/// Infrastructure services that we monitor for usage and costs
+enum InfrastructureService {
+  VERCEL_KV              // Redis storage
+  VERCEL_POSTGRES        // Database
+  VERCEL_BANDWIDTH       // CDN/Edge network data transfer
+  VERCEL_FUNCTIONS       // Serverless function invocations
+  VERCEL_BUILD           // Build minutes
+  VERCEL_EDGE_REQUESTS   // Edge request count
+  VERCEL_ISR_READS       // ISR cache reads
+  AI_OPENAI              // OpenAI API usage
+  AI_ANTHROPIC           // Anthropic API usage
+  AI_CREDITS             // Internal AI credit system
+}
+
+/// Types of metrics we track for each service
+enum MetricType {
+  STORAGE_MB             // Storage in megabytes
+  STORAGE_GB             // Storage in gigabytes
+  COMMANDS_PER_DAY       // Redis commands/day
+  CONNECTIONS            // Database connections
+  BANDWIDTH_MB           // Bandwidth in megabytes
+  BANDWIDTH_GB           // Bandwidth in gigabytes
+  INVOCATIONS            // Function invocations
+  BUILD_MINUTES          // Build time in minutes
+  REQUEST_COUNT          // Number of requests
+  LATENCY_MS             // Latency in milliseconds
+  COST_USD               // Cost in USD
+  USAGE_PERCENT          // Percentage of limit used
+}
+
+/// Priority levels for upgrade recommendations
+enum RecommendationPriority {
+  LOW                    // Nice to have, no urgency
+  MEDIUM                 // Should upgrade soon
+  HIGH                   // Approaching limit, upgrade recommended
+  CRITICAL               // At or near limit, upgrade immediately
+}
+
+/// Status of upgrade recommendations
+enum RecommendationStatus {
+  PENDING                // Not yet reviewed
+  REVIEWED               // Reviewed by owner
+  APPROVED               // Approved for upgrade
+  IMPLEMENTED            // Upgrade completed
+  DISMISSED              // Decided not to upgrade
+  EXPIRED                // No longer relevant
+}
+
+/// Time-series metrics for infrastructure services
+model InfrastructureMetric {
+  id        String                @id @default(cuid())
+  service   InfrastructureService
+  metric    MetricType
+  value     Float                 // Numeric value of the metric
+  timestamp DateTime              @default(now())
+  metadata  Json?                 // Additional context (region, project, etc.)
+
+  @@index([service, metric, timestamp])
+  @@index([timestamp])
+}
+
+/// Service limits and thresholds for monitoring
+model InfrastructureLimit {
+  id              String                @id @default(cuid())
+  service         InfrastructureService
+  metric          MetricType
+  currentPlan     String                // 'free', 'pro', 'enterprise'
+  limitValue      Float                 // Maximum allowed value
+  warningPercent  Float                 @default(75)  // Alert at 75% by default
+  criticalPercent Float                 @default(90)  // Critical at 90% by default
+  updatedAt       DateTime              @updatedAt
+
+  @@unique([service, metric, currentPlan])
+  @@index([service])
+}
+
+/// AI-generated upgrade recommendations based on usage trends
+model UpgradeRecommendation {
+  id              String                  @id @default(cuid())
+  service         InfrastructureService
+  currentPlan     String                  // Current plan name
+  recommendedPlan String                  // Recommended plan name
+  priority        RecommendationPriority
+  status          RecommendationStatus    @default(PENDING)
+
+  // Usage metrics
+  currentUsage    Float                   // Current usage value
+  limitValue      Float                   // Current plan limit
+  usagePercent    Float                   // Percentage of limit used
+  daysToLimit     Int?                    // Estimated days until limit reached
+
+  // Cost analysis
+  currentCost     Decimal?                @db.Decimal(8, 2)  // Current monthly cost
+  projectedCost   Decimal?                @db.Decimal(8, 2)  // Projected cost if no upgrade
+  upgradeCost     Decimal?                @db.Decimal(8, 2)  // Cost after upgrade
+
+  // ROI analysis
+  revenueImpact   Decimal?                @db.Decimal(10, 2) // Estimated revenue impact
+  profitImpact    Decimal?                @db.Decimal(10, 2) // Estimated profit impact
+  roi             Float?                  // Return on investment percentage
+
+  // Recommendation details
+  reason          String                  @db.Text  // Why upgrade is recommended
+  benefits        Json?                   // List of benefits from upgrade
+  risks           Json?                   // Risks of not upgrading
+
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  reviewedAt      DateTime?
+  reviewedBy      String?                 // User ID who reviewed
+  implementedAt   DateTime?
+
+  @@index([service, status, priority])
+  @@index([status, createdAt])
+  @@index([priority, createdAt])
+}
+
+// ============================================================================
 // PROVIDER OPERATIONS - ACTIVITY TIMELINE
 // ============================================================================
 

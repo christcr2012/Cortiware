@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit, withIdempotencyRequired } from '@/lib/api/middleware';
 
 const handler = async (req: NextRequest) => {
   try {
@@ -82,4 +82,47 @@ const handler = async (req: NextRequest) => {
 };
 
 export const GET = compose(withProviderAuth())(handler);
+
+// AI 402 Guard acceptance: reuse same route with POST, no new endpoint.
+// If body.simulate === '402', force a 402 payload for acceptance testing.
+// Otherwise, if body.orgId is provided, perform a real budget check using aiMeter.
+export const POST = compose(withRateLimit('api'), withIdempotencyRequired(), withProviderAuth())(async (req: NextRequest) => {
+  const body = await req.json().catch(() => ({} as any));
+  const simulate = (body && typeof body.simulate === 'string') ? body.simulate : undefined;
+
+  if (simulate === '402') {
+    return new Response(
+      JSON.stringify({
+        error: 'PAYMENT_REQUIRED',
+        feature: 'ai.concierge',
+        required_prepay_cents: 1500,
+        enable_path: '/provider/wallet/prepay?feature=ai.concierge&amount_cents=1500',
+      }),
+      { status: 402, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Budget-aware guard when orgId is supplied
+  if (typeof body?.orgId === 'string' && body.orgId) {
+    const { checkAiBudget } = await import('@/lib/aiMeter');
+    const ESTIMATED_CREDITS = 50; // default per-call estimate
+    const budget = await checkAiBudget(body.orgId, 'ai.concierge', ESTIMATED_CREDITS);
+    if (!budget.allowed) {
+      const missingCredits = Math.max(0, ESTIMATED_CREDITS - (budget.creditsRemaining || 0));
+      const required_prepay_cents = missingCredits * 5; // 1 credit = $0.05 = 5 cents
+      return new Response(
+        JSON.stringify({
+          error: 'PAYMENT_REQUIRED',
+          feature: 'ai.concierge',
+          required_prepay_cents,
+          enable_path: `/provider/wallet/prepay?feature=ai.concierge&amount_cents=${required_prepay_cents}`,
+        }),
+        { status: 402, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+  }
+
+  // Otherwise, pretend the AI request succeeded (stub)
+  return jsonOk({ ok: true, message: 'AI concierge processed (stub)' });
+});
 

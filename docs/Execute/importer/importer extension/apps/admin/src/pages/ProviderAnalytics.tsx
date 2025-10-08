@@ -1,0 +1,5 @@
+import React, { useEffect, useState } from 'react'; import { Api } from '../../../shared/api-client';
+const api = new Api(import.meta.env.VITE_API_BASE || 'http://localhost:4000/v1', localStorage.getItem('token')||undefined);
+export default function ProviderAnalytics(){ const [rows,setRows]=useState<any[]>([]); useEffect(()=>{ (async()=>{ try{ setRows(await api.req('/provider/import/metrics')); }catch(e){ console.error(e);} })(); },[]);
+  return <div><h1>Provider · Import Analytics</h1><table border={1} cellPadding={6}><thead><tr><th>Day</th><th>Imports</th><th>AI $</th><th>Infra $</th><th>Billed $</th></tr></thead><tbody>{rows.map((r,i)=>(<tr key={i}><td>{r.day}</td><td>{r.imports}</td><td>{(r.ai_cents/100).toFixed(2)}</td><td>{(r.infra_cents/100).toFixed(2)}</td><td>{(r.billed_cents/100).toFixed(2)}</td></tr>))}</tbody></table></div>;
+}

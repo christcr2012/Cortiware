@@ -1,45 +1,5 @@
 {
-  "generatedAt": "2025-10-06T16:27:55.279Z",
-  "entries": [
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\WRAPPERS_SPEC.md",
-      "sha256": "3283a45c825f59e16e1b91aa63f6294e7567f6e536090aa9461b1ebf905b35d8"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\analytics.md",
-      "sha256": "32763c1b18219ffbb63f1cf7d0c4c29fa6e0e370a07ad7cc5d9f9a68ddf488dd"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\billing.md",
-      "sha256": "0287a2c5f75988c7787e2e962217a798bf56c7cefe995c18d652617cdaa5b1c7"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\escalation.md",
-      "sha256": "d0d3977827a8bc1419e47a03bf7055370ff87030e8690f8febd12c8170128e69"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\hmac-auth.md",
-      "sha256": "d5233d6e4fbb8c7ea16c4062abc80a0b04e1520408fdb9399b9bf6218e07cc74"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\federation\\status.md",
-      "sha256": "94e78a014ac84b503d82c724b79f4877c5f7f136a3b77e936897c6c24a6f55ce"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\middleware-glue.md",
-      "sha256": "3d279b1b6a3c084279f26e0a06ca3f2ff55941450e678906fa50a6c5aaaa5f99"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\v2\\contracts\\leads.md",
-      "sha256": "2a24146df01acef8ae25ffa10ea65c3f7470e4344e380c0e069d29a8fc4053e9"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\v2\\contracts\\opportunities.md",
-      "sha256": "ab3c4389366e264f1c291954f88400c0238507ae4a95e259e4a5c49198681ce3"
-    },
-    {
-      "file": "Reference\\repo-docs\\docs\\api\\v2\\contracts\\organizations.md",
-      "sha256": "73c91a2a3c0fa2e06f2f82b4a7c08a267d51a739e7c0b3a2b9b72318ea8e9920"
-    }
-  ]
+  "generatedAt": "2025-10-08T04:01:37.000Z",
+  "entries": [],
+  "note": "Reference/ directory not available"
 }

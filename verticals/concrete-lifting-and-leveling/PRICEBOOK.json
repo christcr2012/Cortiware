@@ -1,0 +1,25 @@
+{
+  "skus": {
+    "LIFT-BASE": {
+      "description": "Concrete Lifting - Base Rate",
+      "unit": "sqft",
+      "price": 8.50
+    },
+    "LIFT-HEAVY": {
+      "description": "Heavy Lift (>2 inches)",
+      "unit": "sqft",
+      "price": 12.00
+    },
+    "SEAL-CRACK": {
+      "description": "Crack Sealing",
+      "unit": "linear_ft",
+      "price": 3.50
+    },
+    "LEVEL-SLAB": {
+      "description": "Slab Leveling",
+      "unit": "sqft",
+      "price": 10.00
+    }
+  }
+}
+

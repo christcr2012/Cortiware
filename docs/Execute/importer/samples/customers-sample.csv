@@ -1,0 +1,12 @@
+Customer Name,Email,Phone,Address,City,State,ZIP,Type
+John Smith,john.smith@example.com,(555) 123-4567,123 Main St,Springfield,IL,62701,Residential
+Acme Corp,contact@acmecorp.com,(555) 234-5678,456 Business Ave,Chicago,IL,60601,Commercial
+Jane Doe,jane.doe@example.com,(555) 345-6789,789 Oak Lane,Peoria,IL,61602,Residential
+Tech Solutions Inc,info@techsolutions.com,(555) 456-7890,321 Tech Park,Naperville,IL,60540,Commercial
+Bob Johnson,bob.j@example.com,(555) 567-8901,654 Elm Street,Rockford,IL,61101,Residential
+Green Energy LLC,sales@greenenergy.com,(555) 678-9012,987 Solar Way,Aurora,IL,60502,Commercial
+Sarah Williams,sarah.w@example.com,(555) 789-0123,147 Pine Road,Joliet,IL,60431,Residential
+Metro Services,contact@metroservices.com,(555) 890-1234,258 Metro Blvd,Elgin,IL,60120,Commercial
+Mike Davis,mike.davis@example.com,(555) 901-2345,369 Maple Ave,Waukegan,IL,60085,Residential
+BuildRight Co,info@buildright.com,(555) 012-3456,741 Construction Dr,Champaign,IL,61820,Commercial
+

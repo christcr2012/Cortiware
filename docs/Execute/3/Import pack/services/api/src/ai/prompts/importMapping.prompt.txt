@@ -1,0 +1,1 @@
+Return JSON: {mappings[],transforms[],validations[],dedupe{},confidence_overall}. No raw PII.

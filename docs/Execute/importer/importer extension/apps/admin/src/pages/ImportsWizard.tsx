@@ -1,0 +1,9 @@
+import React, { useState } from 'react'; import { Api } from '../../../shared/api-client';
+const api = new Api(import.meta.env.VITE_API_BASE || 'http://localhost:4000/v1', localStorage.getItem('token')||undefined);
+export default function ImportsWizard(){
+  const [runId,setRunId]=useState<string>(); const [sug,setSug]=useState<any>(); const [busy,setBusy]=useState(false); const [log,setLog]=useState<string[]>([]);
+  async function analyze(){ try{ setBusy(true); const r=await api.req('/import',{method:'POST',body:JSON.stringify({action:'analyze',aiAssist:true,entityType:'customers'})}); setRunId(r.importRunId); setSug(r.suggestions); setLog(l=>[...l,`Retail estimate $${(r.retail_price_cents/100).toFixed(2)} (tier: ${r.tier})`]); }catch(e:any){ if(e.status===402) alert('Credits required'); else console.error(e);} finally{ setBusy(false);} }
+  async function map(){ if(!runId) return; setBusy(true); await api.req('/import',{method:'POST',body:JSON.stringify({action:'map',importRunId:runId})}); setBusy(false); setLog(l=>[...l,'Mappings saved']); }
+  async function execute(){ if(!runId) return; setBusy(true); const r=await api.req('/import',{method:'POST',body:JSON.stringify({action:'execute',importRunId:runId})}); setBusy(false); setLog(l=>[...l,`Done. Inserted ${r.result.inserted}, Updated ${r.result.updated}, Failed ${r.result.failed}`]); }
+  return <div><h1>Import Assistant</h1><div style={{display:'flex',gap:8}}><button disabled={busy} onClick={analyze}>Analyze</button><button disabled={!runId||busy} onClick={map}>Confirm</button><button disabled={!runId||busy} onClick={execute}>Execute</button></div>{sug&&<pre style={{background:'#111',color:'#0f0',padding:12}}>{JSON.stringify(sug,null,2)}</pre>}<ul>{log.map((x,i)=><li key={i}>{x}</li>)}</ul></div>;
+}

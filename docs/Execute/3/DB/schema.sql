@@ -1,0 +1,3 @@
+-- See earlier bundles for full schema; universal subset shown.
+-- Multi-tenant core (tenants/users/clients/sites/leads/jobs/etc.) with RLS; set app.tenant_id in DB session or pass via header to proxy.
+-- Implement full SQL via Augment from blueprint.

@@ -58,6 +58,9 @@ model Org {
   incidents      Incident[]      @relation("OrgIncidents")
   notifications  Notification[]  @relation("OrgNotifications")
 
+  importJobs     ImportJob[]     @relation("OrgImportJobs")
+  importMappings ImportMapping[] @relation("OrgImportMappings")
+
   /// brandConfig stores white-label brand settings such as name, colors, and logo URL.
   /// It is JSON to allow arbitrary keys like { name: "Mountain Vista", color: "#123456", logoUrl: "https://..." }
   brandConfig Json? @default("{}")
@@ -102,6 +105,8 @@ model User {
   securityQuestions     UserSecurityQuestion[]
   loginHistory          UserLoginHistory[]
   deviceFingerprints    UserDeviceFingerprint[]
+
+  importJobs            ImportJob[]        @relation("UserImportJobs")
 }
 
 // ============================================================================
@@ -1125,4 +1130,200 @@ model OnboardingInvite {
   coupon Coupon?    @relation(fields: [couponId], references: [id])
 
   @@index([expiresAt, usedAt])
+}
+
+// ============================================================================
+// Infrastructure Monitoring Models
+// ============================================================================
+
+enum InfrastructureService {
+  VERCEL_KV
+  VERCEL_POSTGRES
+  VERCEL_PLATFORM
+  VERCEL_BUILD
+  VERCEL_FUNCTIONS
+  VERCEL_BANDWIDTH
+  VERCEL_EDGE_REQUESTS
+  VERCEL_ISR_READS
+  AI_OPENAI
+  AI_CREDITS
+}
+
+enum MetricType {
+  STORAGE_MB
+  STORAGE_GB
+  COMMANDS_PER_DAY
+  CONNECTIONS
+  LATENCY_MS
+  BANDWIDTH_GB
+  INVOCATIONS
+  BUILD_MINUTES
+  REQUEST_COUNT
+  COST_USD
+  USAGE_PERCENT
+}
+
+enum RecommendationPriority {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum RecommendationStatus {
+  PENDING
+  REVIEWED
+  ACKNOWLEDGED
+  IMPLEMENTED
+  DISMISSED
+}
+
+model InfrastructureMetric {
+  id        String                 @id @default(cuid())
+  service   InfrastructureService
+  metric    MetricType
+  value     Float
+  timestamp DateTime               @default(now())
+  metadata  Json?
+
+  @@index([service, metric, timestamp])
+  @@index([timestamp])
+}
+
+model InfrastructureLimit {
+  id              String                 @id @default(cuid())
+  service         InfrastructureService
+  metric          MetricType
+  currentPlan     String
+  limitValue      Float
+  warningPercent  Float                  @default(75)  // Warning threshold percentage
+  criticalPercent Float                  @default(90)  // Critical threshold percentage
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@unique([service, metric, currentPlan])
+}
+
+/// Import Wizard - Data Migration Models
+enum ImportStatus {
+  PENDING
+  ANALYZING
+  MAPPING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ImportEntityType {
+  CUSTOMERS
+  JOBS
+  INVOICES
+  ESTIMATES
+  CONTACTS
+  ADDRESSES
+  NOTES
+}
+
+model ImportJob {
+  id              String            @id @default(cuid())
+  orgId           String
+  org             Org               @relation("OrgImportJobs", fields: [orgId], references: [id])
+  userId          String
+  user            User              @relation("UserImportJobs", fields: [userId], references: [id])
+  entityType      ImportEntityType
+  status          ImportStatus      @default(PENDING)
+  fileName        String
+  fileSize        Int               // bytes
+  totalRecords    Int               @default(0)
+  processedRecords Int              @default(0)
+  successCount    Int               @default(0)
+  errorCount      Int               @default(0)
+  skipCount       Int               @default(0)
+  mappingId       String?
+  mapping         ImportMapping?    @relation(fields: [mappingId], references: [id])
+  sampleData      Json?             // First 10 rows for preview
+  fieldMappings   Json?             // Field mapping configuration
+  transformRules  Json?             // Data transformation rules
+  validationRules Json?             // Validation configuration
+  progressPercent Int               @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  errorSummary    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  errors          ImportError[]
+
+  @@index([orgId, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model ImportMapping {
+  id              String            @id @default(cuid())
+  orgId           String
+  org             Org               @relation("OrgImportMappings", fields: [orgId], references: [id])
+  name            String            // User-friendly name (e.g., "QuickBooks Customer Import")
+  entityType      ImportEntityType
+  sourceFormat    String            // csv, excel, json, xml
+  fieldMappings   Json              // Source field → Cortiware field mappings
+  transformRules  Json              // Data transformation rules
+  validationRules Json              // Validation configuration
+  isTemplate      Boolean           @default(false)
+  useCount        Int               @default(0)
+  lastUsedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  jobs            ImportJob[]
+
+  @@index([orgId, entityType])
+  @@index([orgId, isTemplate])
+}
+
+model ImportError {
+  id              String      @id @default(cuid())
+  importJobId     String
+  importJob       ImportJob   @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  rowNumber       Int
+  fieldName       String?
+  errorType       String      // validation, transformation, duplicate, missing_required
+  errorMessage    String
+  rawData         Json?       // Original row data for debugging
+  createdAt       DateTime    @default(now())
+
+  @@index([importJobId, errorType])
+  @@index([importJobId, rowNumber])
+}
+
+model UpgradeRecommendation {
+  id                String                  @id @default(cuid())
+  service           InfrastructureService
+  currentPlan       String
+  recommendedPlan   String
+  priority          RecommendationPriority
+  status            RecommendationStatus    @default(PENDING)
+  reason            String
+  currentUsage      Float?                  // Current usage value
+  limitValue        Float?                  // Limit value for the metric
+  usagePercent      Float?                  // Usage as percentage
+  daysToLimit       Int?                    // Days until limit is reached
+  currentCost       Float?                  // Current monthly cost
+  projectedCost     Float?                  // Projected monthly cost
+  upgradeCost       Float?                  // Upgraded plan monthly cost
+  revenueImpact     Float?                  // Estimated revenue impact
+  profitImpact      Float?                  // Estimated profit impact
+  roi               Float?                  // Return on investment percentage
+  benefits          String?                 // Benefits of upgrading
+  risks             String?                 // Risks of not upgrading
+  estimatedCostUsd  Float?                  // Deprecated: use currentCost
+  estimatedSavings  Float?                  // Deprecated: use revenueImpact
+  roiMonths         Int?                    // Deprecated: use roi
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  acknowledgedAt    DateTime?
+  implementedAt     DateTime?
+
+  @@index([service, status])
+  @@index([priority, status])
 }

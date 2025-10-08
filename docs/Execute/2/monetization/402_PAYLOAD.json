@@ -1,0 +1,6 @@
+{
+  "error": "PAYMENT_REQUIRED",
+  "feature": "maps.premium_tiles",
+  "required_prepay_cents": 2500,
+  "enable_path": "/provider/wallet/prepay?feature=maps.premium_tiles&amount_cents=2500"
+}

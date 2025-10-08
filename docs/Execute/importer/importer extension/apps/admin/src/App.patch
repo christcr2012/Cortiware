@@ -1,0 +1,15 @@
+// PATCH: add to Admin nav & routes
+// import pages:
+import ImportsWizard from './pages/ImportsWizard';
+import ProviderAnalytics from './pages/ProviderAnalytics';
+import ProviderMonetization from './pages/ProviderMonetization';
+
+// inside <nav> add:
+<Link to="/imports">Imports</Link>
+<Link to="/provider/analytics">Provider Analytics</Link>
+<Link to="/provider/monetization">Monetization</Link>
+
+// routes:
+<Route path="/imports" element={<ImportsWizard/>}/>
+<Route path="/provider/analytics" element={<ProviderAnalytics/>}/>
+<Route path="/provider/monetization" element={<ProviderMonetization/>}/>

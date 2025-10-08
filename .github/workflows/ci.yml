@@ -75,6 +75,7 @@ jobs:
 
   # ============================================================================
   # DEPLOY TO VERCEL - Run only on main branch after quality checks pass
+  # COST OPTIMIZATION: Only deploy apps that have changed
   # ============================================================================
   deploy:
     name: Deploy to Vercel Production (per app)
@@ -99,8 +100,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to detect changes
+
+      - name: Check if app changed
+        id: changed
+        run: |
+          # Check if this app directory or shared packages changed
+          if git diff --quiet HEAD~1 HEAD -- ${{ matrix.dir }} packages/; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "⏭️  No changes detected in ${{ matrix.name }} or shared packages"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected in ${{ matrix.name }} or shared packages"
+          fi
 
       - name: Deploy ${{ matrix.name }}
+        if: steps.changed.outputs.changed == 'true'
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
@@ -111,6 +127,11 @@ jobs:
 
       - name: Deployment Summary (${{ matrix.name }})
         run: |
-          echo "✅ Deployment successful for ${{ matrix.name }}!"
-          echo "🚀 Deployed ${{ matrix.dir }} to Vercel production"
+          if [ "${{ steps.changed.outputs.changed }}" == "true" ]; then
+            echo "✅ Deployment successful for ${{ matrix.name }}!"
+            echo "🚀 Deployed ${{ matrix.dir }} to Vercel production"
+          else
+            echo "⏭️  Skipped deployment for ${{ matrix.name }} (no changes)"
+            echo "💰 Cost savings: ~3 build minutes saved"
+          fi
 
