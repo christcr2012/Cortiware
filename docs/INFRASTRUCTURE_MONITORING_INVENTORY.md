@@ -21,10 +21,10 @@ This inventory lists all usage-priced services in the Cortiware stack and their 
   - Monitor: apps/provider-portal/src/services/infrastructure/vercel-platform-monitor.ts
   - Limits seeded: BUILD_MINUTES:6000 (pro), INVOCATIONS:1,000,000 (pro), BANDWIDTH_GB:1000 (pro)
 
-- Neon Postgres (Vercel Postgres)
-  - Status: ✅ (storage GB, connections, latency ms)
+- Neon Postgres (Neon Launch plan)
+  - Status: ✅ (storage GB, connections, latency ms, estimated storage COST_USD)
   - Monitor: apps/provider-portal/src/services/infrastructure/neon-postgres-monitor.ts
-  - Limits seeded: STORAGE_GB:1 (hobby), CONNECTIONS:20 (hobby)
+  - Limits seeded: COST_USD:10 (monthly storage-cost alert budget). Launch has usage-based pricing; no hard caps.
 
 - AI Usage (OpenAI costs + credits budget)
   - Status: ✅ (COST_USD aggregate per month, AI credits USAGE_PERCENT vs budget)

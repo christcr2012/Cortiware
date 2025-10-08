@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit, withIdempotencyRequired } from '@/lib/api/middleware';
 
 const handler = async (req: NextRequest) => {
   try {
@@ -82,4 +82,26 @@ const handler = async (req: NextRequest) => {
 };
 
 export const GET = compose(withProviderAuth())(handler);
+
+// AI 402 Guard acceptance: reuse same route with POST, no new endpoint.
+// Returns 402 PAYMENT_REQUIRED payload when requested.
+export const POST = compose(withRateLimit('api'), withIdempotencyRequired(), withProviderAuth())(async (req: NextRequest) => {
+  const body = await req.json().catch(() => ({} as any));
+  const simulate = (body && typeof body.simulate === 'string') ? body.simulate : undefined;
+
+  if (simulate === '402') {
+    return new Response(
+      JSON.stringify({
+        error: 'PAYMENT_REQUIRED',
+        feature: 'ai.concierge',
+        required_prepay_cents: 1500,
+        enable_path: '/provider/wallet/prepay?feature=ai.concierge&amount_cents=1500',
+      }),
+      { status: 402, headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  // Otherwise, pretend the AI request succeeded (stub)
+  return jsonOk({ ok: true, message: 'AI concierge processed (stub)' });
+});
 

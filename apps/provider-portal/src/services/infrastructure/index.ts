@@ -113,7 +113,8 @@ export class InfrastructureMonitoringService {
           metric: metric.metric,
           value: metric.value,
           timestamp: metric.timestamp || new Date(),
-          metadata: metric.metadata,
+          // Cast to JSON input to satisfy Prisma type
+          metadata: (metric.metadata as any) ?? undefined,
         },
       });
     }
@@ -213,18 +214,13 @@ export class InfrastructureMonitoringService {
         currentPlan: 'free',
         limitValue: 10000,
       },
-      // Vercel Postgres (Neon) defaults
+      // Neon Postgres (Launch plan) — usage-based, no hard caps.
+      // Alert on monthly COST_USD rather than storage/connections caps.
       {
         service: 'VERCEL_POSTGRES',
-        metric: 'STORAGE_GB',
-        currentPlan: 'hobby',
-        limitValue: 1,
-      },
-      {
-        service: 'VERCEL_POSTGRES',
-        metric: 'CONNECTIONS',
-        currentPlan: 'hobby',
-        limitValue: 20,
+        metric: 'COST_USD',
+        currentPlan: 'budget',
+        limitValue: 10, // default alert budget; adjust per org as needed
       },
       // Vercel Build (Pro tier)
       {

@@ -5,6 +5,7 @@
  * - Storage (GB)
  * - Active connections
  * - Query latency (ms)
+ * - Estimated monthly storage cost (USD)
  */
 
 import { InfrastructureService, MetricType } from '@prisma/client';
@@ -34,6 +35,9 @@ export class NeonPostgresMonitor {
 
     const storageGB = bytes / (1024 ** 3);
 
+    // Launch plan storage price: $0.35 / GB-month
+    const estimatedMonthlyStorageCost = storageGB * 0.35;
+
     const metrics: MetricData[] = [
       {
         service: InfrastructureService.VERCEL_POSTGRES,
@@ -53,19 +57,16 @@ export class NeonPostgresMonitor {
         value: latencyMs,
         timestamp: now,
       },
+      {
+        service: InfrastructureService.VERCEL_POSTGRES,
+        metric: MetricType.COST_USD,
+        value: Number(estimatedMonthlyStorageCost.toFixed(4)),
+        timestamp: now,
+        metadata: { component: 'storage', plan: 'launch', unit: 'USD/month' },
+      },
     ];
 
     return metrics;
-  }
-
-  static getPlanLimits(plan: 'hobby' | 'pro' | 'enterprise' = 'hobby') {
-    // Rough defaults; adjust if Neon plan details change
-    const plans = {
-      hobby: { STORAGE_GB: 1, CONNECTIONS: 20 },
-      pro: { STORAGE_GB: 10, CONNECTIONS: 100 },
-      enterprise: { STORAGE_GB: 100, CONNECTIONS: 500 },
-    } as const;
-    return plans[plan];
   }
 }
 
