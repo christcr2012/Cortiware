@@ -26,8 +26,15 @@ async function walk(dir, acc = []) {
 
 async function main() {
   if (!fs.existsSync(API_ROOT)) {
-    console.error('API docs directory not found:', API_ROOT);
-    process.exit(1);
+    console.warn('⚠️  API docs directory not found:', API_ROOT);
+    console.warn('⚠️  Skipping contract snapshot generation (Reference/ is gitignored)');
+    // Create empty snapshot so diff script doesn't fail
+    if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+    const outFile = path.join(OUT_DIR, 'current.json');
+    const snapshot = { generatedAt: new Date().toISOString(), entries: [], note: 'Reference/ directory not available' };
+    await fsp.writeFile(outFile, JSON.stringify(snapshot, null, 2));
+    console.log(`✅ Wrote empty snapshot to ${outFile}`);
+    return;
   }
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
 
