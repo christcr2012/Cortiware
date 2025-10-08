@@ -29,7 +29,8 @@
     "contracts:gen": "node scripts/generate-contract-snapshot.js",
     "contracts:diff": "node scripts/diff-contracts.js --fail-on-breaking",
     "contracts:check": "npm run contracts:gen && node scripts/diff-contracts.js --fail-on-breaking",
-    "contracts:promote": "node scripts/promote-contracts.js"
+    "contracts:promote": "node scripts/promote-contracts.js",
+    "prepare": "husky"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
@@ -66,6 +67,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.1.0",
+    "@commitlint/config-conventional": "^20.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.18.6",
     "@types/pdfkit": "^0.17.3",
@@ -77,9 +80,11 @@
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "autoprefixer": "10.4.20",
+    "detect-secrets": "^1.0.6",
     "eslint": "^9.36.0",
     "eslint-config-next": "^15.5.4",
     "glob": "^11.0.3",
+    "husky": "^9.1.7",
     "postcss": "8.4.47",
     "prisma": "^6.16.2",
     "tailwindcss": "3.4.10",

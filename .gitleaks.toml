@@ -1,0 +1,226 @@
+# Gitleaks Configuration for Cortiware
+# 
+# This configuration defines rules for detecting secrets in the codebase.
+# Gitleaks will scan commits, branches, and files for potential secrets.
+#
+# Usage:
+#   gitleaks detect --config .gitleaks.toml
+#   gitleaks protect --config .gitleaks.toml --staged
+
+title = "Cortiware Secret Detection"
+
+[extend]
+# Use default gitleaks rules as a base
+useDefault = true
+
+# ============================================================================
+# CUSTOM RULES FOR CORTIWARE
+# ============================================================================
+
+[[rules]]
+id = "cortiware-auth-ticket-hmac"
+description = "Cortiware AUTH_TICKET_HMAC_SECRET"
+regex = '''(?i)auth[_-]?ticket[_-]?hmac[_-]?secret[\s]*[=:]["']?([a-f0-9]{64})["']?'''
+tags = ["cortiware", "auth", "hmac"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''docs/.*\.md$''',
+]
+
+[[rules]]
+id = "cortiware-cookie-secret"
+description = "Cortiware TENANT_COOKIE_SECRET"
+regex = '''(?i)tenant[_-]?cookie[_-]?secret[\s]*[=:]["']?([a-f0-9]{64})["']?'''
+tags = ["cortiware", "auth", "cookie"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''docs/.*\.md$''',
+]
+
+[[rules]]
+id = "cortiware-bcrypt-hash"
+description = "Cortiware bcrypt password hash"
+regex = '''\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}'''
+tags = ["cortiware", "password", "bcrypt"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''docs/.*\.md$''',
+]
+
+[[rules]]
+id = "high-entropy-hex-64"
+description = "High entropy hex string (64+ characters)"
+regex = '''\b[a-f0-9]{64,}\b'''
+entropy = 4.5
+tags = ["entropy", "hex"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''docs/.*\.md$''',
+  '''package-lock\.json$''',
+  '''pnpm-lock\.yaml$''',
+  '''yarn\.lock$''',
+]
+
+[[rules]]
+id = "vercel-token"
+description = "Vercel API Token"
+regex = '''(?i)vercel[_-]?token[\s]*[=:]["']?([a-zA-Z0-9]{24,})["']?'''
+tags = ["vercel", "api", "token"]
+
+[[rules]]
+id = "vercel-kv-url"
+description = "Vercel KV URL with credentials"
+regex = '''redis://[^:]+:[^@]+@[^/]+'''
+tags = ["vercel", "kv", "redis"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+]
+
+[[rules]]
+id = "database-url-with-password"
+description = "Database URL with embedded password"
+regex = '''(?:postgres|mysql|mongodb)://[^:]+:[^@]+@[^/]+'''
+tags = ["database", "credentials"]
+[rules.allowlist]
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  '''docs/.*\.md$''',
+]
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe Secret Key"
+regex = '''sk_live_[a-zA-Z0-9]{24,}'''
+tags = ["stripe", "api", "secret"]
+
+[[rules]]
+id = "stripe-restricted-key"
+description = "Stripe Restricted Key"
+regex = '''rk_live_[a-zA-Z0-9]{24,}'''
+tags = ["stripe", "api", "restricted"]
+
+[[rules]]
+id = "openai-api-key"
+description = "OpenAI API Key"
+regex = '''sk-[a-zA-Z0-9]{48}'''
+tags = ["openai", "api"]
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API Key"
+regex = '''sk-ant-[a-zA-Z0-9\-]{95,}'''
+tags = ["anthropic", "api"]
+
+[[rules]]
+id = "github-token"
+description = "GitHub Personal Access Token"
+regex = '''gh[pousr]_[a-zA-Z0-9]{36,}'''
+tags = ["github", "token"]
+
+[[rules]]
+id = "aws-access-key"
+description = "AWS Access Key ID"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["aws", "credentials"]
+
+[[rules]]
+id = "private-key"
+description = "Private Key"
+regex = '''-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'''
+tags = ["private-key", "certificate"]
+
+[[rules]]
+id = "jwt-token"
+description = "JWT Token"
+regex = '''eyJ[a-zA-Z0-9_-]*\.eyJ[a-zA-Z0-9_-]*\.[a-zA-Z0-9_-]*'''
+tags = ["jwt", "token"]
+[rules.allowlist]
+paths = [
+  '''test/.*''',
+  '''__tests__/.*''',
+  '''\.test\.[jt]sx?$''',
+  '''\.spec\.[jt]sx?$''',
+]
+
+# ============================================================================
+# GLOBAL ALLOWLIST
+# ============================================================================
+
+[allowlist]
+description = "Global allowlist for files and patterns"
+
+# Paths to always ignore
+paths = [
+  # Documentation
+  '''docs/security/INCIDENT_RESPONSE.*\.md$''',
+  '''docs/security/SECRET_ROTATION.*\.md$''',
+  '''README\.md$''',
+  
+  # Templates and examples
+  '''\.env\.example$''',
+  '''\.env\.template$''',
+  
+  # Lock files
+  '''package-lock\.json$''',
+  '''pnpm-lock\.yaml$''',
+  '''yarn\.lock$''',
+  
+  # Build artifacts
+  '''\.next/.*''',
+  '''\.turbo/.*''',
+  '''/dist/.*''',
+  '''/build/.*''',
+  
+  # Node modules
+  '''/node_modules/.*''',
+  
+  # Test files (may contain mock secrets)
+  '''test/.*''',
+  '''__tests__/.*''',
+  '''\.test\.[jt]sx?$''',
+  '''\.spec\.[jt]sx?$''',
+  '''__mocks__/.*''',
+]
+
+# Regexes to always ignore
+regexes = [
+  # Placeholder values
+  '''<generate-.*>''',
+  '''⚠️.*⚠️''',
+  '''CHANGE-THIS''',
+  '''your-.*''',
+  '''example\.com''',
+  
+  # Common test values
+  '''test[_-]?secret''',
+  '''mock[_-]?secret''',
+  '''fake[_-]?secret''',
+  '''dummy[_-]?secret''',
+]
+
+# Commits to ignore (if needed)
+commits = []
+
+# Stop words (words that indicate false positives)
+stopwords = [
+  "example",
+  "sample",
+  "test",
+  "mock",
+  "fake",
+  "dummy",
+  "placeholder",
+  "template",
+]
+

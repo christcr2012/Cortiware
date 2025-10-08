@@ -26,7 +26,7 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Generate Prisma Client
-        run: npx prisma generate --schema=apps/provider-portal/prisma/schema.prisma
+        run: npx prisma generate
 
       - name: TypeScript Type Check
         run: npm run typecheck

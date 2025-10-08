@@ -1,0 +1,14 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run secret detection before commit
+echo "🔍 Running secret detection..."
+node scripts/check-secrets.js
+
+# If secret detection passes, continue with other checks
+if [ $? -eq 0 ]; then
+  echo "✅ Secret detection passed"
+else
+  echo "❌ Secret detection failed - commit blocked"
+  exit 1
+fi
