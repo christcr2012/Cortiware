@@ -99,7 +99,7 @@ export default function RobinsonHomePage() {
         <div className="text-center max-w-2xl mx-auto">
           <h2 className="text-4xl font-bold text-white mb-6">Get in Touch</h2>
           <p className="text-xl text-slate-300 mb-8">
-            Ready to transform your business with AI? Let's talk about how we can help.
+            Ready to transform your business with AI? Let&apos;s talk about how we can help.
           </p>
           <a href="mailto:contact@robinsonaisystems.com" className="px-8 py-4 bg-teal-500 hover:bg-teal-400 text-white rounded-lg transition-colors font-semibold text-lg inline-block">
             contact@robinsonaisystems.com
