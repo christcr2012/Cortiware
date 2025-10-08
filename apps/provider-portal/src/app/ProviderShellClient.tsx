@@ -88,9 +88,6 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/subscriptions" active={active('/provider/subscriptions')}>
             Subscriptions
           </ProviderNavLink>
-          <ProviderNavLink href="/provider/usage" active={active('/provider/usage')}>
-            Usage Metering
-          </ProviderNavLink>
           <ProviderNavLink href="/provider/addons" active={active('/provider/addons')}>
             Add-ons
           </ProviderNavLink>
@@ -102,16 +99,32 @@ export default function ProviderShellClient({ children }: { children: React.Reac
             className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
             style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
           >
-            Operations
+            Analytics & Operations
           </div>
+          <ProviderNavLink href="/provider/analytics" active={active('/provider/analytics')}>
+            Analytics
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/usage" active={active('/provider/usage')}>
+            Usage Metering
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/incidents" active={active('/provider/incidents')}>
             Incidents & SLA
           </ProviderNavLink>
           <ProviderNavLink href="/provider/audit" active={active('/provider/audit')}>
             Audit Log
           </ProviderNavLink>
-          <ProviderNavLink href="/provider/analytics" active={active('/provider/analytics')}>
-            Analytics
+
+          <div
+            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
+            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
+          >
+            Tools
+          </div>
+          <ProviderNavLink href="/provider/import-wizard" active={active('/provider/import-wizard')}>
+            Import Wizard
+          </ProviderNavLink>
+          <ProviderNavLink href="/provider/roofing-takeoff" active={active('/provider/roofing-takeoff')}>
+            Roofing Takeoff
           </ProviderNavLink>
 
           <div
@@ -120,6 +133,9 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           >
             System
           </div>
+          <ProviderNavLink href="/provider/infrastructure" active={active('/provider/infrastructure')}>
+            Infrastructure
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/federation" active={active('/provider/federation')}>
             Federation
           </ProviderNavLink>
