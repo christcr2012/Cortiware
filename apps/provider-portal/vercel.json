@@ -2,6 +2,12 @@
   "buildCommand": "cd ../.. && npm run build -- --filter=provider-portal",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd ../.. && npm install"
+  "installCommand": "cd ../.. && npm install",
+  "crons": [
+    {
+      "path": "/api/cron/collect-metrics",
+      "schedule": "*/15 * * * *"
+    }
+  ]
 }
 
