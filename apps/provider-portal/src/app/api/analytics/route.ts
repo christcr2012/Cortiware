@@ -84,7 +84,8 @@ const handler = async (req: NextRequest) => {
 export const GET = compose(withProviderAuth())(handler);
 
 // AI 402 Guard acceptance: reuse same route with POST, no new endpoint.
-// Returns 402 PAYMENT_REQUIRED payload when requested.
+// If body.simulate === '402', force a 402 payload for acceptance testing.
+// Otherwise, if body.orgId is provided, perform a real budget check using aiMeter.
 export const POST = compose(withRateLimit('api'), withIdempotencyRequired(), withProviderAuth())(async (req: NextRequest) => {
   const body = await req.json().catch(() => ({} as any));
   const simulate = (body && typeof body.simulate === 'string') ? body.simulate : undefined;
@@ -99,6 +100,26 @@ export const POST = compose(withRateLimit('api'), withIdempotencyRequired(), wit
       }),
       { status: 402, headers: { 'Content-Type': 'application/json' } }
     );
+  }
+
+  // Budget-aware guard when orgId is supplied
+  if (typeof body?.orgId === 'string' && body.orgId) {
+    const { checkAiBudget } = await import('@/lib/aiMeter');
+    const ESTIMATED_CREDITS = 50; // default per-call estimate
+    const budget = await checkAiBudget(body.orgId, 'ai.concierge', ESTIMATED_CREDITS);
+    if (!budget.allowed) {
+      const missingCredits = Math.max(0, ESTIMATED_CREDITS - (budget.creditsRemaining || 0));
+      const required_prepay_cents = missingCredits * 5; // 1 credit = $0.05 = 5 cents
+      return new Response(
+        JSON.stringify({
+          error: 'PAYMENT_REQUIRED',
+          feature: 'ai.concierge',
+          required_prepay_cents,
+          enable_path: `/provider/wallet/prepay?feature=ai.concierge&amount_cents=${required_prepay_cents}`,
+        }),
+        { status: 402, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
   }
 
   // Otherwise, pretend the AI request succeeded (stub)
