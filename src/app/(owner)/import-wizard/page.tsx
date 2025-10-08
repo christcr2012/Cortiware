@@ -1,9 +1,13 @@
 /**
- * Import Wizard Page
- * 
- * Client-only page that allows providers to import data from CSV files.
+ * Import Wizard Page - CLIENT/OWNER PORTAL
+ *
+ * Allows business owners (roofing companies, HVAC contractors, etc.) to import
+ * their customer data, equipment, facilities, and other business data from CSV files.
+ *
+ * Access: Owner-only (not available to staff/field users)
+ * Availability: All clients regardless of vertical
+ *
  * Generates *.import.json files that can be used with batch job endpoints.
- * 
  * NO new HTTP routes - uses existing batch job infrastructure.
  */
 
@@ -11,7 +15,7 @@ import { ImportWizard } from './ImportWizard';
 
 export const metadata = {
   title: 'Import Wizard | Cortiware',
-  description: 'Import data from CSV files',
+  description: 'Import your business data from CSV files',
 };
 
 export default function ImportWizardPage() {

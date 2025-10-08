@@ -118,19 +118,6 @@ export default function ProviderShellClient({ children }: { children: React.Reac
             className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
             style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
           >
-            Tools
-          </div>
-          <ProviderNavLink href="/provider/import-wizard" active={active('/provider/import-wizard')}>
-            Import Wizard
-          </ProviderNavLink>
-          <ProviderNavLink href="/provider/roofing-takeoff" active={active('/provider/roofing-takeoff')}>
-            Roofing Takeoff
-          </ProviderNavLink>
-
-          <div
-            className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
-            style={{ color: 'var(--brand-primary)', opacity: 0.5 }}
-          >
             System
           </div>
           <ProviderNavLink href="/provider/infrastructure" active={active('/provider/infrastructure')}>

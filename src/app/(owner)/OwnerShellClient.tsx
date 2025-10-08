@@ -2,6 +2,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
+/**
+ * Owner Portal Shell - CLIENT/OWNER PORTAL
+ *
+ * Navigation and layout for business owners (roofing companies, HVAC contractors, etc.)
+ * Separate from Provider Portal (federation system for software providers)
+ *
+ * Access: Owner-only (not available to staff/field users)
+ */
 export default function OwnerShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const NavItem = ({ href, label }: { href: string; label: string }) => (
@@ -13,6 +21,7 @@ export default function OwnerShell({ children }: { children: React.ReactNode }) 
         <div className="font-bold" style={{ color: 'var(--brand-primary)' }}>Owner Portal</div>
         <nav className="flex gap-2 text-sm" style={{ color: 'var(--text-primary)' }}>
           <NavItem href="/owner" label="Dashboard" />
+          <NavItem href="/owner/import-wizard" label="Import Data" />
           <NavItem href="/owner/subscription" label="Subscription" />
           <NavItem href="/owner/billing" label="Billing" />
           <NavItem href="/owner/usage" label="Usage" />

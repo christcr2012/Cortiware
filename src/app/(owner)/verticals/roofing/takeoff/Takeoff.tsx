@@ -1,10 +1,12 @@
 'use client';
 
 /**
- * Roofing Takeoff Component
- * 
- * Interactive canvas for measuring roof areas.
- * Click to add points, calculates area automatically.
+ * Roofing Takeoff Component - CLIENT/OWNER PORTAL (Roofing Vertical)
+ *
+ * Interactive canvas for measuring roof areas and calculating materials.
+ * Roofing contractors click to add measurement points, calculates area automatically.
+ *
+ * Part of the Roofing vertical pack - only visible to roofing clients.
  */
 
 import React, { useState } from 'react';

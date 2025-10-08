@@ -1,12 +1,17 @@
 'use client';
 
 /**
- * Import Wizard Component
- * 
- * Client-only component that:
- * - Parses CSV files
- * - Generates *.import.json files for batch processing
- * - No new HTTP routes (uses existing batch job endpoints)
+ * Import Wizard Component - CLIENT/OWNER PORTAL
+ *
+ * Allows business owners to import their data from CSV files:
+ * - Customers (end customers of the business)
+ * - Assets (equipment, trucks, tools)
+ * - Facilities (warehouses, disposal sites)
+ * - Routes, Stops, Services, Products
+ *
+ * Browser-only processing (no server upload until final import)
+ * Generates *.import.json files for batch processing
+ * No new HTTP routes (uses existing batch job endpoints)
  */
 
 import React, { useState } from 'react';
