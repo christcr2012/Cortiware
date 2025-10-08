@@ -1,7 +1,10 @@
 /**
  * SSO ticket utilities (HMAC-based JWT)
+ *
+ * Uses KV store for distributed nonce replay protection
  */
 import { SignJWT, jwtVerify } from 'jose';
+import { storeNonce, checkNonce } from '@cortiware/kv';
 /**
  * Generate a random nonce
  */
@@ -42,30 +45,23 @@ export async function issueAuthTicket(sub, role, aud, secret, expirySeconds = 12
 /**
  * Verify an auth ticket
  * Returns the payload if valid, or error
+ *
+ * Uses KV store for distributed nonce replay protection
  */
-export async function verifyAuthTicket(token, secret, expectedAudience, nonceStore) {
+export async function verifyAuthTicket(token, secret, expectedAudience) {
     try {
         const secretKey = new TextEncoder().encode(secret);
         const { payload } = await jwtVerify(token, secretKey, {
             audience: expectedAudience,
         });
         const ticketPayload = payload;
-        // Check nonce for replay protection
-        if (nonceStore) {
-            if (nonceStore instanceof Set) {
-                if (nonceStore.has(ticketPayload.nonce)) {
-                    return { valid: false, error: 'Nonce already used (replay detected)' };
-                }
-                nonceStore.add(ticketPayload.nonce);
-            }
-            else if (nonceStore instanceof Map) {
-                if (nonceStore.has(ticketPayload.nonce)) {
-                    return { valid: false, error: 'Nonce already used (replay detected)' };
-                }
-                // Store with expiry timestamp (5 minutes from now)
-                nonceStore.set(ticketPayload.nonce, Date.now() + 300000);
-            }
+        // Check nonce for replay protection using KV store
+        const nonceExists = await checkNonce(ticketPayload.nonce);
+        if (nonceExists) {
+            return { valid: false, error: 'Nonce already used (replay detected)' };
         }
+        // Store nonce with TTL matching ticket expiry (120 seconds)
+        await storeNonce(ticketPayload.nonce, 120);
         return { valid: true, payload: ticketPayload };
     }
     catch (error) {
@@ -80,13 +76,11 @@ export async function verifyAuthTicket(token, secret, expectedAudience, nonceSto
     }
 }
 /**
- * Clean up expired nonces from a Map-based nonce store
+ * Clean up expired nonces
+ * No-op for KV store (handles expiry automatically via TTL)
+ * Kept for backward compatibility
  */
-export function cleanupExpiredNonces(nonceStore) {
-    const now = Date.now();
-    for (const [nonce, expiry] of nonceStore.entries()) {
-        if (expiry < now) {
-            nonceStore.delete(nonce);
-        }
-    }
+export function cleanupExpiredNonces() {
+    // KV store handles expiry automatically via TTL
+    // This function is kept for backward compatibility
 }

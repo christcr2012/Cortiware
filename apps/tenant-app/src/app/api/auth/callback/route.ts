@@ -20,7 +20,6 @@ import {
   getCookieName,
   getRedirectPath,
 } from '@cortiware/auth-service';
-import { checkNonce, storeNonce } from '@cortiware/kv';
 
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
@@ -56,19 +55,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=server_error', url), 303);
   }
 
-  // Verify the ticket with KV-based nonce store
+  // Verify the ticket (uses KV store for nonce replay protection)
   const expectedAudience = process.env.NEXT_PUBLIC_APP_URL || 'tenant-app';
-
-  // Create KV-backed nonce store adapter
-  const kvNonceStore = {
-    has: async (nonce: string) => checkNonce(nonce),
-    set: async (nonce: string, expiry: number) => {
-      const ttl = Math.floor((expiry - Date.now()) / 1000);
-      await storeNonce(nonce, ttl > 0 ? ttl : 120);
-    },
-  };
-
-  const result = await verifyAuthTicket(token, secret, expectedAudience, kvNonceStore as any);
+  const result = await verifyAuthTicket(token, secret, expectedAudience);
 
   if (!result.valid || !result.payload) {
     console.error('Invalid auth ticket:', result.error);

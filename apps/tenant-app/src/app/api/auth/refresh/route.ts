@@ -1,24 +1,24 @@
 /**
  * Refresh Token Endpoint
- * 
+ *
  * Exchanges a valid refresh token for a new access token.
- * 
+ *
  * Security:
  * - Verifies refresh token signature
- * - Checks session is still valid in KV store
+ * - Checks token hasn't been revoked in database
  * - Issues new short-lived access token
  * - Optionally rotates refresh token
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
 import {
   verifyRefreshToken,
   generateAccessToken,
   generateRefreshToken,
   buildCookieHeader,
 } from '@cortiware/auth-service';
-import { getSession, refreshSession } from '@cortiware/kv';
 
 export async function POST(req: NextRequest) {
   try {
@@ -61,11 +61,28 @@ export async function POST(req: NextRequest) {
 
     const { userId, email, role, sessionId } = result.payload;
 
-    // Check if session is still valid in KV
-    const session = await getSession(sessionId);
-    if (!session) {
+    // Check if refresh token exists in database and hasn't been revoked
+    const storedToken = await prisma.refreshToken.findUnique({
+      where: { sessionId },
+    });
+
+    if (!storedToken) {
       return NextResponse.json(
-        { error: 'SessionExpired', message: 'Session no longer valid' },
+        { error: 'TokenNotFound', message: 'Refresh token not found' },
+        { status: 401 }
+      );
+    }
+
+    if (storedToken.revoked) {
+      return NextResponse.json(
+        { error: 'TokenRevoked', message: 'Refresh token has been revoked' },
+        { status: 401 }
+      );
+    }
+
+    if (storedToken.expiresAt < new Date()) {
+      return NextResponse.json(
+        { error: 'TokenExpired', message: 'Refresh token has expired' },
         { status: 401 }
       );
     }
@@ -79,16 +96,31 @@ export async function POST(req: NextRequest) {
     // Optionally rotate refresh token (recommended for security)
     const rotateRefreshToken = process.env.ROTATE_REFRESH_TOKENS === 'true';
     let newRefreshToken = refreshToken;
-    
+
     if (rotateRefreshToken) {
+      // Revoke old refresh token
+      await prisma.refreshToken.update({
+        where: { sessionId },
+        data: { revoked: true, revokedAt: new Date() },
+      });
+
+      // Generate new refresh token
       newRefreshToken = await generateRefreshToken(
         { userId, email, role, sessionId },
         secret
       );
-    }
 
-    // Extend session TTL
-    await refreshSession(sessionId, 7 * 24 * 60 * 60); // 7 days
+      // Store new refresh token in database
+      await prisma.refreshToken.create({
+        data: {
+          sessionId,
+          userId,
+          email,
+          role,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        },
+      });
+    }
 
     // Set cookies
     const res = NextResponse.json({
