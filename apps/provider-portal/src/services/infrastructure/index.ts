@@ -8,6 +8,8 @@
 import { PrismaClient } from '@prisma/client';
 import { VercelKVMonitor } from './vercel-kv-monitor';
 import { VercelPlatformMonitor } from './vercel-platform-monitor';
+import { NeonPostgresMonitor } from './neon-postgres-monitor';
+import { AiUsageMonitor } from './ai-usage-monitor';
 import { RecommendationEngine } from './recommendation-engine';
 import type { MonitoringConfig, MetricData } from './types';
 import { DEFAULT_CONFIG } from './types';
@@ -17,6 +19,8 @@ export class InfrastructureMonitoringService {
   private config: MonitoringConfig;
   private kvMonitor?: VercelKVMonitor;
   private platformMonitor?: VercelPlatformMonitor;
+  private dbMonitor?: NeonPostgresMonitor;
+  private aiMonitor?: AiUsageMonitor;
   private recommendationEngine: RecommendationEngine;
 
   constructor(prisma: PrismaClient, config?: Partial<MonitoringConfig>) {
@@ -43,6 +47,10 @@ export class InfrastructureMonitoringService {
     } catch (error) {
       console.warn('Vercel platform monitor not initialized:', error);
     }
+
+    // Always available: DB and AI monitors (use Prisma + internal data)
+    this.dbMonitor = new NeonPostgresMonitor(this.prisma);
+    this.aiMonitor = new AiUsageMonitor(this.prisma);
   }
 
   /**
@@ -68,6 +76,26 @@ export class InfrastructureMonitoringService {
         allMetrics.push(...platformMetrics);
       } catch (error) {
         console.error('Failed to collect platform metrics:', error);
+      }
+    }
+
+    // Collect DB metrics
+    if (this.dbMonitor) {
+      try {
+        const dbMetrics = await this.dbMonitor.collectMetrics();
+        allMetrics.push(...dbMetrics);
+      } catch (error) {
+        console.error('Failed to collect DB metrics:', error);
+      }
+    }
+
+    // Collect AI usage metrics
+    if (this.aiMonitor) {
+      try {
+        const aiMetrics = await this.aiMonitor.collectMetrics();
+        allMetrics.push(...aiMetrics);
+      } catch (error) {
+        console.error('Failed to collect AI metrics:', error);
       }
     }
 
@@ -185,6 +213,19 @@ export class InfrastructureMonitoringService {
         currentPlan: 'free',
         limitValue: 10000,
       },
+      // Vercel Postgres (Neon) defaults
+      {
+        service: 'VERCEL_POSTGRES',
+        metric: 'STORAGE_GB',
+        currentPlan: 'hobby',
+        limitValue: 1,
+      },
+      {
+        service: 'VERCEL_POSTGRES',
+        metric: 'CONNECTIONS',
+        currentPlan: 'hobby',
+        limitValue: 20,
+      },
       // Vercel Build (Pro tier)
       {
         service: 'VERCEL_BUILD',
@@ -205,6 +246,20 @@ export class InfrastructureMonitoringService {
         metric: 'BANDWIDTH_GB',
         currentPlan: 'pro',
         limitValue: 1000,
+      },
+      // AI Credits monthly usage (percent of budget)
+      {
+        service: 'AI_CREDITS',
+        metric: 'USAGE_PERCENT',
+        currentPlan: 'global',
+        limitValue: 100, // Hard cap at 100%
+      },
+      // AI cost soft cap (USD per month)
+      {
+        service: 'AI_OPENAI',
+        metric: 'COST_USD',
+        currentPlan: 'budget',
+        limitValue: 50, // Provider monthly soft cap used for alerts
       },
     ];
 
@@ -269,5 +324,7 @@ export class InfrastructureMonitoringService {
 export * from './types';
 export { VercelKVMonitor } from './vercel-kv-monitor';
 export { VercelPlatformMonitor } from './vercel-platform-monitor';
+export { NeonPostgresMonitor } from './neon-postgres-monitor';
+export { AiUsageMonitor } from './ai-usage-monitor';
 export { RecommendationEngine } from './recommendation-engine';
 

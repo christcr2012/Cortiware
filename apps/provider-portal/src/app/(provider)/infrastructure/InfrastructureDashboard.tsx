@@ -6,7 +6,7 @@
  * Displays usage metrics, trends, and recommendations
  */
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { InfrastructureMetric, UpgradeRecommendation, InfrastructureLimit } from '@prisma/client';
 
 interface Props {
@@ -20,18 +20,50 @@ export function InfrastructureDashboard({ usageSummary, recentMetrics, recommend
   const [selectedService, setSelectedService] = useState<string | null>(null);
 
   // Group metrics by service
-  const serviceMetrics = Object.entries(usageSummary).reduce((acc, [key, value]) => {
+  const serviceMetrics = useMemo(() => Object.entries(usageSummary).reduce((acc, [key, value]) => {
     const [service] = key.split('_');
     if (!acc[service]) acc[service] = [];
     acc[service].push({ key, ...value });
     return acc;
-  }, {} as Record<string, Array<{ key: string; current: number; limit: number; percent: number }>>);
+  }, {} as Record<string, Array<{ key: string; current: number; limit: number; percent: number }>>), [usageSummary]);
+
+  const sparkData = useMemo(() => {
+    // Build simple time-series per service_metric key
+    const map = new Map<string, Array<{ t: number; v: number }>>();
+    for (const m of recentMetrics) {
+      const key = `${m.service}_${m.metric}`;
+      const arr = map.get(key) || [];
+      arr.push({ t: new Date(m.timestamp).getTime(), v: m.value });
+      map.set(key, arr);
+    }
+    return map;
+  }, [recentMetrics]);
+
+  function exportCsv() {
+    const header = 'service,metric,timestamp,value';
+    const rows = recentMetrics.map(m => `${m.service},${m.metric},${new Date(m.timestamp).toISOString()},${m.value}`);
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `infrastructure-metrics-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div className="space-y-8">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-semibold">Current Usage</h2>
+        <button onClick={exportCsv} className="px-3 py-2 text-sm bg-gray-800 text-white rounded hover:bg-black">
+          Export CSV
+        </button>
+      </div>
+
       {/* Usage Summary Cards */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Current Usage</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {Object.entries(serviceMetrics).map(([service, metrics]) => (
             <ServiceCard
@@ -40,6 +72,16 @@ export function InfrastructureDashboard({ usageSummary, recentMetrics, recommend
               metrics={metrics}
               onClick={() => setSelectedService(service)}
             />
+          ))}
+        </div>
+      </div>
+
+      {/* Trends (last 30d) */}
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Trends (30 days)</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {['VERCEL_BUILD_BUILD_MINUTES','VERCEL_BANDWIDTH_BANDWIDTH_GB','VERCEL_POSTGRES_STORAGE_GB','AI_CREDITS_USAGE_PERCENT'].map((key) => (
+            <TrendCard key={key} label={formatMetricName(key.split('_').slice(1).join('_'))} series={sparkData.get(key) || []} />
           ))}
         </div>
       </div>
@@ -247,6 +289,37 @@ function StatusBadge({ status }: { status: 'ok' | 'warning' | 'critical' }) {
   );
 }
 
+function TrendCard({ label, series }: { label: string; series: Array<{ t: number; v: number }> }) {
+  // Simple sparkline
+  const width = 280, height = 60, pad = 6;
+  const xs = series.map(p => p.t);
+  const ys = series.map(p => p.v);
+  const minX = xs.length ? Math.min(...xs) : 0;
+  const maxX = xs.length ? Math.max(...xs) : 1;
+  const minY = ys.length ? Math.min(...ys) : 0;
+  const maxY = ys.length ? Math.max(...ys) : 1;
+  const toX = (t: number) => pad + ((t - minX) / (maxX - minX || 1)) * (width - pad * 2);
+  const toY = (v: number) => height - pad - ((v - minY) / (maxY - minY || 1)) * (height - pad * 2);
+  const d = series
+    .sort((a, b) => a.t - b.t)
+    .map((p, i) => `${i ? 'L' : 'M'}${toX(p.t)},${toY(p.v)}`)
+    .join(' ');
+
+  const last = series[series.length - 1]?.v ?? 0;
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex items-center justify-between mb-2">
+        <div className="text-sm text-gray-600">{label}</div>
+        <div className="text-sm font-semibold">{formatNumber(last)}</div>
+      </div>
+      <svg width={width} height={height} className="block">
+        <path d={d} stroke="#2563eb" strokeWidth={2} fill="none" />
+      </svg>
+    </div>
+  );
+}
+
 function formatServiceName(service: string): string {
   return service.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
@@ -261,6 +334,13 @@ function formatValue(value: number, metric: string): string {
   if (metric.includes('MINUTES')) return `${value.toFixed(0)} min`;
   if (metric.includes('PERCENT')) return `${value.toFixed(1)}%`;
   if (metric.includes('MS')) return `${value.toFixed(0)} ms`;
+  if (metric.includes('USD')) return `$${value.toFixed(2)}`;
   return value.toFixed(0);
+}
+
+function formatNumber(n: number){
+  if (n >= 1_000_000) return (n/1_000_000).toFixed(1)+"M";
+  if (n >= 1_000) return (n/1_000).toFixed(1)+"k";
+  return n.toFixed(0);
 }
 
