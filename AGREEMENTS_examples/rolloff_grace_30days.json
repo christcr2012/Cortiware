@@ -1,0 +1,16 @@
+{
+  "agreement_id": "rolloff-rental-grace-30",
+  "org_id": "your-rolloff-org",
+  "name": "Roll-off rental: waive fee if dumped within 30 days",
+  "currency": "USD",
+  "effective_from": "2025-01-01",
+  "rules": [
+    {
+      "name": "Accrue daily rental after 30 days idle",
+      "when": { "event": "rolloff.idle_days", "filters": { "gt": 30 } },
+      "action": { "type": "flat_fee", "amount_cents": 100 },
+      "settlement": { "mode": "invoice", "memo": "Daily rental after grace window" }
+    }
+  ]
+}
+

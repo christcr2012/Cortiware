@@ -29,7 +29,7 @@ jobs:
         run: npx prisma generate --schema=apps/provider-portal/prisma/schema.prisma
 
       - name: TypeScript Type Check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: ESLint
         run: npm run lint
@@ -77,25 +77,40 @@ jobs:
   # DEPLOY TO VERCEL - Run only on main branch after quality checks pass
   # ============================================================================
   deploy:
-    name: Deploy to Vercel Production
+    name: Deploy to Vercel Production (per app)
     runs-on: ubuntu-latest
     needs: quality_checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    strategy:
+      matrix:
+        include:
+          - name: provider-portal
+            dir: apps/provider-portal
+            projectSecret: VERCEL_PROJECT_ID_PROVIDER
+          - name: tenant-app
+            dir: apps/tenant-app
+            projectSecret: VERCEL_PROJECT_ID_TENANT
+          - name: marketing-cortiware
+            dir: apps/marketing-cortiware
+            projectSecret: VERCEL_PROJECT_ID_MARKETING_CORTIWARE
+          - name: marketing-robinson
+            dir: apps/marketing-robinson
+            projectSecret: VERCEL_PROJECT_ID_MARKETING_ROBINSON
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to Vercel
+      - name: Deploy ${{ matrix.name }}
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-project-id: ${{ secrets[matrix.projectSecret] }}
           vercel-args: '--prod'
-          working-directory: ./
+          working-directory: ${{ matrix.dir }}
 
-      - name: Deployment Summary
+      - name: Deployment Summary (${{ matrix.name }})
         run: |
-          echo "✅ Deployment successful!"
-          echo "🚀 All apps deployed to Vercel production"
+          echo "✅ Deployment successful for ${{ matrix.name }}!"
+          echo "🚀 Deployed ${{ matrix.dir }} to Vercel production"
 

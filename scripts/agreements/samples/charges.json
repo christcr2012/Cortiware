@@ -1,0 +1,10 @@
+{
+  "orgId": "demo-rolloff-org",
+  "wallet": { "balance_cents": 0 },
+  "lines": [
+    { "sku": "ROLL_RENTAL_DAILY", "qty": 2, "unit_cents": 100, "memo": "Daily rental (2 days beyond grace)" },
+    { "sku": "PAJ_SERVICE", "qty": 1, "unit_cents": 2500, "memo": "Service visit" }
+  ],
+  "memo": "Settlement demo"
+}
+

@@ -1,0 +1,1 @@
+# CI Guardrails — fail on routes not in API_INDEX.json; contract tests; RLS tests

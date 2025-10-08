@@ -1,0 +1,17 @@
+[
+  {
+    "id": "FIXTURE-001",
+    "type": "rolloff",
+    "size": "30yd",
+    "idTag": "TAG-A1",
+    "orgId": "test-org"
+  },
+  {
+    "id": "FIXTURE-002",
+    "type": "port-a-john",
+    "size": "std",
+    "idTag": "TAG-B2",
+    "orgId": "test-org"
+  }
+]
+

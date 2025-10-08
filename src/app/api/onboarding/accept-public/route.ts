@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 const guard = compose(withRateLimit('auth'), withIdempotencyRequired());
 export const POST = guard(async (req: NextRequest) => {
   const body = await req.json().catch(() => ({}));
-  const { companyName, ownerName, ownerEmail, password, couponCode } = body || {};
+  const { companyName, ownerName, ownerEmail, password, couponCode, activePacks } = body || {};
   if (!companyName || !ownerName || !ownerEmail || !password) {
     return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
   }
@@ -39,7 +39,7 @@ export const POST = guard(async (req: NextRequest) => {
 
   // Create tenant with default plan/price from global config
   const result = await prisma.$transaction(async (tx) => {
-    const org = await tx.org.create({ data: { name: companyName, featureFlags: { planIdHint: cfg.defaultPlanId || null, priceIdHint: cfg.defaultPriceId || null } as any } });
+    const org = await tx.org.create({ data: { name: companyName, featureFlags: { planIdHint: cfg.defaultPlanId || null, priceIdHint: cfg.defaultPriceId || null, activePacks: Array.isArray(activePacks) ? activePacks.filter((x: any)=> typeof x === 'string') : [] } as any } });
     const passwordHash = await hashPassword(password);
     const user = await tx.user.create({ data: { email: ownerEmail, name: ownerName, role: 'OWNER', orgId: org.id, passwordHash, mustChangePassword: false } as any });
 

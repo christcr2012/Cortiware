@@ -37,17 +37,20 @@ export async function POST(req: NextRequest) {
 
   try {
     // Issue ticket with 120 second expiry
-    const ticket = await issueAuthTicket(
-      {
-        email: email!,
-        role,
-        audience: 'tenant-app',
-      },
-      hmacSecret
+    const result = await issueAuthTicket(
+      email!,
+      role,
+      'tenant-app',
+      hmacSecret,
+      120
     );
 
+    if (!result.token) {
+      throw new Error(result.error || 'Failed to issue ticket');
+    }
+
     return NextResponse.json({
-      token: ticket,
+      token: result.token,
       expiresIn: 120,
     });
   } catch (error) {

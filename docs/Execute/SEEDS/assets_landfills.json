@@ -1,0 +1,45 @@
+{
+  "assets": [
+    {
+      "id": "C20-001",
+      "type": "rolloff",
+      "size": "20yd",
+      "idTag": "RFID-1001"
+    },
+    {
+      "id": "PAJ-010",
+      "type": "port-a-john",
+      "size": "std",
+      "idTag": "RFID-5010"
+    }
+  ],
+  "yards": [
+    {
+      "id": "Y1",
+      "name": "Main Yard",
+      "lat": 39.5,
+      "lon": -104.9
+    }
+  ],
+  "landfills": [
+    {
+      "id": "LF1",
+      "name": "North Landfill",
+      "lat": 39.8,
+      "lon": -105.0,
+      "accepts": [
+        "msw",
+        "c&d"
+      ]
+    },
+    {
+      "id": "LF2",
+      "name": "East Transfer",
+      "lat": 39.6,
+      "lon": -104.6,
+      "accepts": [
+        "msw"
+      ]
+    }
+  ]
+}

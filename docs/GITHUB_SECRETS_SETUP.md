@@ -43,13 +43,14 @@ If you already have a Vercel token:
 
 ### Method 1: From Vercel Dashboard (Easiest)
 
-1. Go to your Vercel project: https://vercel.com/dashboard
-2. Click on your **Cortiware project** (or whichever project you want to deploy)
-3. Go to **Settings** → **General**
-4. Scroll down to **"Project ID"**
-   - Copy the Project ID (looks like: `prj_abc123xyz...`)
-5. Scroll down to **"Team ID"** or **"Organization ID"**
-   - Copy the Org ID (looks like: `team_abc123xyz...`)
+1. Open the dashboard: https://vercel.com/dashboard
+2. For each app project, open it and go to **Settings** → **General**:
+   - cortiware-provider-portal → copy its Project ID (e.g., `prj_vtuMi117XwV51s1fBd2rthPo4yZI`)
+   - cortiware-tenant-app → copy its Project ID (e.g., `prj_mUQKeWPH4KMkY2XzIrAYdRUFv43Q`)
+   - cortiware-marketing-cortiware → copy its Project ID (e.g., `prj_O5Fakz26Drew0V5tycIbwJSAYSQL`)
+   - cortiware-marketing-robinson → copy its Project ID (e.g., `prj_VwnpJrIFFZN5t8gpHPSoH70YNIbF`)
+3. Team/Organization ID (same for all projects):
+   - Copy the Org ID from any project’s **Settings** → **General** (e.g., `team_PUafLQmqT7LYBaBs8lEOPYMG`)
 
 ### Method 2: From .vercel/project.json (If You've Deployed Before)
 

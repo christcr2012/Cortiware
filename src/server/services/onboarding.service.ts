@@ -10,6 +10,7 @@ export type AcceptOnboardingInput = {
   ownerName: string;
   ownerEmail: string;
   password: string;
+  activePacks?: string[];
 };
 
 export type VerifyInviteOk = { ok: true; payload: ReturnType<typeof verifyOnboardingToken> extends { payload: infer P } ? P : any; invite: any };
@@ -25,7 +26,7 @@ export async function verifyInviteToken(token: string): Promise<VerifyInviteRes>
 }
 
 export async function acceptOnboarding(input: AcceptOnboardingInput) {
-  const { token, companyName, ownerEmail, ownerName, password } = input;
+  const { token, companyName, ownerEmail, ownerName, password, activePacks = [] } = input;
   // 1) Verify token + load invite
   const v = await verifyInviteToken(token);
   if (!v.ok) return v;
@@ -34,7 +35,7 @@ export async function acceptOnboarding(input: AcceptOnboardingInput) {
   // 2) Create tenant org + owner user in a transaction
   // 2) Create tenant org + owner user in a transaction
   const res = await prisma.$transaction(async (tx) => {
-    const org = await tx.org.create({ data: { name: companyName, featureFlags: { planIdHint: inv.planId || null, priceIdHint: inv.priceId || null } as any } });
+    const org = await tx.org.create({ data: { name: companyName, featureFlags: { planIdHint: inv.planId || null, priceIdHint: inv.priceId || null, activePacks: Array.isArray(activePacks) ? activePacks.filter((x:any)=>typeof x==='string') : [] } as any } });
 
     const passwordHash = await hashPassword(password);
     const user = await tx.user.create({

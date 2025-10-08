@@ -37,15 +37,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=missing', url), 303);
   }
 
-  const ipAddress = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
-  const userAgent = req.headers.get('user-agent') || 'unknown';
-
   const authInput: AuthInput = {
     email,
     password,
     totpCode: totpCode || undefined,
-    ipAddress,
-    userAgent,
   };
 
   // Provider config from environment
@@ -91,7 +86,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Check if TOTP is required
-  if (providerResult.totpRequired || developerResult.totpRequired) {
+  if (providerResult.requiresTOTP || developerResult.requiresTOTP) {
     return NextResponse.redirect(new URL('/login?totp=required', url), 303);
   }
 

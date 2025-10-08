@@ -1,0 +1,4 @@
+id,name,lat,lon,accepts
+LF-TEST1,Test North,40.0,-105.5,"msw;c&d"
+LF-TEST2,Test South,39.5,-105.0,msw
+
