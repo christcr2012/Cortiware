@@ -15,6 +15,10 @@ export default function OnboardingClient({ token }: { token?: string }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState<{ orgId: string } | null>(null);
+  // Services to activate (vertical packs)
+  const [svcRollOff, setSvcRollOff] = useState(false);
+  const [svcPortAJohn, setSvcPortAJohn] = useState(false);
+
 
   useEffect(() => {
     (async () => {
@@ -45,7 +49,11 @@ export default function OnboardingClient({ token }: { token?: string }) {
       const path = token ? '/api/onboarding/accept' : '/api/onboarding/accept-public';
       const res = await fetch(path, {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(token ? { token, companyName, ownerName, ownerEmail, password } : { companyName, ownerName, ownerEmail, password }),
+        body: JSON.stringify(
+          token
+            ? { token, companyName, ownerName, ownerEmail, password, activePacks: [svcRollOff && 'roll-off', svcPortAJohn && 'port-a-john'].filter(Boolean) }
+            : { companyName, ownerName, ownerEmail, password, activePacks: [svcRollOff && 'roll-off', svcPortAJohn && 'port-a-john'].filter(Boolean) }
+        ),
       });
       const j = await res.json();
       if (!res.ok || !j?.ok) throw new Error(j?.error || 'Failed to complete onboarding');
@@ -94,6 +102,7 @@ export default function OnboardingClient({ token }: { token?: string }) {
         </div>
         <div>
           <label className="block text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>Owner Email</label>
+
           <input className="w-full px-3 py-2 rounded border" style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-accent)' }} value={ownerEmail} onChange={e=>setOwnerEmail(e.target.value)} />
         </div>
         <div>
@@ -101,6 +110,28 @@ export default function OnboardingClient({ token }: { token?: string }) {
           <input type="password" className="w-full px-3 py-2 rounded border" style={{ background: 'var(--glass-bg)', borderColor: 'var(--border-accent)' }} value={password} onChange={e=>setPassword(e.target.value)} />
         </div>
       </div>
+      {/* Services to activate */}
+      <div className="space-y-3 rounded p-3" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>
+        <div className="font-medium" style={{ color: 'var(--text-primary)' }}>Services to activate</div>
+        <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>You can add more anytime from Settings.</div>
+        <div className="flex flex-col gap-2 mt-2">
+          <label className="inline-flex items-center gap-2">
+            <input type="checkbox" checked={svcRollOff} onChange={e=>setSvcRollOff(e.target.checked)} />
+            <span>Roll-Off</span>
+          </label>
+          {svcRollOff && !svcPortAJohn ? (
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Do you also provide "Port-a-John" services?</div>
+          ) : null}
+          <label className="inline-flex items-center gap-2">
+            <input type="checkbox" checked={svcPortAJohn} onChange={e=>setSvcPortAJohn(e.target.checked)} />
+            <span>Port-a-John</span>
+          </label>
+          {svcPortAJohn && !svcRollOff ? (
+            <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Do you also provide "Roll-Off" services?</div>
+          ) : null}
+        </div>
+      </div>
+
 
       {submitError ? <div className="text-red-400 text-sm">{submitError}</div> : null}
 

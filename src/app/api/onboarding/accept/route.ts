@@ -17,7 +17,8 @@ export const POST = guard(async (req: NextRequest) => {
     return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
   }
 
-  const res = await acceptOnboarding({ token, companyName, ownerName, ownerEmail, password });
+  const activePacks = Array.isArray((body as any)?.activePacks) ? (body as any).activePacks.filter((x:any)=>typeof x==='string') : [];
+  const res = await acceptOnboarding({ token, companyName, ownerName, ownerEmail, password, activePacks });
   if (!(res as any).ok) return NextResponse.json(res, { status: 400 });
   try {
     const { logOnboardingEvent } = await import('@/services/audit-log.service');
