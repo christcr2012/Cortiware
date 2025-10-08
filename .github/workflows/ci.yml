@@ -29,7 +29,7 @@ jobs:
         run: npx prisma generate --schema=apps/provider-portal/prisma/schema.prisma
 
       - name: TypeScript Type Check
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: ESLint
         run: npm run lint
