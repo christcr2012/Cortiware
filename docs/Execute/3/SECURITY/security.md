@@ -1,0 +1,7 @@
+- Roles: owner, manager, dispatcher, cleaner, customer, accountant
+- JWT `aud=tenant`; provider staff `aud=provider`
+- RLS on all tenant tables; pass tenant in DB session var or header
+- Presigned uploads; AV scan optional; size/mime checks
+- Audit C/U/D with actor/ip/ua
+- PII encryption via KMS
+- Redis rate limits per-tenant + per-IP

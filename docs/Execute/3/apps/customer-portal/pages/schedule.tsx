@@ -1,0 +1,1 @@
+export default function Schedule(){ return <main style={{padding:16}}><h1>Schedule</h1><p>Upcoming visits (stub).</p></main>; }

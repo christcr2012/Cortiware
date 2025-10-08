@@ -1,0 +1,45 @@
+{
+  "tiers": [
+    {
+      "key": "free",
+      "limits": {
+        "jobs_per_day": 5,
+        "ai_tokens": 20000
+      },
+      "features": {
+        "imports": true,
+        "portal": true
+      }
+    },
+    {
+      "key": "starter",
+      "price_cents_month": 4900,
+      "limits": {
+        "jobs_per_day": 50,
+        "ai_tokens": 100000
+      },
+      "features": {
+        "routing": true,
+        "agreements": true
+      }
+    },
+    {
+      "key": "pro",
+      "price_cents_month": 14900,
+      "limits": {
+        "jobs_per_day": 250,
+        "ai_tokens": 500000
+      },
+      "features": {
+        "optimizations": true,
+        "roi_concierge": true
+      }
+    }
+  ],
+  "http_402": {
+    "error": "PAYMENT_REQUIRED",
+    "feature": "ai.concierge",
+    "required_prepay_cents": 1500,
+    "enable_path": "/provider/wallet/prepay?feature=ai.concierge&amount_cents=1500"
+  }
+}

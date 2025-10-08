@@ -1,0 +1,6 @@
+{
+  "name": "@cortiware/verticals",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "registry.ts"
+}

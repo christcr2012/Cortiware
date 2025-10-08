@@ -1,0 +1,1 @@
+export default function Invoices(){ return <main style={{padding:16}}><h1>Invoices</h1><p>List & Pay (test) stub.</p></main>; }

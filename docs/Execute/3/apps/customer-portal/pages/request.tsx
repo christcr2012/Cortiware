@@ -1,0 +1,1 @@
+export default function Request(){ return <main style={{padding:16}}><h1>Request Service</h1><form><input placeholder='Describe your request' style={{width:'100%'}}/></form></main>; }
