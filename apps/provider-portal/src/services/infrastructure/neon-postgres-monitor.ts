@@ -5,15 +5,20 @@
  * - Storage (GB)
  * - Active connections
  * - Query latency (ms)
- * - Estimated monthly storage cost (USD)
+ * - Estimated monthly cost (USD): storage + compute-hours (if Neon API configured)
  */
 
 import { InfrastructureService, MetricType } from '@prisma/client';
 import type { MetricData } from './types';
 import { PrismaClient } from '@prisma/client';
+import { NeonApiClient } from './neon-api-client';
 
 export class NeonPostgresMonitor {
-  constructor(private prisma: PrismaClient) {}
+  private neonApi: NeonApiClient;
+
+  constructor(private prisma: PrismaClient) {
+    this.neonApi = new NeonApiClient();
+  }
 
   async collectMetrics(): Promise<MetricData[]> {
     const now = new Date();
@@ -36,7 +41,18 @@ export class NeonPostgresMonitor {
     const storageGB = bytes / (1024 ** 3);
 
     // Launch plan storage price: $0.35 / GB-month
-    const estimatedMonthlyStorageCost = storageGB * 0.35;
+    const storageCost = storageGB * 0.35;
+
+    // Compute-hours cost (env-gated via Neon API)
+    let computeCost = 0;
+    let computeHours = 0;
+    const computeUsage = await this.neonApi.getComputeUsage();
+    if (computeUsage) {
+      computeCost = computeUsage.estimatedCostUsd;
+      computeHours = computeUsage.computeHours;
+    }
+
+    const totalCost = storageCost + computeCost;
 
     const metrics: MetricData[] = [
       {
@@ -60,9 +76,16 @@ export class NeonPostgresMonitor {
       {
         service: InfrastructureService.VERCEL_POSTGRES,
         metric: MetricType.COST_USD,
-        value: Number(estimatedMonthlyStorageCost.toFixed(4)),
+        value: Number(totalCost.toFixed(4)),
         timestamp: now,
-        metadata: { component: 'storage', plan: 'launch', unit: 'USD/month' },
+        metadata: {
+          plan: 'launch',
+          unit: 'USD/month',
+          storage_cost: Number(storageCost.toFixed(4)),
+          compute_cost: Number(computeCost.toFixed(4)),
+          compute_hours: Number(computeHours.toFixed(4)),
+          neon_api_configured: this.neonApi.isConfigured(),
+        },
       },
     ];
 
