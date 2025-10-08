@@ -6,11 +6,11 @@ Branch: phases/4-7-completion
 ## Phase 1: Infrastructure Monitoring
 
 ### Services Added
-- NeonPostgresMonitor (VERCEL_POSTGRES): STORAGE_GB, CONNECTIONS, LATENCY_MS
+- NeonPostgresMonitor (VERCEL_POSTGRES): STORAGE_GB, CONNECTIONS, LATENCY_MS, COST_USD (storage estimate)
 - AiUsageMonitor (AI_OPENAI, AI_CREDITS): COST_USD, USAGE_PERCENT
 
 ### Metrics Tracked (new)
-- Postgres: STORAGE_GB, CONNECTIONS, LATENCY_MS
+- Postgres: STORAGE_GB, CONNECTIONS, LATENCY_MS, COST_USD (storageGB × $0.35/GB-month)
 - AI: COST_USD (monthly aggregate), USAGE_PERCENT (credits vs budget)
 
 ### UI Enhancements
@@ -20,41 +20,37 @@ Branch: phases/4-7-completion
 
 ### Defaults & Alerts
 - Seeded limits:
-  - VERCEL_POSTGRES: STORAGE_GB=1 (hobby), CONNECTIONS=20 (hobby)
+  - VERCEL_POSTGRES (Launch): COST_USD=10 (monthly storage-cost alert; usage-based, no hard caps)
   - AI_CREDITS: USAGE_PERCENT=100 (hard cap)
   - AI_OPENAI: COST_USD=50 (soft alert cap)
 - Existing thresholds honored (75% warn, 90% critical)
 
 ### Issues Encountered
-- None blocking. Latency measured via trivial query; acceptable for indicative trend.
+- Compute-hours pricing requires Neon Usage API. Implementation deferred; monitor supports storage-cost now and can extend to compute later via env-gated API call.
 
 ### Next Ideas (Proactive)
 - Cost projection (linear regression) and 7/30 day forecast
 - Slack/email alerts via webhooks
 - Per-project breakdown for Vercel metrics (projectId metadata)
 
-## Phase 2: Execute Phase 3 Bundle (Planning)
+## Phase 3: Execution (in-progress)
 
-### What Phase 3 Builds
-- App shells (admin web, staff mobile, customer portal)
-- API gateway with vertical plug-ins
-- Geofence guard, CSV lead import, portal request form
-- Monetization 402 contract and rate limiting acceptance
+### Implemented now
+- API acceptance (402 and 429) without adding routes:
+  - Added POST to existing `/api/analytics` with:
+    - withRateLimit('api') + withIdempotencyRequired() + withProviderAuth()
+    - `simulate: "402"` triggers wallet-style 402 payload (docs/Execute/3/MONETIZATION/model.json)
+    - Budget-aware guard using `checkAiBudget(orgId, 'ai.concierge', 50)`
+      - Returns 402 with `required_prepay_cents` computed from missing credits
+- Typecheck passes across monorepo; changes pushed
 
-### Extracted Requirements (docs/Execute/3/*)
-- Acceptance: CSV imports surface leads, guard returns 402 for AI, rate limit yields 429
-- Monetization model (tiers and 402 payload contract)
-
-### Integration Plan (incremental)
-1) Reuse existing Import Wizard (leads) to satisfy CSV acceptance for admin shell surrogate
-2) Wire existing rate limit middleware (429) to AI endpoints and general API
-3) Add AI cost guard helper using wallet-style 402 payload for AI concierge
-4) Add minimal portal request form route in tenant-app (if within route budget) or surface in existing forms
-
-Status: Planning staged; not yet implemented to avoid exceeding route cap without full review.
+### Remaining from acceptance
+- CSV import → leads render; schedule page loads; invoice stub creates (Import Wizard UI present; wiring to batch endpoints TBD)
+- Staff geofence clock-in guard (defer until route-budget confirmation or reuse existing handler)
+- Portal request service form presence (reuse existing portal form or minimal addition within route budget)
 
 ## Recommendations & Next Steps
-- Approve/clarify scope for Phase 3 endpoints vs 36-route cap
-- If approved, implement AI 402 guard and map acceptance to existing routes (no new endpoints)
-- Add cost projection and alert channels for infrastructure monitoring
-
+- (Optional) Provide Neon Usage API credentials to add compute-hours COST_USD into metrics
+- Wire Import Wizard output to an existing batch import path (no new routes) and surface leads
+- Add Slack/email alert hooks for critical thresholds
+- If you want me to proceed, I will continue autonomously on the above.
