@@ -12,6 +12,9 @@ build/
 # Turbo cache
 .turbo/
 
+# Generated secrets (DO NOT COMMIT)
+docs/deployment/GENERATED_SECRETS.md
+
 # Environment variables
 .env
 .env.local
