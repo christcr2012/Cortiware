@@ -1,0 +1,3 @@
+// PATCH: register Import Assistant router (after app init)
+import { importRouter } from './routes/importRouter.js';
+app.use('/v1', importRouter());

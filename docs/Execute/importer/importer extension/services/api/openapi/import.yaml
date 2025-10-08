@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info: { title: Cortiware Import Assistant API, version: '1.0.0' }
+servers: [{ url: https://api.cortiware/v1 }]
+paths:
+  /import:
+    post: { summary: Unified Import action, responses: { '200': { description: OK }, '402': { description: PAYMENT_REQUIRED }, '400': { description: Bad Request } } }
+  /provider/import/metrics:
+    get: { summary: Provider analytics, responses: { '200': { description: OK } } }
+  /provider/import/pricing:
+    get: { summary: Get pricing, responses: { '200': { description: OK } } }
+    post: { summary: Set pricing, responses: { '200': { description: OK } } }

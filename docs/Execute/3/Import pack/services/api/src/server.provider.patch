@@ -1,0 +1,3 @@
+// PATCH: register Provider Import routes
+import { providerImportRouter } from './routes/providerImport.js';
+app.use('/v1', providerImportRouter());
