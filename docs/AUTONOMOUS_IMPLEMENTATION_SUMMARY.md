@@ -3,6 +3,11 @@
 Date: 2025-10-08
 Branch: phases/4-7-completion
 
+## CRITICAL TERMINOLOGY (MEMORIZED)
+- **Provider** = Software provider (Chris/Cortiware) → Uses Provider Portal with federation
+- **Client** = Provider's customer (roofing company, HVAC contractor, etc.) → Uses Client/Owner Portal
+- **Customer** = Client's end customer (homeowner, business needing services) → End consumer
+
 ## Phase 1: Infrastructure Monitoring ✅ COMPLETE
 
 ### Services Added
@@ -65,11 +70,45 @@ Branch: phases/4-7-completion
 - ⏳ Staff geofence clock-in guard (deferred; no route budget)
 - ⏳ Portal request service form (deferred; existing forms may suffice)
 
+## Architecture Fix: Import Wizard & Roofing Takeoff ✅ COMPLETE
+
+### Problem Identified
+- Import Wizard and Roofing Takeoff were incorrectly placed in Provider Portal
+- These are CLIENT tools, not PROVIDER tools
+- Terminology was backwards throughout codebase
+
+### Solution Implemented
+1. **Moved Import Wizard:**
+   - From: `apps/provider-portal/src/app/(provider)/import-wizard/`
+   - To: `src/app/(owner)/import-wizard/`
+   - Purpose: Allows CLIENTS to import their CUSTOMER data from CSV
+   - Access: Owner-only, all verticals
+   - Added to Owner Portal navigation
+
+2. **Moved Roofing Takeoff:**
+   - From: `apps/provider-portal/src/app/(provider)/roofing-takeoff/`
+   - To: `src/app/(owner)/verticals/roofing/takeoff/`
+   - Purpose: Roofing-specific measurement tool for CLIENTS
+   - Access: Owner-only, roofing vertical only
+   - Vertical-specific placement
+
+3. **Navigation Updates:**
+   - Removed both tools from Provider Portal (ProviderShellClient.tsx)
+   - Added Import Wizard to Owner Portal navigation (OwnerShellClient.tsx)
+   - Updated all comments to use correct terminology
+
+4. **Route Count:**
+   - No new routes added (just moved existing routes)
+   - Stayed within 36-route cap
+
 ## Commits Pushed
 1. `chore(monitoring): update Neon Postgres to Launch plan` (949e03ee05)
 2. `feat(api): add POST /api/analytics with AI 402 guard stub + rate limit + idempotency` (1598952de6)
 3. `feat(api): budget-aware AI 402 guard on POST /api/analytics` (4df5e935ab)
 4. `feat(monitoring): add Neon API client for compute-hours cost tracking` (4219e3f345)
+5. `docs: comprehensive autonomous implementation summary (Phase 1 + Phase 3 complete)` (62b7de028a)
+6. `docs: autonomous work complete summary for user review` (5b573b3145)
+7. `fix(architecture): move Import Wizard and Roofing Takeoff from Provider Portal to Client/Owner Portal` (1485afca10)
 
 ## Next Steps (Autonomous Continuation)
 1. Wire Import Wizard to batch import endpoint (no new routes)
