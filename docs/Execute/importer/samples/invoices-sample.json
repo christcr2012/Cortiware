@@ -1,0 +1,58 @@
+[
+  {
+    "invoiceNumber": "INV-001",
+    "customer": "John Smith",
+    "jobNumber": "JOB-001",
+    "invoiceDate": "2025-01-20",
+    "dueDate": "2025-02-20",
+    "subtotal": 12000.00,
+    "tax": 500.00,
+    "total": 12500.00,
+    "status": "Paid"
+  },
+  {
+    "invoiceNumber": "INV-002",
+    "customer": "Acme Corp",
+    "jobNumber": "JOB-002",
+    "invoiceDate": "2025-02-01",
+    "dueDate": "2025-03-01",
+    "subtotal": 43000.00,
+    "tax": 2000.00,
+    "total": 45000.00,
+    "status": "Pending"
+  },
+  {
+    "invoiceNumber": "INV-003",
+    "customer": "Tech Solutions Inc",
+    "jobNumber": "JOB-004",
+    "invoiceDate": "2025-01-25",
+    "dueDate": "2025-02-25",
+    "subtotal": 30500.00,
+    "tax": 1500.00,
+    "total": 32000.00,
+    "status": "Paid"
+  },
+  {
+    "invoiceNumber": "INV-004",
+    "customer": "Sarah Williams",
+    "jobNumber": "JOB-007",
+    "invoiceDate": "2025-01-18",
+    "dueDate": "2025-02-18",
+    "subtotal": 9000.00,
+    "tax": 500.00,
+    "total": 9500.00,
+    "status": "Paid"
+  },
+  {
+    "invoiceNumber": "INV-005",
+    "customer": "BuildRight Co",
+    "jobNumber": "JOB-010",
+    "invoiceDate": "2025-02-05",
+    "dueDate": "2025-03-05",
+    "subtotal": 21000.00,
+    "tax": 1000.00,
+    "total": 22000.00,
+    "status": "Pending"
+  }
+]
+

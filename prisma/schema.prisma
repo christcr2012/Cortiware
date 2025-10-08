@@ -1305,11 +1305,17 @@ model UpgradeRecommendation {
   status            RecommendationStatus    @default(PENDING)
   reason            String
   currentUsage      Float?                  // Current usage value
+  limitValue        Float?                  // Limit value for the metric
   usagePercent      Float?                  // Usage as percentage
+  daysToLimit       Int?                    // Days until limit is reached
   currentCost       Float?                  // Current monthly cost
+  projectedCost     Float?                  // Projected monthly cost
   upgradeCost       Float?                  // Upgraded plan monthly cost
   revenueImpact     Float?                  // Estimated revenue impact
+  profitImpact      Float?                  // Estimated profit impact
   roi               Float?                  // Return on investment percentage
+  benefits          String?                 // Benefits of upgrading
+  risks             String?                 // Risks of not upgrading
   estimatedCostUsd  Float?                  // Deprecated: use currentCost
   estimatedSavings  Float?                  // Deprecated: use revenueImpact
   roiMonths         Int?                    // Deprecated: use roi

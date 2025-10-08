@@ -224,7 +224,7 @@ function RecommendationCard({ recommendation }: { recommendation: UpgradeRecomme
           </p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-gray-900">{recommendation.usagePercent.toFixed(1)}%</div>
+          <div className="text-2xl font-bold text-gray-900">{recommendation.usagePercent?.toFixed(1) ?? '0'}%</div>
           <div className="text-xs text-gray-500">of limit</div>
         </div>
       </div>
