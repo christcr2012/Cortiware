@@ -290,8 +290,8 @@ export class RecommendationEngine {
           profitImpact: rec.profitImpact,
           roi: rec.roi,
           reason: rec.reason,
-          benefits: rec.benefits?.join('\n') || null,
-          risks: rec.risks?.join('\n') || null,
+          benefits: rec.benefits?.join('\n') || undefined,
+          risks: rec.risks?.join('\n') || undefined,
         },
       });
     }
