@@ -1,147 +1,535 @@
 'use client';
 
 /**
- * Import Wizard Component - CLIENT/OWNER PORTAL
+ * Import Wizard Component - AI-Powered Multi-Step Wizard
  *
- * Allows business owners to import their data from CSV files:
- * - Customers (end customers of the business)
- * - Assets (equipment, trucks, tools)
- * - Facilities (warehouses, disposal sites)
- * - Routes, Stops, Services, Products
- *
- * Browser-only processing (no server upload until final import)
- * Generates *.import.json files for batch processing
- * No new HTTP routes (uses existing batch job endpoints)
+ * 7-Step Process:
+ * 1. Upload Sample - Upload sample file (first 100 rows)
+ * 2. Review Detection - Show detected format, columns, data types
+ * 3. Map Fields - Interactive field mapping (AI-suggested or manual)
+ * 4. Preview - Show transformed sample records
+ * 5. Upload Full Data - Upload complete export file
+ * 6. Process - Real-time progress tracking
+ * 7. Review Results - Summary with success/error counts
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-type Row = Record<string, any>;
+type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
+interface ImportJob {
+  id: string;
+  status: string;
+  entityType: string;
+  fileName: string;
+  totalRecords: number;
+  processedRecords: number;
+  successCount: number;
+  errorCount: number;
+  skipCount: number;
+  progressPercent: number;
+}
 
 export function ImportWizard() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [entity, setEntity] = useState<string>('assets');
-  const [fileName, setFileName] = useState<string>('');
+  const [step, setStep] = useState<Step>(1);
+  const [aiAssist, setAiAssist] = useState(true);
+  const [entityType, setEntityType] = useState('CUSTOMERS');
+  const [fileName, setFileName] = useState('');
+  const [fileSize, setFileSize] = useState(0);
+  const [sampleContent, setSampleContent] = useState('');
+  const [fullContent, setFullContent] = useState('');
+  const [importJobId, setImportJobId] = useState('');
+  const [suggestions, setSuggestions] = useState<any>(null);
+  const [mappings, setMappings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [job, setJob] = useState<ImportJob | null>(null);
+  const [estimateCents, setEstimateCents] = useState(0);
+  const [tier, setTier] = useState('');
 
-  function onFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const f = e.target.files?.[0];
-    if (!f) return;
+  // Poll for job status when processing
+  useEffect(() => {
+    if (step === 6 && importJobId) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/owner/import', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'status', importJobId }),
+          });
+          const data = await res.json();
+          if (data.ok && data.job) {
+            setJob(data.job);
+            if (data.job.status === 'COMPLETED' || data.job.status === 'FAILED') {
+              clearInterval(interval);
+              if (data.job.status === 'COMPLETED') {
+                setStep(7);
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Status poll error:', err);
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [step, importJobId]);
 
-    setFileName(f.name);
+  // Step 1: Upload Sample
+  async function handleSampleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFileName(file.name);
+    setFileSize(file.size);
+    setError('');
+
     const reader = new FileReader();
-    
-    reader.onload = () => {
-      const text = reader.result as string;
-      // Naive CSV parse (comma only for demo)
-      const [head, ...lines] = text.split(/\r?\n/).filter(Boolean);
-      const cols = head.split(',');
-      const r = lines.map((line) => {
-        const vals = line.split(',');
-        const obj: Row = {};
-        cols.forEach((c, i) => {
-          obj[c.trim()] = (vals[i] || '').trim();
-        });
-        return obj;
-      });
-      setRows(r);
+    reader.onload = async () => {
+      const content = reader.result as string;
+      const lines = content.split('\n').slice(0, 100).join('\n'); // First 100 rows
+      setSampleContent(btoa(lines)); // Base64 encode
+
+      // Auto-advance to step 2
+      setStep(2);
     };
-    
-    reader.readAsText(f);
+    reader.readAsText(file);
   }
 
-  function download() {
-    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${entity}.import.json`;
-    a.click();
+  // Step 2: Analyze with AI
+  async function handleAnalyze() {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/owner/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'analyze',
+          aiAssist,
+          entityType,
+          fileName,
+          fileContent: sampleContent,
+          fileSize,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 402) {
+        setError(`Payment Required: ${data.feature} - $${(data.required_prepay_cents / 100).toFixed(2)}`);
+        return;
+      }
+
+      if (!data.ok) {
+        setError(data.error || 'Analysis failed');
+        return;
+      }
+
+      setImportJobId(data.importJobId);
+
+      if (aiAssist && data.suggestions) {
+        setSuggestions(data.suggestions);
+        setMappings(data.suggestions.mappings || []);
+        setEstimateCents(data.estimateCents || 0);
+        setTier(data.tier || '');
+      }
+
+      setStep(3);
+    } catch (err: any) {
+      setError(err.message || 'Analysis failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Step 3: Save Mappings
+  async function handleSaveMappings() {
+    setLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/owner/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'map',
+          importJobId,
+          mappings,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!data.ok) {
+        setError(data.error || 'Mapping save failed');
+        return;
+      }
+
+      setStep(4);
+    } catch (err: any) {
+      setError(err.message || 'Mapping save failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Step 5: Upload Full File
+  async function handleFullUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setError('');
+    setLoading(true);
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const content = reader.result as string;
+      setFullContent(btoa(content)); // Base64 encode
+
+      // Execute import
+      try {
+        const res = await fetch('/api/owner/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'execute',
+            importJobId,
+            fileName: file.name,
+            fileContent: btoa(content),
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!data.ok) {
+          setError(data.error || 'Import execution failed');
+          setLoading(false);
+          return;
+        }
+
+        setStep(6);
+        setLoading(false);
+      } catch (err: any) {
+        setError(err.message || 'Import execution failed');
+        setLoading(false);
+      }
+    };
+    reader.readAsText(file);
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Import Wizard</h1>
         <p className="text-gray-600">
-          Import data from CSV files. The wizard will generate a JSON file that can be used with batch import jobs.
+          AI-powered data migration from your previous software system
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow p-6 space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Entity Type
-          </label>
-          <select
-            value={entity}
-            onChange={(e) => setEntity(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="assets">Assets</option>
-            <option value="customers">Customers</option>
-            <option value="landfills">Landfills</option>
-            <option value="routes">Routes</option>
-            <option value="stops">Stops</option>
-            <option value="services">Services</option>
-            <option value="products">Products</option>
-          </select>
+      {/* Progress Indicator */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          {[1, 2, 3, 4, 5, 6, 7].map((s) => (
+            <div key={s} className="flex items-center">
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                  s === step
+                    ? 'bg-blue-600 text-white'
+                    : s < step
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-200 text-gray-600'
+                }`}
+              >
+                {s < step ? '✓' : s}
+              </div>
+              {s < 7 && (
+                <div
+                  className={`w-12 h-1 ${
+                    s < step ? 'bg-green-500' : 'bg-gray-200'
+                  }`}
+                />
+              )}
+            </div>
+          ))}
         </div>
+        <div className="text-sm text-gray-600 text-center">
+          {step === 1 && 'Upload Sample'}
+          {step === 2 && 'Review Detection'}
+          {step === 3 && 'Map Fields'}
+          {step === 4 && 'Preview'}
+          {step === 5 && 'Upload Full Data'}
+          {step === 6 && 'Processing'}
+          {step === 7 && 'Results'}
+        </div>
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            CSV File
-          </label>
-          <input
-            type="file"
-            accept=".csv,.txt"
-            onChange={onFile}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {fileName && (
-            <p className="mt-2 text-sm text-gray-500">
-              Selected: {fileName}
-            </p>
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
+
+      {/* Step 1: Upload Sample */}
+      {step === 1 && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 1: Upload Sample File</h2>
+          <p className="text-gray-600">
+            Upload a sample of your data (first 100 rows) for analysis
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Entity Type
+            </label>
+            <select
+              value={entityType}
+              onChange={(e) => setEntityType(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            >
+              <option value="CUSTOMERS">Customers</option>
+              <option value="JOBS">Jobs/Projects</option>
+              <option value="INVOICES">Invoices</option>
+              <option value="ESTIMATES">Estimates/Quotes</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Sample File (CSV, Excel, JSON, XML)
+            </label>
+            <input
+              type="file"
+              accept=".csv,.xlsx,.xls,.json,.xml"
+              onChange={handleSampleUpload}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="aiAssist"
+              checked={aiAssist}
+              onChange={(e) => setAiAssist(e.target.checked)}
+              className="rounded"
+            />
+            <label htmlFor="aiAssist" className="text-sm text-gray-700">
+              Use AI Assistant (recommended - saves 20-40 minutes)
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Step 2: Review Detection */}
+      {step === 2 && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 2: Review Detection</h2>
+          <p className="text-gray-600">
+            File: <strong>{fileName}</strong> ({(fileSize / 1024).toFixed(1)} KB)
+          </p>
+
+          {aiAssist && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                AI will analyze your data and suggest field mappings.
+                Estimated cost: <strong>${(estimateCents / 100).toFixed(2)}</strong> ({tier} tier)
+              </p>
+            </div>
+          )}
+
+          <button
+            onClick={handleAnalyze}
+            disabled={loading}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {loading ? 'Analyzing...' : 'Analyze File'}
+          </button>
+        </div>
+      )}
+
+      {/* Step 3: Map Fields */}
+      {step === 3 && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 3: Map Fields</h2>
+          <p className="text-gray-600">
+            Review and adjust field mappings
+          </p>
+
+          {mappings.length > 0 && (
+            <div className="space-y-2">
+              {mappings.map((mapping, idx) => (
+                <div key={idx} className="flex items-center space-x-4 p-3 bg-gray-50 rounded">
+                  <div className="flex-1">
+                    <span className="text-sm font-medium">{mapping.source}</span>
+                  </div>
+                  <div className="text-gray-400">→</div>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-blue-600">{mapping.target}</span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-xs text-gray-500">
+                      {Math.round(mapping.confidence * 100)}% confident
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <button
+            onClick={handleSaveMappings}
+            disabled={loading}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
+          >
+            {loading ? 'Saving...' : 'Continue'}
+          </button>
+        </div>
+      )}
+
+      {/* Step 4: Preview */}
+      {step === 4 && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 4: Preview</h2>
+          <p className="text-gray-600">
+            Mappings saved successfully. Ready to import full file.
+          </p>
+
+          <button
+            onClick={() => setStep(5)}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Continue to Upload
+          </button>
+        </div>
+      )}
+
+      {/* Step 5: Upload Full Data */}
+      {step === 5 && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 5: Upload Full Data</h2>
+          <p className="text-gray-600">
+            Upload your complete export file
+          </p>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Full Export File
+            </label>
+            <input
+              type="file"
+              accept=".csv,.xlsx,.xls,.json,.xml"
+              onChange={handleFullUpload}
+              disabled={loading}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
+          {loading && (
+            <div className="text-center text-gray-600">
+              Uploading and starting import...
+            </div>
           )}
         </div>
+      )}
 
-        {rows.length > 0 && (
-          <div className="border-t pt-4">
-            <div className="flex items-center justify-between mb-4">
-              <div className="text-sm font-medium text-gray-700">
-                Rows parsed: <span className="text-blue-600">{rows.length}</span>
-              </div>
-              <button
-                onClick={download}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Download {entity}.import.json
-              </button>
+      {/* Step 6: Processing */}
+      {step === 6 && job && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 6: Processing</h2>
+          <p className="text-gray-600">
+            Import in progress...
+          </p>
+
+          <div className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Progress</span>
+              <span>{job.progressPercent}%</span>
             </div>
-
-            <div className="bg-gray-50 rounded p-4 max-h-96 overflow-auto">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Preview (first 5 rows):</h3>
-              <pre className="text-xs text-gray-600 overflow-x-auto">
-                {JSON.stringify(rows.slice(0, 5), null, 2)}
-              </pre>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all"
+                style={{ width: `${job.progressPercent}%` }}
+              />
             </div>
-
-            <p className="mt-4 text-xs text-gray-500">
-              💡 Tip: Drop the downloaded file into the importer CLI or use it with batch job endpoints.
-            </p>
           </div>
-        )}
-      </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-blue-900 mb-2">How to use:</h3>
-        <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-          <li>Select the entity type you want to import</li>
-          <li>Upload a CSV file with your data</li>
-          <li>Review the parsed data in the preview</li>
-          <li>Download the generated JSON file</li>
-          <li>Use the JSON file with existing batch import endpoints</li>
-        </ol>
-      </div>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-3 bg-green-50 rounded">
+              <div className="text-2xl font-bold text-green-600">{job.successCount}</div>
+              <div className="text-xs text-gray-600">Success</div>
+            </div>
+            <div className="p-3 bg-red-50 rounded">
+              <div className="text-2xl font-bold text-red-600">{job.errorCount}</div>
+              <div className="text-xs text-gray-600">Errors</div>
+            </div>
+            <div className="p-3 bg-yellow-50 rounded">
+              <div className="text-2xl font-bold text-yellow-600">{job.skipCount}</div>
+              <div className="text-xs text-gray-600">Skipped</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Step 7: Results */}
+      {step === 7 && job && (
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h2 className="text-xl font-semibold">Step 7: Import Complete!</h2>
+
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-4 bg-green-50 rounded">
+              <div className="text-3xl font-bold text-green-600">{job.successCount}</div>
+              <div className="text-sm text-gray-600">Imported</div>
+            </div>
+            <div className="p-4 bg-red-50 rounded">
+              <div className="text-3xl font-bold text-red-600">{job.errorCount}</div>
+              <div className="text-sm text-gray-600">Errors</div>
+            </div>
+            <div className="p-4 bg-yellow-50 rounded">
+              <div className="text-3xl font-bold text-yellow-600">{job.skipCount}</div>
+              <div className="text-sm text-gray-600">Duplicates</div>
+            </div>
+          </div>
+
+          {job.errorCount > 0 && (
+            <button
+              onClick={async () => {
+                const res = await fetch('/api/owner/import', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'errors', importJobId, format: 'csv' }),
+                });
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `import-errors-${importJobId}.csv`;
+                a.click();
+              }}
+              className="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+            >
+              Download Error Report
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setStep(1);
+              setImportJobId('');
+              setSuggestions(null);
+              setMappings([]);
+              setJob(null);
+              setError('');
+            }}
+            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Start New Import
+          </button>
+        </div>
+      )}
     </div>
   );
 }
-

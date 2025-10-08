@@ -4,7 +4,8 @@ import { assertOwnerOr403 } from '@/lib/auth-owner';
 import { checkAiBudget } from '@/lib/aiMeter';
 import { prisma } from '@/lib/prisma';
 import { suggestMappings, classifyTier, calculateAICosts, getRetailPricing } from '@/lib/import/ai-mapping-assistant';
-import { parseSample, validateFile } from '@/lib/import/file-parser';
+import { parseSample, validateFile, parseFile } from '@/lib/import/file-parser';
+import { processImport } from '@/lib/import/batch-processor';
 import { ImportStatus, ImportEntityType } from '@prisma/client';
 
 /**
@@ -297,14 +298,21 @@ async function handleMap(body: any, userId: string, orgId: string) {
 
 /**
  * Action: execute
- * Batch import with progress tracking (placeholder - will be implemented in Phase 4)
+ * Batch import with progress tracking
  */
 async function handleExecute(body: any, userId: string, orgId: string) {
-  const { importJobId, fileContent, batchSize = 100 } = body;
+  const { importJobId, fileContent, fileName, batchSize = 100 } = body;
 
   if (!importJobId) {
     return NextResponse.json(
       { ok: false, error: 'importJobId_required' },
+      { status: 400 }
+    );
+  }
+
+  if (!fileContent) {
+    return NextResponse.json(
+      { ok: false, error: 'fileContent_required' },
       { status: 400 }
     );
   }
@@ -321,22 +329,48 @@ async function handleExecute(body: any, userId: string, orgId: string) {
     );
   }
 
-  // Update status to processing
-  await prisma.importJob.update({
-    where: { id: importJobId },
-    data: {
-      status: ImportStatus.PROCESSING,
-      startedAt: new Date(),
-    },
+  // Parse full file
+  let parsed;
+  try {
+    parsed = parseFile(fileName || job.fileName, fileContent);
+  } catch (error: any) {
+    return NextResponse.json(
+      { ok: false, error: 'file_parsing_failed', details: error.message },
+      { status: 400 }
+    );
+  }
+
+  // Start batch processing asynchronously
+  // Note: In production, this should be moved to a background job queue
+  processImport({
+    importJobId,
+    orgId,
+    entityType: job.entityType,
+    records: parsed.rows,
+    fieldMappings: (job.fieldMappings as any[]) || [],
+    transformRules: (job.transformRules as any[]) || [],
+    validationRules: (job.validationRules as any[]) || [],
+    dedupeFields: [], // TODO: Extract from job configuration
+    batchSize,
+  }).catch(error => {
+    console.error('Batch processing error:', error);
+    // Update job status to failed
+    prisma.importJob.update({
+      where: { id: importJobId },
+      data: {
+        status: ImportStatus.FAILED,
+        errorSummary: error.message || 'Batch processing failed',
+        completedAt: new Date(),
+      },
+    }).catch(console.error);
   });
 
-  // TODO: Phase 4 - Implement batch processing
-  // For now, return placeholder response
   return NextResponse.json({
     ok: true,
     importJobId,
     status: 'PROCESSING',
-    message: 'Batch processing will be implemented in Phase 4',
+    totalRecords: parsed.rows.length,
+    estimatedDuration: `${Math.ceil(parsed.rows.length / batchSize)} minutes`,
   });
 }
 
