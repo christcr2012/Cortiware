@@ -58,6 +58,9 @@ model Org {
   incidents      Incident[]      @relation("OrgIncidents")
   notifications  Notification[]  @relation("OrgNotifications")
 
+  importJobs     ImportJob[]     @relation("OrgImportJobs")
+  importMappings ImportMapping[] @relation("OrgImportMappings")
+
   /// brandConfig stores white-label brand settings such as name, colors, and logo URL.
   /// It is JSON to allow arbitrary keys like { name: "Mountain Vista", color: "#123456", logoUrl: "https://..." }
   brandConfig Json? @default("{}")
@@ -102,6 +105,8 @@ model User {
   securityQuestions     UserSecurityQuestion[]
   loginHistory          UserLoginHistory[]
   deviceFingerprints    UserDeviceFingerprint[]
+
+  importJobs            ImportJob[]        @relation("UserImportJobs")
 }
 
 // ============================================================================
@@ -1197,6 +1202,98 @@ model InfrastructureLimit {
   updatedAt       DateTime               @updatedAt
 
   @@unique([service, metric, currentPlan])
+}
+
+/// Import Wizard - Data Migration Models
+enum ImportStatus {
+  PENDING
+  ANALYZING
+  MAPPING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ImportEntityType {
+  CUSTOMERS
+  JOBS
+  INVOICES
+  ESTIMATES
+  CONTACTS
+  ADDRESSES
+  NOTES
+}
+
+model ImportJob {
+  id              String            @id @default(cuid())
+  orgId           String
+  org             Org               @relation("OrgImportJobs", fields: [orgId], references: [id])
+  userId          String
+  user            User              @relation("UserImportJobs", fields: [userId], references: [id])
+  entityType      ImportEntityType
+  status          ImportStatus      @default(PENDING)
+  fileName        String
+  fileSize        Int               // bytes
+  totalRecords    Int               @default(0)
+  processedRecords Int              @default(0)
+  successCount    Int               @default(0)
+  errorCount      Int               @default(0)
+  skipCount       Int               @default(0)
+  mappingId       String?
+  mapping         ImportMapping?    @relation(fields: [mappingId], references: [id])
+  sampleData      Json?             // First 10 rows for preview
+  fieldMappings   Json?             // Field mapping configuration
+  transformRules  Json?             // Data transformation rules
+  validationRules Json?             // Validation configuration
+  progressPercent Int               @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  errorSummary    String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  errors          ImportError[]
+
+  @@index([orgId, status, createdAt])
+  @@index([userId, createdAt])
+}
+
+model ImportMapping {
+  id              String            @id @default(cuid())
+  orgId           String
+  org             Org               @relation("OrgImportMappings", fields: [orgId], references: [id])
+  name            String            // User-friendly name (e.g., "QuickBooks Customer Import")
+  entityType      ImportEntityType
+  sourceFormat    String            // csv, excel, json, xml
+  fieldMappings   Json              // Source field → Cortiware field mappings
+  transformRules  Json              // Data transformation rules
+  validationRules Json              // Validation configuration
+  isTemplate      Boolean           @default(false)
+  useCount        Int               @default(0)
+  lastUsedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  jobs            ImportJob[]
+
+  @@index([orgId, entityType])
+  @@index([orgId, isTemplate])
+}
+
+model ImportError {
+  id              String      @id @default(cuid())
+  importJobId     String
+  importJob       ImportJob   @relation(fields: [importJobId], references: [id], onDelete: Cascade)
+  rowNumber       Int
+  fieldName       String?
+  errorType       String      // validation, transformation, duplicate, missing_required
+  errorMessage    String
+  rawData         Json?       // Original row data for debugging
+  createdAt       DateTime    @default(now())
+
+  @@index([importJobId, errorType])
+  @@index([importJobId, rowNumber])
 }
 
 model UpgradeRecommendation {
