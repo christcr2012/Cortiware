@@ -43,13 +43,14 @@ If you already have a Vercel token:
 
 ### Method 1: From Vercel Dashboard (Easiest)
 
-1. Go to your Vercel project: https://vercel.com/dashboard
-2. Click on your **Cortiware project** (or whichever project you want to deploy)
-3. Go to **Settings** → **General**
-4. Scroll down to **"Project ID"**
-   - Copy the Project ID (looks like: `prj_abc123xyz...`)
-5. Scroll down to **"Team ID"** or **"Organization ID"**
-   - Copy the Org ID (looks like: `team_abc123xyz...`)
+1. Open the dashboard: https://vercel.com/dashboard
+2. For each app project, open it and go to **Settings** → **General**:
+   - cortiware-provider-portal → copy its Project ID (e.g., `prj_vtuMi117XwV51s1fBd2rthPo4yZI`)
+   - cortiware-tenant-app → copy its Project ID (e.g., `prj_mUQKeWPH4KMkY2XzIrAYdRUFv43Q`)
+   - cortiware-marketing-cortiware → copy its Project ID (e.g., `prj_O5Fakz26Drew0V5tycIbwJSAYSQL`)
+   - cortiware-marketing-robinson → copy its Project ID (e.g., `prj_VwnpJrIFFZN5t8gpHPSoH70YNIbF`)
+3. Team/Organization ID (same for all projects):
+   - Copy the Org ID from any project’s **Settings** → **General** (e.g., `team_PUafLQmqT7LYBaBs8lEOPYMG`)
 
 ### Method 2: From .vercel/project.json (If You've Deployed Before)
 
@@ -116,38 +117,6 @@ For each of the three secrets:
 - **Name**: `VERCEL_PROJECT_ID`
 - **Value**: Your Vercel project ID from Step 2
 - Example value: `prj_abc123xyz...`
-
-
----
-
-## Multi‑project deployment (per‑app Vercel projects)
-
-If you deploy each app to its own Vercel project (recommended), add four additional secrets to GitHub and the workflow will deploy all apps in parallel.
-
-Add these repository secrets (in addition to VERCEL_TOKEN and VERCEL_ORG_ID):
-
-- VERCEL_PROJECT_ID_PROVIDER = prj_vtuMi117XwV51s1fBd2rthPo4yZI
-- VERCEL_PROJECT_ID_TENANT = prj_mUQKeWPH4KMkY2XzIrAYdRUFv43Q
-- VERCEL_PROJECT_ID_MARKETING_CORTIWARE = prj_O5Fakz26Drew0V5tycIbwJSAYSQL
-- VERCEL_PROJECT_ID_MARKETING_ROBINSON = prj_VwnpJrIFFZN5t8gpHPSoH70YNIbF
-
-Notes:
-- These IDs are from your Vercel team "Robinson AI Systems" (team_PUafLQmqT7LYBaBs8lEOPYMG).
-- After switching to per‑app deploys, you may delete the old VERCEL_PROJECT_ID secret if it pointed to the retired "stream-flow" project.
-- The CI workflow matrix uses these secrets dynamically to deploy each app from:
-  - apps/provider-portal
-  - apps/tenant-app
-  - apps/marketing-cortiware
-  - apps/marketing-robinson
-
-No change is needed to VERCEL_TOKEN or VERCEL_ORG_ID. The deploy job reads:
-
-```
-with:
-  vercel-token: ${{ secrets.VERCEL_TOKEN }}
-  vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-  vercel-project-id: ${{ secrets[matrix.projectSecret] }}
-```
 
 ### Verify Secrets Are Added
 
@@ -218,7 +187,7 @@ VERCEL_PROJECT_ID     Updated X minutes ago
 ### Workflow Doesn't Run
 
 - **Cause**: Secrets not added correctly
-- **Fix**:
+- **Fix**: 
   1. Check secret names are EXACTLY: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`
   2. No typos, no extra spaces
   3. Re-add the secrets if needed
