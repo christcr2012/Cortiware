@@ -23,9 +23,10 @@ export interface KVClient {
 /**
  * Vercel KV Client (default)
  * Uses @vercel/kv package with environment variables:
- * - KV_URL
- * - KV_REST_API_URL
- * - KV_REST_API_TOKEN
+ * - KV_URL or KV_REST_API_URL (connection URL)
+ * - KV_TOKEN or KV_REST_API_TOKEN (auth token)
+ *
+ * Supports both old (KV_REST_API_*) and new (KV_*) naming conventions
  */
 class VercelKVClient implements KVClient {
   async get<T = string>(key: string): Promise<T | null> {
@@ -134,9 +135,10 @@ export function getKVClient(): KVClient {
   if (kvClient) return kvClient;
 
   // Check if Vercel KV is configured
-  const hasVercelKV = 
-    process.env.KV_REST_API_URL && 
-    process.env.KV_REST_API_TOKEN;
+  // Support both old (KV_REST_API_*) and new (KV_*) variable names
+  const hasVercelKV =
+    (process.env.KV_REST_API_URL || process.env.KV_URL) &&
+    (process.env.KV_REST_API_TOKEN || process.env.KV_TOKEN);
 
   if (hasVercelKV) {
     console.log('✅ Using Vercel KV for distributed storage');
