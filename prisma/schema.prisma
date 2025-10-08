@@ -1135,6 +1135,11 @@ enum InfrastructureService {
   VERCEL_KV
   VERCEL_POSTGRES
   VERCEL_PLATFORM
+  VERCEL_BUILD
+  VERCEL_FUNCTIONS
+  VERCEL_BANDWIDTH
+  VERCEL_EDGE_REQUESTS
+  VERCEL_ISR_READS
   AI_OPENAI
   AI_CREDITS
 }
@@ -1148,6 +1153,7 @@ enum MetricType {
   BANDWIDTH_GB
   INVOCATIONS
   BUILD_MINUTES
+  REQUEST_COUNT
   COST_USD
   USAGE_PERCENT
 }
@@ -1161,6 +1167,7 @@ enum RecommendationPriority {
 
 enum RecommendationStatus {
   PENDING
+  REVIEWED
   ACKNOWLEDGED
   IMPLEMENTED
   DISMISSED
@@ -1179,15 +1186,15 @@ model InfrastructureMetric {
 }
 
 model InfrastructureLimit {
-  id           String                 @id @default(cuid())
-  service      InfrastructureService
-  metric       MetricType
-  currentPlan  String
-  limitValue   Float
-  warnAt       Float?                 // Optional warning threshold (e.g., 75%)
-  criticalAt   Float?                 // Optional critical threshold (e.g., 90%)
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
+  id              String                 @id @default(cuid())
+  service         InfrastructureService
+  metric          MetricType
+  currentPlan     String
+  limitValue      Float
+  warningPercent  Float                  @default(75)  // Warning threshold percentage
+  criticalPercent Float                  @default(90)  // Critical threshold percentage
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
 
   @@unique([service, metric, currentPlan])
 }
@@ -1200,9 +1207,15 @@ model UpgradeRecommendation {
   priority          RecommendationPriority
   status            RecommendationStatus    @default(PENDING)
   reason            String
-  estimatedCostUsd  Float?
-  estimatedSavings  Float?
-  roiMonths         Int?
+  currentUsage      Float?                  // Current usage value
+  usagePercent      Float?                  // Usage as percentage
+  currentCost       Float?                  // Current monthly cost
+  upgradeCost       Float?                  // Upgraded plan monthly cost
+  revenueImpact     Float?                  // Estimated revenue impact
+  roi               Float?                  // Return on investment percentage
+  estimatedCostUsd  Float?                  // Deprecated: use currentCost
+  estimatedSavings  Float?                  // Deprecated: use revenueImpact
+  roiMonths         Int?                    // Deprecated: use roi
   createdAt         DateTime                @default(now())
   updatedAt         DateTime                @updatedAt
   acknowledgedAt    DateTime?
