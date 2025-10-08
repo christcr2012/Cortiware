@@ -1,0 +1,11 @@
+{
+  "skus": {
+    "diagnostic": 8900,
+    "tuneup": 12900,
+    "ac_install_base": 350000,
+    "furnace_install_base": 320000,
+    "duct_clean_per_vent": 2500,
+    "thermostat_smart": 22000
+  },
+  "flat_rate": true
+}

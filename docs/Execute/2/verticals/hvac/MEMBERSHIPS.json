@@ -1,0 +1,23 @@
+{
+  "plans": [
+    {
+      "key": "silver",
+      "price_cents_year": 12900,
+      "benefits": [
+        "priority",
+        "10% off labor",
+        "2 tune-ups/year"
+      ]
+    },
+    {
+      "key": "gold",
+      "price_cents_year": 19900,
+      "benefits": [
+        "priority",
+        "15% off labor",
+        "2 tune-ups/year",
+        "no after-hours fee"
+      ]
+    }
+  ]
+}
