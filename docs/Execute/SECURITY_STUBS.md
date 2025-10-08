@@ -1,0 +1,1 @@
+# Security Stubs — RLS, JWT audiences, rate limits, audit; no HIPAA/SOC2 enabled; toggles only

@@ -10,6 +10,14 @@ import { run as runAcceptPublic } from './onboarding.accept-public.api.test';
 import { run as runAcceptService } from './onboarding.accept.service.test';
 import { run as runNegativePaths } from './onboarding.negative-paths.test';
 
+import { run as runRouting } from './routing.test';
+import { run as runAgreementsRolloff } from './agreements_rolloff.test';
+import { run as runImporters } from './importers.test';
+import { run as runAgreementsEval } from './agreements_eval.test';
+import { run as runWallet } from './wallet.test';
+import { run as runRoutingOptimization } from './routing_optimization.test';
+import { run as runUiComponents } from './ui_components.test';
+
 process.env.UNIT_TESTS = '1';
 
 async function main() {
@@ -25,6 +33,13 @@ async function main() {
     await runAcceptPublic(),
     await runAcceptService(),
     await runNegativePaths(),
+    await runRouting(),
+    await runAgreementsRolloff(),
+    await runImporters(),
+    await runAgreementsEval(),
+    await runWallet(),
+    await runRoutingOptimization(),
+    await runUiComponents(),
   ];
   const totals = results.reduce((acc, r) => ({
     passed: acc.passed + r.passed,

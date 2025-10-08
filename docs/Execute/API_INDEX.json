@@ -1,0 +1,150 @@
+{
+  "generated_at": "2025-10-07 19:38:03",
+  "count": 36,
+  "apis": [
+    {
+      "method": "POST",
+      "path": "/api/federation/escalation"
+    },
+    {
+      "method": "POST",
+      "path": "/api/federation/billing/invoice"
+    },
+    {
+      "method": "GET",
+      "path": "/api/federation/status"
+    },
+    {
+      "method": "GET",
+      "path": "/api/federation/analytics"
+    },
+    {
+      "method": "POST",
+      "path": "/api/federation/callbacks/register"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/clients"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/clients/:orgId"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/keys/rotate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/budgets"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/audit"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/approvals"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/approvals"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/ulap"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/vertical-packs"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/vertical-packs/install"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/forms/:formKey"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/pricebook"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/customers"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/customers/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/leads"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/leads/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/estimate"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/quotes"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/quotes/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/jobs"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/jobs/:id"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/invoices"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/invoices/:id"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/calendar"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/wallet/charge"
+    },
+    {
+      "method": "GET",
+      "path": "/api/tenant/ulap"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/uploads"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/triage/events"
+    },
+    {
+      "method": "POST",
+      "path": "/api/tenant/triage/escalate"
+    },
+    {
+      "method": "GET",
+      "path": "/api/provider/triage/inbox"
+    },
+    {
+      "method": "POST",
+      "path": "/api/provider/triage/state"
+    }
+  ]
+}

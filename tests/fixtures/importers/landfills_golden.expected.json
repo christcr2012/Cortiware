@@ -1,0 +1,17 @@
+[
+  {
+    "id": "LF-TEST1",
+    "name": "Test North",
+    "lat": 40,
+    "lon": -105.5,
+    "accepts": ["msw", "c&d"]
+  },
+  {
+    "id": "LF-TEST2",
+    "name": "Test South",
+    "lat": 39.5,
+    "lon": -105,
+    "accepts": ["msw"]
+  }
+]
+

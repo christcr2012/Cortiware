@@ -1,0 +1,1 @@
+# Monetization & 402 Contract — client-pays-first, 402 JSON, wallet rules, upsell UX

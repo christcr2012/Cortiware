@@ -1,0 +1,1 @@
+# Repo-Aligned Roadmap — phases mapped to apps/tenant-app, apps/provider-portal, packages/verticals

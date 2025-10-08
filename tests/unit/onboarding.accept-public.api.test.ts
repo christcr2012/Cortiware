@@ -11,6 +11,9 @@ export async function run() {
     (prisma as any).globalMonetizationConfig = {
       findFirst: async () => ({ publicOnboarding: true, defaultPlanId: 'planX', defaultPriceId: 'priceX', defaultTrialDays: 14 }),
     };
+    (prisma as any).planPrice = { findUnique: async () => ({ unitAmountCents: 1000, planId: 'planX' }) } as any;
+    (prisma as any).coupon = { findUnique: async () => null } as any;
+
     const saved: any = {};
     (prisma as any).$transaction = async (fn: any) => {
       const tx = {
