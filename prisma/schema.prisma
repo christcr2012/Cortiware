@@ -852,16 +852,23 @@ model OIDCConfig {
 
 /// ProviderIntegration tracks external provider connections
 model ProviderIntegration {
-  id          String    @id @default(cuid())
-  name        String    // Provider name (e.g., "Acme Corp")
-  type        String    // 'oidc' | 'saml' | 'api_key'
-  config      Json      @default("{}") // Provider-specific configuration
-  enabled     Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  lastSyncAt  DateTime? // Last successful sync
+  id                  String    @id @default(cuid())
+  name                String    // Provider name (e.g., "Acme Corp")
+  url                 String?   // Provider URL for connectivity tests
+  type                String    // 'oidc' | 'saml' | 'api_key' | 'oauth'
+  config              Json      @default("{}") // Provider-specific configuration
+  enabled             Boolean   @default(true)
+  healthStatus        String?   // 'healthy' | 'degraded' | 'down' | 'unknown'
+  syncStatus          String?   // 'success' | 'failed' | 'pending' | 'never'
+  errorMessage        String?   // Last error message if any
+  lastSyncAt          DateTime? // Last successful sync
+  lastHealthCheckAt   DateTime? // Last health check timestamp
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   @@index([type, enabled])
+  @@index([healthStatus])
+  @@index([syncStatus])
 }
 
 /// AuditEvent stores provider-side audit trail
