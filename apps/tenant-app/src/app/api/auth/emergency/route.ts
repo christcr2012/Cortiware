@@ -23,6 +23,7 @@ import { logEmergencyAccess, logLoginFailure } from '@/lib/audit-log';
 import {
   authenticateEmergency,
   buildCookieHeader,
+  verifyTOTPCode,
   type AuthInput,
 } from '@cortiware/auth-service';
 
@@ -60,6 +61,7 @@ export async function POST(req: NextRequest) {
   let email = '';
   let password = '';
   let role: 'provider' | 'developer' | '' = '';
+  let totpCode = '';
 
   const ct = (req.headers.get('content-type') || '').toLowerCase();
   try {
@@ -68,11 +70,13 @@ export async function POST(req: NextRequest) {
       email = String(form.get('email') ?? '').trim();
       password = String(form.get('password') ?? '').trim();
       role = String(form.get('role') ?? '').trim() as 'provider' | 'developer' | '';
+      totpCode = String(form.get('totp') ?? '').trim();
     } else {
       const body = await req.json().catch(() => ({} as any));
       email = String(body.email ?? '').trim();
       password = String(body.password ?? '').trim();
       role = String(body.role ?? '').trim() as 'provider' | 'developer' | '';
+      totpCode = String(body.totp ?? '').trim();
     }
   } catch {
     // fallthrough to error handling
@@ -99,6 +103,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=server_error', url), 303);
   }
 
+  // Optional TOTP requirement if secret is configured
+  const totpSecret = role === 'provider'
+    ? process.env.PROVIDER_TOTP_SECRET
+    : process.env.DEVELOPER_TOTP_SECRET;
+
+  if (totpSecret) {
+    if (!totpCode) {
+      await logLoginFailure(`emergency-${role}`, ipAddress, userAgent, 'TOTP required');
+      return NextResponse.redirect(new URL(`/emergency/${role}?error=totp_required`, url), 303);
+    }
+    const totpOk = verifyTOTPCode(totpCode, totpSecret);
+    if (!totpOk) {
+      await logLoginFailure(`emergency-${role}`, ipAddress, userAgent, 'Invalid TOTP');
+      return NextResponse.redirect(new URL(`/emergency/${role}?error=totp_invalid`, url), 303);
+    }
+  }
+
   // Authenticate
   const authInput: AuthInput = { email, password };
   const result = await authenticateEmergency(authInput, role, passwordHash);
@@ -106,7 +127,7 @@ export async function POST(req: NextRequest) {
   if (!result.success) {
     console.log(`❌ Emergency ${role} login failed: ${email}`);
     await logLoginFailure(`emergency-${role}`, ipAddress, userAgent, 'Invalid credentials');
-    return NextResponse.redirect(new URL(`/login?error=invalid`, url), 303);
+    return NextResponse.redirect(new URL(`/emergency/${role}?error=invalid`, url), 303);
   }
 
   // Success - log with high visibility and context
@@ -118,13 +139,19 @@ export async function POST(req: NextRequest) {
   });
   resetRateLimit(ipAddress, 'auth-emergency');
 
-  // Set cookie and redirect
-  const res = NextResponse.redirect(new URL(result.redirectPath || `/${role}`, url), 303);
-  const cookieHeader = buildCookieHeader({
+  // Set cookies and redirect into emergency flow
+  const res = NextResponse.redirect(new URL('/emergency/tenants', url), 303);
+  const authCookie = buildCookieHeader({
     name: result.cookieName || `rs_${role}`,
     value: email,
+    maxAge: 1800, // 30 minutes
+    sameSite: 'Strict',
   });
-  res.headers.append('Set-Cookie', cookieHeader);
+  const emergencyFlag = buildCookieHeader({ name: 'rs_emergency', value: '1', maxAge: 1800, sameSite: 'Strict' });
+  const emergencyRole = buildCookieHeader({ name: 'rs_emergency_role', value: role, maxAge: 1800, sameSite: 'Strict' });
+  res.headers.append('Set-Cookie', authCookie);
+  res.headers.append('Set-Cookie', emergencyFlag);
+  res.headers.append('Set-Cookie', emergencyRole);
 
   return res;
 }
