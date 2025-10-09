@@ -9,12 +9,28 @@ const getHandler = async (req: NextRequest) => {
     const { searchParams } = req.nextUrl;
     const status = searchParams.get('status');
     const severity = searchParams.get('severity');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '20');
 
     const where: any = {};
     if (status) where.status = status;
     if (severity) where.severity = severity;
+
+    // Date range filtering
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) {
+        where.createdAt.gte = new Date(startDate);
+      }
+      if (endDate) {
+        // Set to end of day
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.createdAt.lte = end;
+      }
+    }
 
     const [incidents, total] = await Promise.all([
       prisma.incident.findMany({
