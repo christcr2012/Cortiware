@@ -8,20 +8,26 @@ export async function run() {
     if (cond) passed++; else { failed++; console.error(`[FAIL] ${name}: ${msg}`); }
   }
 
-  // ok case
-  assert(validateLeadCreate({ name: 'Alice' }).ok === true, 'valid lead should pass');
+  // ok case - company provided
+  assert(validateLeadCreate({ company: 'Acme Corp' }).ok === true, 'valid lead with company should pass');
 
-  // missing name
-  assert(validateLeadCreate({}).ok === false, 'missing name should fail');
+  // ok case - contactName provided
+  assert(validateLeadCreate({ contactName: 'Alice' }).ok === true, 'valid lead with contactName should pass');
 
-  // contact must be object
-  assert(validateLeadCreate({ name: 'A', contact: 'x' as any }).ok === false, 'contact string should fail');
+  // ok case - both provided
+  assert(validateLeadCreate({ company: 'Acme', contactName: 'Alice' }).ok === true, 'valid lead with both should pass');
 
-  // contact.email must be string
-  assert(validateLeadCreate({ name: 'A', contact: { email: 1 as any } }).ok === false, 'contact.email number should fail');
+  // missing both company and contactName
+  assert(validateLeadCreate({}).ok === false, 'missing company and contactName should fail');
 
-  // contact.phone must be string
-  assert(validateLeadCreate({ name: 'A', contact: { phone: 2 as any } }).ok === false, 'contact.phone number should fail');
+  // email must be string
+  assert(validateLeadCreate({ company: 'A', email: 1 as any }).ok === false, 'email number should fail');
+
+  // email must have @
+  assert(validateLeadCreate({ company: 'A', email: 'notanemail' }).ok === false, 'email without @ should fail');
+
+  // phoneE164 must be string
+  assert(validateLeadCreate({ company: 'A', phoneE164: 2 as any }).ok === false, 'phoneE164 number should fail');
 
   return { name, passed, failed, total };
 }

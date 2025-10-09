@@ -163,8 +163,25 @@ export function withTenantAuth(): Wrapper {
     const jar = await cookies();
     const email = jar.get('rs_user')?.value || jar.get('mv_user')?.value;
     if (!email) return jsonError(401, 'Unauthorized', 'Sign in required');
-    // TODO(sonnet): Load user + orgId and attach via request attribute or header for downstream usage
-    return handler(req, ...args);
+
+    // Load user and org context
+    const { prisma } = await import('@/lib/prisma');
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, orgId: true, isActive: true },
+    });
+
+    if (!user || !user.isActive) {
+      return jsonError(401, 'Unauthorized', 'Invalid or inactive user');
+    }
+
+    // Inject context into request headers for downstream usage
+    const headers = new Headers(req.headers);
+    headers.set('x-org-id', user.orgId);
+    headers.set('x-user-id', user.id);
+
+    const newReq = new NextRequest(req, { headers });
+    return handler(newReq, ...args);
   };
 }
 

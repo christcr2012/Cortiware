@@ -1,22 +1,53 @@
-// Validation stubs for leads (no external deps)
-// TODO(sonnet): Replace with Zod/Valibot schemas and stronger normalization
+// Validation for leads - aligned with Prisma Lead model
+// Maps to: company, contactName, email, phoneE164, sourceType, notes, etc.
+
+import type { LeadSource } from '@prisma/client';
 
 export type LeadCreateInput = {
-  name?: string;
-  contact?: { email?: string; phone?: string };
-  source?: string;
+  company?: string;
+  contactName?: string;
+  email?: string;
+  phoneE164?: string;
+  website?: string;
+  sourceType?: LeadSource;
+  sourceDetail?: string;
   notes?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  postalCode?: string;
+  address?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  country?: string;
 };
 
 export function validateLeadCreate(input: any): { ok: true } | { ok: false; message: string } {
-  if (typeof input !== 'object' || input == null) return { ok: false, message: 'Body must be an object' };
-  const { name, contact } = input as LeadCreateInput;
-  if (!name || typeof name !== 'string' || name.trim().length < 1) {
-    return { ok: false, message: 'name is required' };
+  if (typeof input !== 'object' || input == null) {
+    return { ok: false, message: 'Body must be an object' };
   }
-  if (contact && typeof contact !== 'object') return { ok: false, message: 'contact must be an object' };
-  if (contact?.email && typeof contact.email !== 'string') return { ok: false, message: 'contact.email must be a string' };
-  if (contact?.phone && typeof contact.phone !== 'string') return { ok: false, message: 'contact.phone must be a string' };
+
+  const { company, contactName, email, phoneE164 } = input as LeadCreateInput;
+
+  // At least one of company or contactName is required
+  if ((!company || typeof company !== 'string' || company.trim().length < 1) &&
+      (!contactName || typeof contactName !== 'string' || contactName.trim().length < 1)) {
+    return { ok: false, message: 'Either company or contactName is required' };
+  }
+
+  // Validate email format if provided
+  if (email && typeof email !== 'string') {
+    return { ok: false, message: 'email must be a string' };
+  }
+  if (email && email.length > 0 && !email.includes('@')) {
+    return { ok: false, message: 'email must be a valid email address' };
+  }
+
+  // Validate phone if provided
+  if (phoneE164 && typeof phoneE164 !== 'string') {
+    return { ok: false, message: 'phoneE164 must be a string' };
+  }
+
   return { ok: true };
 }
 
