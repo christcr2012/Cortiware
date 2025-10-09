@@ -315,10 +315,14 @@ export async function createWorkflow(templateId: string, tenantId: string): Prom
     throw new Error('Template not found');
   }
 
-  const customer = await prisma.customer.findUnique({
-    where: { id: tenantId },
-    select: { company: true, primaryName: true },
-  });
+  const customer = await safeQuery(
+    () => prisma.customer.findUnique({
+      where: { id: tenantId },
+      select: { company: true, primaryName: true },
+    }),
+    null,
+    `Failed to fetch tenant ${tenantId} for provisioning`
+  );
 
   if (!customer) {
     throw new Error('Tenant not found');

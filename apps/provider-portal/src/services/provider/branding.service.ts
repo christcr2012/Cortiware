@@ -1,4 +1,5 @@
 import { prisma } from '@cortiware/db';
+import { safeQuery, calculatePercentage } from '@/lib/utils/query.utils';
 
 /**
  * Branding Service
@@ -128,18 +129,22 @@ export const BRANDING_TEMPLATES: BrandingTemplate[] = [
  * Get all organizations with their branding configurations
  */
 export async function getAllBrandingConfigs() {
-  const orgs = await prisma.org.findMany({
-    select: {
-      id: true,
-      name: true,
-      brandConfig: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-    orderBy: {
-      name: 'asc',
-    },
-  });
+  const orgs = await safeQuery(
+    () => prisma.org.findMany({
+      select: {
+        id: true,
+        name: true,
+        brandConfig: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    }),
+    [],
+    'Failed to fetch all branding configurations'
+  );
 
   return orgs.map((org) => {
     const brandConfig = (org.brandConfig as BrandConfig) || {};
@@ -157,16 +162,20 @@ export async function getAllBrandingConfigs() {
  * Get branding configuration for a specific organization
  */
 export async function getBrandingConfig(orgId: string) {
-  const org = await prisma.org.findUnique({
-    where: { id: orgId },
-    select: {
-      id: true,
-      name: true,
-      brandConfig: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  const org = await safeQuery(
+    () => prisma.org.findUnique({
+      where: { id: orgId },
+      select: {
+        id: true,
+        name: true,
+        brandConfig: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    }),
+    null,
+    `Failed to fetch branding config for org ${orgId}`
+  );
 
   if (!org) {
     throw new Error('Organization not found');
@@ -187,10 +196,14 @@ export async function getBrandingConfig(orgId: string) {
  */
 export async function updateBrandingConfig(orgId: string, brandConfig: Partial<BrandConfig>) {
   // Get existing config
-  const org = await prisma.org.findUnique({
-    where: { id: orgId },
-    select: { brandConfig: true },
-  });
+  const org = await safeQuery(
+    () => prisma.org.findUnique({
+      where: { id: orgId },
+      select: { brandConfig: true },
+    }),
+    null,
+    `Failed to fetch org ${orgId} for branding update`
+  );
 
   if (!org) {
     throw new Error('Organization not found');
@@ -217,18 +230,26 @@ export async function updateBrandingConfig(orgId: string, brandConfig: Partial<B
   };
 
   // Update in database
-  const updated = await prisma.org.update({
-    where: { id: orgId },
-    data: {
-      brandConfig: updatedConfig as any,
-    },
-    select: {
-      id: true,
-      name: true,
-      brandConfig: true,
-      updatedAt: true,
-    },
-  });
+  const updated = await safeQuery(
+    () => prisma.org.update({
+      where: { id: orgId },
+      data: {
+        brandConfig: updatedConfig as any,
+      },
+      select: {
+        id: true,
+        name: true,
+        brandConfig: true,
+        updatedAt: true,
+      },
+    }),
+    null,
+    `Failed to update branding config for org ${orgId}`
+  );
+
+  if (!updated) {
+    throw new Error('Failed to update branding configuration');
+  }
 
   return {
     id: updated.id,
@@ -261,22 +282,34 @@ export async function applyBrandingTemplate(orgId: string, templateId: string) {
  * Get branding statistics
  */
 export async function getBrandingStats() {
-  const totalOrgs = await prisma.org.count();
-  
-  const orgsWithBranding = await prisma.org.count({
-    where: {
-      brandConfig: {
-        not: {},
+  const totalOrgs = await safeQuery(
+    () => prisma.org.count(),
+    0,
+    'Failed to count total organizations'
+  );
+
+  const orgsWithBranding = await safeQuery(
+    () => prisma.org.count({
+      where: {
+        brandConfig: {
+          not: {},
+        },
       },
-    },
-  });
+    }),
+    0,
+    'Failed to count organizations with branding'
+  );
 
   // Count orgs with logos and custom colors by fetching all and filtering
-  const allOrgs = await prisma.org.findMany({
-    select: {
-      brandConfig: true,
-    },
-  });
+  const allOrgs = await safeQuery(
+    () => prisma.org.findMany({
+      select: {
+        brandConfig: true,
+      },
+    }),
+    [],
+    'Failed to fetch organizations for branding stats'
+  );
 
   const orgsWithLogo = allOrgs.filter((org) => {
     const config = org.brandConfig as BrandConfig;
@@ -293,7 +326,7 @@ export async function getBrandingStats() {
     orgsWithBranding,
     orgsWithLogo,
     orgsWithCustomColors,
-    brandingAdoptionRate: totalOrgs > 0 ? Math.round((orgsWithBranding / totalOrgs) * 100) : 0,
+    brandingAdoptionRate: calculatePercentage(orgsWithBranding, totalOrgs),
   };
 }
 
