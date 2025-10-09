@@ -125,60 +125,64 @@ export function createInternalServerError(
 
 /**
  * Handle async route with error catching
+ * Supports route handlers with any number of parameters
  */
-export async function handleAsyncRoute<T>(
-  handler: () => Promise<NextResponse<SuccessResponse<T>>>,
+export function handleAsyncRoute<T, Args extends any[]>(
+  handler: (...args: Args) => Promise<NextResponse<SuccessResponse<T>> | NextResponse<any>>,
   errorMessage: string = 'Operation failed'
-): Promise<NextResponse<SuccessResponse<T> | ErrorResponse>> {
-  try {
-    return await handler();
-  } catch (error: any) {
-    console.error('[Route Error]', error);
-    
-    // Handle known error types
-    if (error.code === 'P2002') {
-      return createConflictError('Resource already exists');
-    }
-    
-    if (error.code === 'P2025') {
-      return createNotFoundError();
-    }
-    
-    return createInternalServerError(
-      error.message || errorMessage,
-      error
-    );
-  }
-}
+): (...args: Args) => Promise<NextResponse<SuccessResponse<T> | ErrorResponse> | NextResponse<any>> {
+  return async (...args: Args) => {
+    try {
+      return await handler(...args);
+    } catch (error: any) {
+      console.error('[Route Error]', error);
 
-/**
- * Validate required fields
- */
-export function validateRequiredFields(
-  data: Record<string, any>,
-  requiredFields: string[]
-): { valid: boolean; missing?: string[] } {
-  const missing = requiredFields.filter(
-    (field) => data[field] === undefined || data[field] === null || data[field] === ''
-  );
-  
-  return {
-    valid: missing.length === 0,
-    ...(missing.length > 0 && { missing }),
+      // Handle known error types
+      if (error.code === 'P2002') {
+        return createConflictError('Resource already exists');
+      }
+
+      if (error.code === 'P2025') {
+        return createNotFoundError();
+      }
+
+      return createInternalServerError(
+        error.message || errorMessage,
+        error
+      );
+    }
   };
 }
 
 /**
+ * Validate required fields
+ * Throws an error if validation fails
+ */
+export function validateRequiredFields(
+  data: Record<string, any>,
+  requiredFields: string[]
+): void {
+  const missing = requiredFields.filter(
+    (field) => data[field] === undefined || data[field] === null || data[field] === ''
+  );
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required fields: ${missing.join(', ')}`);
+  }
+}
+
+/**
  * Parse request body safely
+ * Throws an error if parsing fails
  */
 export async function parseRequestBody<T = any>(
   request: Request
-): Promise<{ success: true; data: T } | { success: false; error: string }> {
+): Promise<T> {
   try {
     const data = await request.json();
-    return { success: true, data };
+    return data as T;
   } catch (error) {
-    return { success: false, error: 'Invalid JSON body' };
+    throw new Error('Invalid JSON body');
   }
 }
 

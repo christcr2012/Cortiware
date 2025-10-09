@@ -1,30 +1,26 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { updateRateLimitConfig } from '@/services/provider/api-usage.service';
+import { createSuccessResponse, handleAsyncRoute, parseRequestBody, validateRequiredFields } from '@/lib/utils/api-response.utils';
 
-export async function PUT(
+export const PUT = handleAsyncRoute(async (
   req: NextRequest,
   { params }: { params: Promise<{ tenantId: string }> }
-) {
-  try {
-    const { tenantId } = await params;
-    const body = await req.json();
-    const { requestsPerMinute, requestsPerHour, requestsPerDay, burstLimit } = body;
+) => {
+  const { tenantId } = await params;
+  const body = await parseRequestBody(req);
 
-    await updateRateLimitConfig(tenantId, {
-      requestsPerMinute,
-      requestsPerHour,
-      requestsPerDay,
-      burstLimit,
-      enabled: true,
-    });
+  validateRequiredFields(body, ['requestsPerMinute', 'requestsPerHour', 'requestsPerDay', 'burstLimit']);
 
-    return NextResponse.json({ success: true });
-  } catch (error: any) {
-    console.error('Update rate limit error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to update rate limit' },
-      { status: 500 }
-    );
-  }
-}
+  const { requestsPerMinute, requestsPerHour, requestsPerDay, burstLimit } = body;
+
+  await updateRateLimitConfig(tenantId, {
+    requestsPerMinute,
+    requestsPerHour,
+    requestsPerDay,
+    burstLimit,
+    enabled: true,
+  });
+
+  return createSuccessResponse({ success: true }, 'Rate limit configuration updated successfully');
+});
 

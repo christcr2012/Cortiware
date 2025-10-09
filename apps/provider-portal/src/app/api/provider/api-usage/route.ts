@@ -1,16 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getAllTenantsApiUsage } from '@/services/provider/api-usage.service';
+import { createSuccessResponse, createErrorResponse, handleAsyncRoute } from '@/lib/utils/api-response.utils';
 
-export async function GET(req: NextRequest) {
-  try {
-    const usage = await getAllTenantsApiUsage();
-    return NextResponse.json({ usage });
-  } catch (error: any) {
-    console.error('Get API usage error:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to get API usage' },
-      { status: 500 }
-    );
-  }
-}
+export const GET = handleAsyncRoute(async (req: NextRequest) => {
+  const usage = await getAllTenantsApiUsage();
+  return createSuccessResponse({ usage }, 'API usage data retrieved successfully');
+});
 

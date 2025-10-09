@@ -1,41 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { compose, withProviderAuth } from '@/lib/api/middleware';
 import { getBrandingTemplates, applyBrandingTemplate } from '@/services/provider/branding.service';
+import { createSuccessResponse, handleAsyncRoute, parseRequestBody, validateRequiredFields } from '@/lib/utils/api-response.utils';
 
-async function getHandler(req: NextRequest) {
-  try {
-    const templates = getBrandingTemplates();
-    return NextResponse.json({ ok: true, data: templates });
-  } catch (error) {
-    console.error('Error fetching branding templates:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to fetch branding templates' },
-      { status: 500 }
-    );
-  }
-}
+const getHandler = handleAsyncRoute(async (req: NextRequest) => {
+  const templates = getBrandingTemplates();
+  return createSuccessResponse(templates, 'Branding templates retrieved successfully');
+});
 
-async function postHandler(req: NextRequest) {
-  try {
-    const { orgId, templateId } = await req.json();
-    
-    if (!orgId || !templateId) {
-      return NextResponse.json(
-        { ok: false, error: 'orgId and templateId are required' },
-        { status: 400 }
-      );
-    }
+const postHandler = handleAsyncRoute(async (req: NextRequest) => {
+  const body = await parseRequestBody(req);
+  validateRequiredFields(body, ['orgId', 'templateId']);
 
-    const updated = await applyBrandingTemplate(orgId, templateId);
-    return NextResponse.json({ ok: true, data: updated });
-  } catch (error) {
-    console.error('Error applying branding template:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to apply branding template' },
-      { status: 500 }
-    );
-  }
-}
+  const { orgId, templateId } = body;
+  const updated = await applyBrandingTemplate(orgId, templateId);
+
+  return createSuccessResponse(updated, 'Branding template applied successfully');
+});
 
 export const GET = compose(withProviderAuth())(getHandler);
 export const POST = compose(withProviderAuth())(postHandler);

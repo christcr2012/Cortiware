@@ -1,61 +1,50 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { prisma } from '@cortiware/db';
-import { compose, withProviderAuth, withAuditLog } from '@/lib/api/middleware';
+import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { createSuccessResponse, createValidationError, handleAsyncRoute, parseRequestBody } from '@/lib/utils/api-response.utils';
+import { safeQuery } from '@/lib/utils/query.utils';
 
-async function handler(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { incidentIds, status } = body;
+const handler = handleAsyncRoute(async (req: NextRequest) => {
+  const body = await parseRequestBody(req);
+  const { incidentIds, status } = body;
 
-    if (!incidentIds || !Array.isArray(incidentIds) || incidentIds.length === 0) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid incident IDs' },
-        { status: 400 }
-      );
-    }
+  if (!incidentIds || !Array.isArray(incidentIds) || incidentIds.length === 0) {
+    return createValidationError('Invalid incident IDs');
+  }
 
-    if (!status || !['OPEN', 'ACK', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].includes(status)) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid status' },
-        { status: 400 }
-      );
-    }
+  if (!status || !['OPEN', 'ACK', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'].includes(status)) {
+    return createValidationError('Invalid status');
+  }
 
-    // Update all incidents
-    const updateData: any = { status };
-    
-    // Set timestamps based on status
-    if (status === 'ACK' && !updateData.acknowledgedAt) {
-      updateData.acknowledgedAt = new Date();
-    } else if (status === 'RESOLVED' && !updateData.resolvedAt) {
-      updateData.resolvedAt = new Date();
-    } else if (status === 'CLOSED' && !updateData.closedAt) {
-      updateData.closedAt = new Date();
-    }
+  // Update all incidents
+  const updateData: any = { status };
 
-    const result = await prisma.incident.updateMany({
+  // Set timestamps based on status
+  if (status === 'ACK' && !updateData.acknowledgedAt) {
+    updateData.acknowledgedAt = new Date();
+  } else if (status === 'RESOLVED' && !updateData.resolvedAt) {
+    updateData.resolvedAt = new Date();
+  } else if (status === 'CLOSED' && !updateData.closedAt) {
+    updateData.closedAt = new Date();
+  }
+
+  const result = await safeQuery(
+    () => prisma.incident.updateMany({
       where: {
         id: {
           in: incidentIds,
         },
       },
       data: updateData,
-    });
+    }),
+    { count: 0 },
+    'Failed to bulk update incidents'
+  );
 
-    return NextResponse.json({
-      ok: true,
-      data: {
-        updated: result.count,
-      },
-    });
-  } catch (error) {
-    console.error('Bulk update error:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to update incidents' },
-      { status: 500 }
-    );
-  }
-}
+  return createSuccessResponse({
+    updated: result.count,
+  }, `Successfully updated ${result.count} incident(s)`);
+});
 
 export const POST = compose(
   withProviderAuth()
