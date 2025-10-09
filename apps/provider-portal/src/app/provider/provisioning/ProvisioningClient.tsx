@@ -713,7 +713,7 @@ export default function ProvisioningClient({ initialTemplates, initialWorkflows,
               Start New Workflow
             </h3>
             <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
-              This feature will be available in the next update. You'll be able to select a template and tenant to start automated provisioning.
+              This feature will be available in the next update. You&apos;ll be able to select a template and tenant to start automated provisioning.
             </p>
             <button
               onClick={() => setShowNewWorkflow(false)}

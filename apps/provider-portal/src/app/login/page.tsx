@@ -121,7 +121,7 @@ function LoginForm() {
             <div className="mt-6">
               <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', color: '#10b981', padding: '16px', borderRadius: 'var(--radius-md)' }}>
                 <p className="font-medium">Check your email</p>
-                <p className="text-sm mt-1">We've sent a password reset link to {forgotPasswordEmail}</p>
+                <p className="text-sm mt-1">We&apos;ve sent a password reset link to {forgotPasswordEmail}</p>
               </div>
               <button
                 onClick={() => {
