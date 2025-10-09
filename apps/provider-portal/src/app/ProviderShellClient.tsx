@@ -144,6 +144,9 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/branding" active={active('/provider/branding')}>
             White-Label
           </ProviderNavLink>
+          <ProviderNavLink href="/provider/compliance" active={active('/provider/compliance')}>
+            Compliance
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/settings" active={active('/provider/settings')}>
             Settings
           </ProviderNavLink>
