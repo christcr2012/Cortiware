@@ -53,29 +53,29 @@ export default function OrganizationsPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Organizations</h1>
+    <div className="container-responsive spacing-responsive-md">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+        <h1 className="text-responsive-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Organizations</h1>
         <Link
           href="/organizations/new"
-          className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="btn-primary touch-target-comfortable w-full sm:w-auto justify-center"
         >
           + New Organization
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex gap-2">
+      <form onSubmit={handleSearch} className="mb-4 sm:mb-6 premium-card spacing-responsive-sm">
+        <div className="flex flex-col sm:flex-row gap-2">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by company, name, or email..."
-            className="flex-1 rounded-md border border-gray-300 px-4 py-2"
+            className="input-field touch-target flex-1"
           />
           <button
             type="submit"
-            className="rounded-md bg-gray-600 px-6 py-2 text-white hover:bg-gray-700"
+            className="btn-secondary touch-target-comfortable w-full sm:w-auto"
           >
             Search
           </button>
@@ -83,72 +83,73 @@ export default function OrganizationsPage() {
       </form>
 
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent"></div>
-          <p className="mt-2 text-gray-600">Loading organizations...</p>
+        <div className="text-center py-8 sm:py-12">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" style={{ borderColor: 'var(--brand-primary)', borderRightColor: 'transparent' }}></div>
+          <p className="mt-2 text-responsive-sm" style={{ color: 'var(--text-secondary)' }}>Loading organizations...</p>
         </div>
       )}
 
       {error && (
-        <div className="rounded-md bg-red-50 border border-red-200 p-4 text-red-800">
+        <div className="premium-card spacing-responsive-sm" style={{ background: 'var(--surface-1)', border: '1px solid var(--accent-error)', color: 'var(--accent-error)' }}>
           <strong>Error:</strong> {error}
         </div>
       )}
 
       {!loading && !error && organizations.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <p className="text-lg">No organizations found</p>
-          <p className="mt-2">Create your first organization to get started</p>
+        <div className="text-center py-8 sm:py-12" style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-responsive-lg">No organizations found</p>
+          <p className="mt-2 text-responsive-sm">Create your first organization to get started</p>
         </div>
       )}
 
       {!loading && !error && organizations.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 border">
-            <thead className="bg-gray-50">
+        <div className="table-responsive">
+          <table className="min-w-full divide-y" style={{ borderColor: 'var(--border-primary)' }}>
+            <thead style={{ background: 'var(--surface-1)' }}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                   Company
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                   Primary Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                   Phone
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                   Created
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody style={{ background: 'var(--bg-main)' }} className="divide-y" style={{ borderColor: 'var(--border-primary)' }}>
               {organizations.map((org) => (
-                <tr key={org.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap font-medium">
+                <tr key={org.id} className="transition-colors" style={{ background: 'var(--bg-main)' }}>
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap font-medium text-sm" style={{ color: 'var(--text-primary)' }}>
                     {org.company || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-primary)' }}>
                     {org.primaryName || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                     {org.primaryEmail || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                     {org.primaryPhone || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm hide-mobile" style={{ color: 'var(--text-secondary)' }}>
                     {new Date(org.createdAt).toLocaleDateString()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm">
                     <Link
                       href={`/organizations/${org.id}`}
-                      className="text-blue-600 hover:text-blue-800"
+                      className="touch-target inline-flex items-center justify-center px-3 py-1.5 rounded-md transition-colors"
+                      style={{ color: 'var(--brand-primary)', background: 'var(--surface-hover)' }}
                     >
                       View
                     </Link>
