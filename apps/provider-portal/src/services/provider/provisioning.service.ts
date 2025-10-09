@@ -1,10 +1,11 @@
 /**
  * Tenant Provisioning Service
- * 
+ *
  * Handles automated tenant provisioning workflows, templates, and resource allocation
  */
 
 import { prisma } from '@/lib/prisma';
+import { safeQuery } from '@/lib/utils/query.utils';
 
 // Types
 export type WorkflowStep = {
@@ -226,16 +227,20 @@ export async function getProvisioningTemplates(): Promise<ProvisioningTemplate[]
  */
 export async function getActiveWorkflows(): Promise<ProvisioningWorkflow[]> {
   // Get recent customers as mock workflows
-  const customers = await prisma.customer.findMany({
-    take: 20,
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      company: true,
-      primaryName: true,
-      createdAt: true,
-    },
-  });
+  const customers = await safeQuery(
+    () => prisma.customer.findMany({
+      take: 20,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        company: true,
+        primaryName: true,
+        createdAt: true,
+      },
+    }),
+    [],
+    'Failed to fetch active provisioning workflows'
+  );
 
   return customers.map((customer, idx) => {
     const templates = ['tpl_starter', 'tpl_professional', 'tpl_enterprise'];
