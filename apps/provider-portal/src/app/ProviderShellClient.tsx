@@ -75,9 +75,6 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/clients" active={active('/provider/clients')}>
             Client Accounts
           </ProviderNavLink>
-          <ProviderNavLink href="/provider/sam-gov" active={active('/provider/sam-gov')}>
-            SAM.gov Integration
-          </ProviderNavLink>
           <ProviderNavLink href="/provider/tenant-health" active={active('/provider/tenant-health')}>
             Tenant Health
           </ProviderNavLink>
