@@ -40,14 +40,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg-main)', padding:'var(--space-xl)' }}>
-      <div className="premium-card" style={{ width:'100%', maxWidth:480 }}>
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8" style={{ background:'var(--bg-main)' }}>
+      <div className="premium-card w-full max-w-md">
         <div>
-          <h2 className="text-3xl font-bold" style={{ color:'var(--text-primary)', textAlign:'center' }}>
+          <h2 className="text-responsive-2xl font-bold text-center" style={{ color:'var(--text-primary)' }}>
             {isEmergency ? 'Emergency Access' : 'Sign in to your account'}
           </h2>
           {isEmergency && (
-            <p className="mt-2 text-center text-sm" style={{ color:'var(--accent-error)' }}>
+            <p className="mt-2 text-center text-responsive-sm" style={{ color:'var(--accent-error)' }}>
               ⚠️ Emergency access mode - all actions will be audited
             </p>
           )}
@@ -65,11 +65,11 @@ export default function LoginPage() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-3 sm:space-y-4">
             {isEmergency && (
               <div>
-                <label htmlFor="role" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
+                <label htmlFor="role" className="block text-responsive-sm font-medium mb-1.5" style={{ color:'var(--text-secondary)' }}>
                   Role
                 </label>
                 <select
@@ -77,7 +77,7 @@ export default function LoginPage() {
                   name="role"
                   value={emergencyRole}
                   onChange={(e) => setEmergencyRole(e.target.value as 'provider' | 'developer')}
-                  className="input-field"
+                  className="input-field touch-target"
                 >
                   <option value="provider">Provider</option>
                   <option value="developer">Developer</option>
@@ -86,7 +86,7 @@ export default function LoginPage() {
             )}
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
+              <label htmlFor="email" className="block text-responsive-sm font-medium mb-1.5" style={{ color:'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -97,12 +97,12 @@ export default function LoginPage() {
                 required
                 value={emailParam || email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                className="input-field touch-target"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
+              <label htmlFor="password" className="block text-responsive-sm font-medium mb-1.5" style={{ color:'var(--text-secondary)' }}>
                 Password
               </label>
               <input
@@ -113,13 +113,13 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                className="input-field touch-target"
               />
             </div>
 
             {totpRequired && (
               <div>
-                <label htmlFor="totpCode" className="block text-sm font-medium" style={{ color:'var(--text-secondary)' }}>
+                <label htmlFor="totpCode" className="block text-responsive-sm font-medium mb-1.5" style={{ color:'var(--text-secondary)' }}>
                   TOTP Code
                 </label>
                 <input
@@ -132,20 +132,25 @@ export default function LoginPage() {
                   onChange={(e) => setTotpCode(e.target.value)}
                   placeholder="000000"
                   maxLength={6}
-                  className="input-field"
+                  className="input-field touch-target"
                 />
               </div>
             )}
           </div>
 
-          <div>
-            <button type="submit" className="btn-primary" style={{ width:'100%' }}>
+          <div className="pt-2">
+            <button type="submit" className="btn-primary w-full touch-target-comfortable">
               Sign in
             </button>
           </div>
 
-          <div className="text-center">
-            <button type="button" onClick={() => setIsEmergency(!isEmergency)} style={{ color:'var(--text-accent)' }} className="text-sm">
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={() => setIsEmergency(!isEmergency)}
+              className="text-responsive-sm touch-target inline-flex items-center justify-center px-4"
+              style={{ color:'var(--text-accent)' }}
+            >
               {isEmergency ? 'Switch to normal login' : 'Emergency access'}
             </button>
           </div>

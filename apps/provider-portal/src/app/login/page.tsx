@@ -27,13 +27,13 @@ function LoginForm() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)', padding: 'var(--space-xl)' }}>
-      <div className="premium-card" style={{ width: '100%', maxWidth: 480 }}>
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8" style={{ background: 'var(--bg-main)' }}>
+      <div className="premium-card w-full max-w-md">
         <div>
-          <h2 style={{ color: 'var(--text-primary)', textAlign: 'center' }} className="text-3xl font-bold">
+          <h2 className="text-responsive-2xl font-bold text-center" style={{ color: 'var(--text-primary)' }}>
             Provider Portal
           </h2>
-          <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }} className="mt-2 text-sm">
+          <p className="mt-2 text-responsive-sm text-center" style={{ color: 'var(--text-secondary)' }}>
             Sign in to access the provider dashboard
           </p>
         </div>
@@ -50,10 +50,10 @@ function LoginForm() {
           </div>
         )}
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-3 sm:space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <label htmlFor="email" className="block text-responsive-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -64,12 +64,12 @@ function LoginForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="input-field"
+                className="input-field touch-target"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+              <label htmlFor="password" className="block text-responsive-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                 Password
               </label>
               <input
@@ -80,13 +80,13 @@ function LoginForm() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="input-field"
+                className="input-field touch-target"
               />
             </div>
 
             {totpRequired && (
               <div>
-                <label htmlFor="totpCode" className="block text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                <label htmlFor="totpCode" className="block text-responsive-sm font-medium mb-1.5" style={{ color: 'var(--text-secondary)' }}>
                   TOTP Code
                 </label>
                 <input
@@ -99,14 +99,14 @@ function LoginForm() {
                   onChange={(e) => setTotpCode(e.target.value)}
                   placeholder="000000"
                   maxLength={6}
-                  className="input-field"
+                  className="input-field touch-target"
                 />
               </div>
             )}
           </div>
 
-          <div>
-            <button type="submit" className="btn-primary" style={{ width: '100%' }}>
+          <div className="pt-2">
+            <button type="submit" className="btn-primary w-full touch-target-comfortable">
               Sign in
             </button>
           </div>
