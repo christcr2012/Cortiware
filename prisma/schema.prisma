@@ -107,6 +107,10 @@ model User {
   deviceFingerprints    UserDeviceFingerprint[]
 
   importJobs            ImportJob[]        @relation("UserImportJobs")
+
+  @@index([orgId, status, isActive])
+  @@index([orgId, role])
+  @@index([isActive, isLocked])
 }
 
 // ============================================================================
@@ -353,6 +357,9 @@ model Customer {
   invoices      Invoice[]
   jobs          Job[]
   opportunities Opportunity[]
+
+  @@index([orgId, createdAt])
+  @@index([orgId, company])
 }
 
 model Opportunity {
@@ -539,6 +546,10 @@ model AuditLog {
   createdAt   DateTime @default(now())
 
   org Org @relation(fields: [orgId], references: [id])
+
+  @@index([orgId, createdAt])
+  @@index([orgId, entity, createdAt])
+  @@index([actorUserId, createdAt])
 }
 
 enum Role {

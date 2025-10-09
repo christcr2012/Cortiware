@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type { TenantHealthScore } from '@/services/provider/tenant-health.service';
 
 interface Props {
   initialHealthScores: TenantHealthScore[];
 }
 
-export default function TenantHealthClient({ initialHealthScores }: Props) {
+function TenantHealthClient({ initialHealthScores }: Props) {
   const [healthScores, setHealthScores] = useState(initialHealthScores);
   const [searchTerm, setSearchTerm] = useState('');
   const [riskFilter, setRiskFilter] = useState<string>('all');
@@ -581,3 +581,5 @@ export default function TenantHealthClient({ initialHealthScores }: Props) {
   );
 }
 
+// Memoize the component to prevent unnecessary re-renders
+export default memo(TenantHealthClient);

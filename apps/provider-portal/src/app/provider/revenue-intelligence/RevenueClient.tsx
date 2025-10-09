@@ -7,7 +7,7 @@
  * expansion metrics, churn impact, LTV:CAC, and revenue waterfall visualization.
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import type {
   RevenueMetrics,
   RevenueForecast,
@@ -28,7 +28,7 @@ interface RevenueClientProps {
   waterfall: RevenueWaterfall;
 }
 
-export default function RevenueClient({
+function RevenueClient({
   metrics,
   forecast,
   cohorts,
@@ -578,3 +578,5 @@ function BenchmarkRow({ label, ratio, color }: { label: string; ratio: string; c
   );
 }
 
+// Memoize the component to prevent unnecessary re-renders
+export default memo(RevenueClient);

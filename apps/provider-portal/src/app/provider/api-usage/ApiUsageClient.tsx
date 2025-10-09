@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import Link from 'next/link';
 import { StatCard, StatCardGrid } from '@/components/common';
 
@@ -57,7 +57,7 @@ interface Props {
   globalMetrics: GlobalMetrics;
 }
 
-export default function ApiUsageClient({ initialUsage, globalMetrics }: Props) {
+function ApiUsageClient({ initialUsage, globalMetrics }: Props) {
   const [usage, setUsage] = useState(initialUsage);
   const [selectedTenant, setSelectedTenant] = useState<ApiUsageMetrics | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -447,3 +447,5 @@ export default function ApiUsageClient({ initialUsage, globalMetrics }: Props) {
   );
 }
 
+// Memoize the component to prevent unnecessary re-renders
+export default memo(ApiUsageClient);
