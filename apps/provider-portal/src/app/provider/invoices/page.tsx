@@ -186,7 +186,7 @@ export default function InvoicesPage() {
                 </th>
               </tr>
             </thead>
-            <tbody style={{ background: 'var(--bg-main)' }} className="divide-y" style={{ borderColor: 'var(--border-primary)' }}>
+            <tbody className="divide-y" style={{ background: 'var(--bg-main)', borderColor: 'var(--border-primary)' }}>
               {filteredInvoices.map((invoice) => (
                 <tr key={invoice.id} className="transition-colors" style={{ background: 'var(--bg-main)' }}>
                   <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-sm font-mono" style={{ color: 'var(--text-primary)' }}>

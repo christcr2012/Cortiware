@@ -68,7 +68,7 @@ async function calculateUserEngagement(tenantId: string): Promise<TenantHealthSc
     where: { orgId: tenantId },
     select: {
       id: true,
-      lastLoginAt: true,
+      lastSuccessfulLogin: true,
       createdAt: true,
     },
   });
@@ -76,18 +76,18 @@ async function calculateUserEngagement(tenantId: string): Promise<TenantHealthSc
   const totalUsers = users.length;
   const now = new Date();
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  
+
   // Active users (logged in within 30 days)
-  const activeUsers = users.filter(u => u.lastLoginAt && u.lastLoginAt > thirtyDaysAgo).length;
-  
+  const activeUsers = users.filter(u => u.lastSuccessfulLogin && u.lastSuccessfulLogin > thirtyDaysAgo).length;
+
   // Growth rate (users created in last 30 days vs previous 30 days)
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
   const recentUsers = users.filter(u => u.createdAt > thirtyDaysAgo).length;
   const previousUsers = users.filter(u => u.createdAt > sixtyDaysAgo && u.createdAt <= thirtyDaysAgo).length;
   const growthRate = previousUsers > 0 ? ((recentUsers - previousUsers) / previousUsers) * 100 : 0;
-  
+
   // Last login (most recent)
-  const lastLogins = users.map(u => u.lastLoginAt).filter(Boolean) as Date[];
+  const lastLogins = users.map(u => u.lastSuccessfulLogin).filter(Boolean) as Date[];
   const mostRecentLogin = lastLogins.length > 0 ? Math.max(...lastLogins.map(d => d.getTime())) : 0;
   const lastLoginDays = mostRecentLogin > 0 ? Math.floor((now.getTime() - mostRecentLogin) / (1000 * 60 * 60 * 24)) : 999;
   
@@ -166,17 +166,18 @@ async function calculateFeatureAdoption(tenantId: string): Promise<TenantHealthS
 async function calculateBillingHealth(tenantId: string): Promise<TenantHealthScore['billingHealth']> {
   // In production, check actual billing records
   // For now, use placeholder logic
-  
-  const status: 'Current' | 'Overdue' | 'Failed' | 'Cancelled' = 'Current';
+
+  type BillingStatus = 'Current' | 'Overdue' | 'Failed' | 'Cancelled';
+  const status: BillingStatus = 'Current';
   const daysPastDue = 0;
   const mrr = 9900; // $99.00 in cents
-  
+
   // Score: Current = 100, Overdue = 50, Failed = 25, Cancelled = 0
   let score = 100;
-  if (status === 'Overdue') score = 50;
-  if (status === 'Failed') score = 25;
-  if (status === 'Cancelled') score = 0;
-  
+  if (status === 'Overdue' as BillingStatus) score = 50;
+  if (status === 'Failed' as BillingStatus) score = 25;
+  if (status === 'Cancelled' as BillingStatus) score = 0;
+
   return {
     score,
     status,
@@ -198,8 +199,8 @@ async function calculateSupportMetrics(tenantId: string): Promise<TenantHealthSc
       resolvedAt: true,
     },
   });
-  
-  const openTickets = incidents.filter(i => i.status !== 'resolved').length;
+
+  const openTickets = incidents.filter(i => i.status !== 'RESOLVED' && i.status !== 'CLOSED').length;
   
   // Calculate average resolution time
   const resolvedIncidents = incidents.filter(i => i.resolvedAt);

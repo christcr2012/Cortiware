@@ -1,4 +1,4 @@
-import { getAllTenantHealthScores } from '@/services/provider/tenant-health.service';
+import { getAllTenantHealthScores, TenantHealthScore } from '@/services/provider/tenant-health.service';
 import TenantHealthClient from './TenantHealthClient';
 
 export const metadata = {
@@ -7,8 +7,8 @@ export const metadata = {
 };
 
 export default async function TenantHealthPage() {
-  let healthScores = [];
-  let error = null;
+  let healthScores: TenantHealthScore[] = [];
+  let error: string | null = null;
 
   try {
     healthScores = await getAllTenantHealthScores();

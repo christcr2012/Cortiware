@@ -15,7 +15,7 @@ const getHandler = async (req: NextRequest, { params }: { params: Promise<{ id: 
       where: { id },
       include: {
         org: {
-          select: { id: true, name: true, company: true },
+          select: { id: true, name: true },
         },
         lineItems: {
           orderBy: { createdAt: 'asc' },
@@ -27,7 +27,7 @@ const getHandler = async (req: NextRequest, { params }: { params: Promise<{ id: 
       return jsonError(404, 'not_found', 'Invoice not found');
     }
 
-    const lineItems = invoice.lineItems.map((line) => ({
+    const lineItems = invoice.lineItems.map((line: any) => ({
       id: line.id,
       description: line.description,
       lineType: line.lineType,
@@ -41,16 +41,10 @@ const getHandler = async (req: NextRequest, { params }: { params: Promise<{ id: 
       id: invoice.id,
       orgId: invoice.orgId,
       orgName: invoice.org.name,
-      orgCompany: invoice.org.company,
       amount: parseFloat(invoice.amount.toString()),
       amountCents: Math.round(parseFloat(invoice.amount.toString()) * 100),
       status: invoice.status,
       issuedAt: invoice.issuedAt.toISOString(),
-      dueAt: invoice.dueAt?.toISOString() || null,
-      paidAt: invoice.paidAt?.toISOString() || null,
-      stripeInvoiceId: invoice.stripeInvoiceId,
-      createdAt: invoice.createdAt.toISOString(),
-      updatedAt: invoice.updatedAt.toISOString(),
       lineItems,
     };
 

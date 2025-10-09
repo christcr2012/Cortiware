@@ -3,13 +3,14 @@ import { updateRateLimitConfig } from '@/services/provider/api-usage.service';
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { tenantId: string } }
+  { params }: { params: Promise<{ tenantId: string }> }
 ) {
   try {
+    const { tenantId } = await params;
     const body = await req.json();
     const { requestsPerMinute, requestsPerHour, requestsPerDay, burstLimit } = body;
 
-    await updateRateLimitConfig(params.tenantId, {
+    await updateRateLimitConfig(tenantId, {
       requestsPerMinute,
       requestsPerHour,
       requestsPerDay,

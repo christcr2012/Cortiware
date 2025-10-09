@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth, withAudit } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withAuditLog } from '@/lib/api/middleware';
 
 const postHandler = async (req: NextRequest) => {
   try {
@@ -54,11 +54,5 @@ const postHandler = async (req: NextRequest) => {
   }
 };
 
-export const POST = compose(withProviderAuth())(
-  withAudit(postHandler, {
-    action: 'update',
-    entityType: 'billing_info',
-    actorType: 'provider',
-  })
-);
+export const POST = compose(withProviderAuth(), withAuditLog())(postHandler);
 

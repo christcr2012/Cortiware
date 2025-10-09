@@ -43,9 +43,6 @@ const getHandler = async (req: NextRequest) => {
       amountCents: Math.round(parseFloat(inv.amount.toString()) * 100),
       status: inv.status,
       issuedAt: inv.issuedAt.toISOString(),
-      dueAt: inv.dueAt?.toISOString() || null,
-      paidAt: inv.paidAt?.toISOString() || null,
-      createdAt: inv.createdAt.toISOString(),
     }));
 
     return jsonOk({

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth, withAudit } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withAuditLog } from '@/lib/api/middleware';
 
 const patchHandler = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
@@ -60,19 +60,7 @@ const deleteHandler = async (req: NextRequest, { params }: { params: Promise<{ i
   }
 };
 
-export const PATCH = compose(withProviderAuth())(
-  withAudit(patchHandler, {
-    action: 'update',
-    entityType: 'provider_integration',
-    actorType: 'provider',
-  })
-);
+export const PATCH = compose(withProviderAuth(), withAuditLog())(patchHandler);
 
-export const DELETE = compose(withProviderAuth())(
-  withAudit(deleteHandler, {
-    action: 'delete',
-    entityType: 'provider_integration',
-    actorType: 'provider',
-  })
-);
+export const DELETE = compose(withProviderAuth(), withAuditLog())(deleteHandler);
 
