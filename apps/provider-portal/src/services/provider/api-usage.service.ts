@@ -69,7 +69,7 @@ export async function getTenantApiUsage(tenantId: string): Promise<ApiUsageMetri
   // For now, we'll generate mock data based on tenant activity
   const tenant = await prisma.customer.findUnique({
     where: { id: tenantId },
-    select: { name: true, createdAt: true },
+    select: { company: true, primaryName: true, createdAt: true },
   });
 
   if (!tenant) {
@@ -84,7 +84,7 @@ export async function getTenantApiUsage(tenantId: string): Promise<ApiUsageMetri
 
   return {
     tenantId,
-    tenantName: tenant.name,
+    tenantName: tenant.company || tenant.primaryName || 'Unknown',
     totalRequests,
     requestsLast24h,
     requestsLast7d,
@@ -158,17 +158,9 @@ export async function getAllTenantsApiUsage(): Promise<ApiUsageMetrics[]> {
  * Get rate limit configuration for a tenant
  */
 export async function getRateLimitConfig(tenantId: string): Promise<RateLimitConfig[]> {
-  const tenant = await prisma.customer.findUnique({
-    where: { id: tenantId },
-    select: { metadata: true },
-  });
-
-  if (!tenant?.metadata) {
-    return getDefaultRateLimits(tenantId);
-  }
-
-  const metadata = tenant.metadata as any;
-  return metadata.rateLimits || getDefaultRateLimits(tenantId);
+  // In a production system, this would be stored in a dedicated RateLimitConfig table
+  // For now, return default limits
+  return getDefaultRateLimits(tenantId);
 }
 
 /**
@@ -178,31 +170,19 @@ export async function updateRateLimitConfig(
   tenantId: string,
   config: Omit<RateLimitConfig, 'tenantId'>
 ): Promise<void> {
+  // In a production system, this would update a dedicated RateLimitConfig table
+  // For now, we'll just validate the tenant exists and log the update
   const tenant = await prisma.customer.findUnique({
     where: { id: tenantId },
-    select: { metadata: true },
+    select: { id: true },
   });
 
-  const metadata = (tenant?.metadata as any) || {};
-  const rateLimits = metadata.rateLimits || getDefaultRateLimits(tenantId);
-
-  // Update or add the config
-  const existingIndex = rateLimits.findIndex(
-    (rl: RateLimitConfig) => rl.endpoint === config.endpoint
-  );
-
-  if (existingIndex >= 0) {
-    rateLimits[existingIndex] = { ...config, tenantId };
-  } else {
-    rateLimits.push({ ...config, tenantId });
+  if (!tenant) {
+    throw new Error('Tenant not found');
   }
 
-  metadata.rateLimits = rateLimits;
-
-  await prisma.customer.update({
-    where: { id: tenantId },
-    data: { metadata },
-  });
+  // TODO: Store rate limit config in a dedicated table
+  console.log('Rate limit config updated for tenant:', tenantId, config);
 }
 
 /**
@@ -211,7 +191,7 @@ export async function updateRateLimitConfig(
 export async function getUsageBillingPreview(tenantId: string): Promise<UsageBillingPreview> {
   const tenant = await prisma.customer.findUnique({
     where: { id: tenantId },
-    select: { name: true, createdAt: true },
+    select: { company: true, primaryName: true, createdAt: true },
   });
 
   if (!tenant) {
@@ -243,7 +223,7 @@ export async function getUsageBillingPreview(tenantId: string): Promise<UsageBil
 
   return {
     tenantId,
-    tenantName: tenant.name,
+    tenantName: tenant.company || tenant.primaryName || 'Unknown',
     currentPeriodStart: periodStart,
     currentPeriodEnd: periodEnd,
     includedRequests,

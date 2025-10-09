@@ -312,11 +312,149 @@ export default function ApiUsageClient({ initialUsage, globalMetrics }: Props) {
         </div>
 
         <div className="overflow-x-auto">
-          <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            Tenant list will be displayed here - continuing in next iteration
-          </p>
+          <table className="w-full">
+            <thead>
+              <tr style={{ borderBottom: '2px solid var(--border-primary)' }}>
+                <th className="text-left p-3" style={{ color: 'var(--text-secondary)' }}>Tenant</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Last 30d</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Last 24h</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Error Rate</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Avg Response</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Rate Limit</th>
+                <th className="text-right p-3" style={{ color: 'var(--text-secondary)' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsage.map((tenant) => {
+                const percentUsed = (tenant.rateLimitStatus.current / tenant.rateLimitStatus.limit) * 100;
+                const limitColor = percentUsed >= 90 ? '#ef4444' : percentUsed >= 80 ? '#f59e0b' : '#10b981';
+
+                return (
+                  <tr key={tenant.tenantId} style={{ borderBottom: '1px solid var(--border-primary)' }}>
+                    <td className="p-3">
+                      <div className="font-medium" style={{ color: 'var(--text-primary)' }}>
+                        {tenant.tenantName}
+                      </div>
+                      <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
+                        {tenant.tenantId}
+                      </div>
+                    </td>
+                    <td className="text-right p-3" style={{ color: 'var(--text-primary)' }}>
+                      {tenant.requestsLast30d.toLocaleString()}
+                    </td>
+                    <td className="text-right p-3" style={{ color: 'var(--text-primary)' }}>
+                      {tenant.requestsLast24h.toLocaleString()}
+                    </td>
+                    <td className="text-right p-3">
+                      <span style={{ color: tenant.errorRate > 5 ? '#ef4444' : '#10b981' }}>
+                        {tenant.errorRate.toFixed(2)}%
+                      </span>
+                    </td>
+                    <td className="text-right p-3" style={{ color: 'var(--text-primary)' }}>
+                      {tenant.avgResponseTime}ms
+                    </td>
+                    <td className="text-right p-3">
+                      <span style={{ color: limitColor, fontWeight: 'bold' }}>
+                        {percentUsed.toFixed(1)}%
+                      </span>
+                    </td>
+                    <td className="text-right p-3">
+                      <button
+                        onClick={() => {
+                          setSelectedTenant(tenant);
+                          setShowRateLimitModal(true);
+                        }}
+                        className="btn-secondary text-sm"
+                      >
+                        Configure
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
+
+      {/* Rate Limit Configuration Modal */}
+      {showRateLimitModal && selectedTenant && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ background: 'rgba(0, 0, 0, 0.5)' }}
+          onClick={() => setShowRateLimitModal(false)}
+        >
+          <div
+            className="premium-card max-w-2xl w-full m-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Configure Rate Limits - {selectedTenant.tenantName}
+            </h3>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    Requests per Minute
+                  </label>
+                  <input
+                    type="number"
+                    value={rateLimitConfig.requestsPerMinute}
+                    onChange={(e) => setRateLimitConfig({ ...rateLimitConfig, requestsPerMinute: parseInt(e.target.value) })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    Requests per Hour
+                  </label>
+                  <input
+                    type="number"
+                    value={rateLimitConfig.requestsPerHour}
+                    onChange={(e) => setRateLimitConfig({ ...rateLimitConfig, requestsPerHour: parseInt(e.target.value) })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    Requests per Day
+                  </label>
+                  <input
+                    type="number"
+                    value={rateLimitConfig.requestsPerDay}
+                    onChange={(e) => setRateLimitConfig({ ...rateLimitConfig, requestsPerDay: parseInt(e.target.value) })}
+                    className="input-field w-full"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
+                    Burst Limit
+                  </label>
+                  <input
+                    type="number"
+                    value={rateLimitConfig.burstLimit}
+                    onChange={(e) => setRateLimitConfig({ ...rateLimitConfig, burstLimit: parseInt(e.target.value) })}
+                    className="input-field w-full"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button onClick={handleUpdateRateLimit} className="btn-primary flex-1">
+                  Update Rate Limits
+                </button>
+                <button
+                  onClick={() => setShowRateLimitModal(false)}
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

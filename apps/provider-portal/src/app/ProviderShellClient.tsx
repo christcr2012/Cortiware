@@ -78,6 +78,9 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/tenant-health" active={active('/provider/tenant-health')}>
             Tenant Health
           </ProviderNavLink>
+          <ProviderNavLink href="/provider/api-usage" active={active('/provider/api-usage')}>
+            API Usage
+          </ProviderNavLink>
 
           <div
             className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"
