@@ -8,7 +8,18 @@ import { NextResponse } from 'next/server';
 import type { ApiResponse, ErrorResponse, SuccessResponse } from '@/lib/types/common.types';
 
 /**
- * Create success response
+ * Create a standardized success response
+ *
+ * @template T - The type of data being returned
+ * @param data - The response data
+ * @param message - Optional success message
+ * @param status - HTTP status code (default: 200)
+ * @returns NextResponse with standardized success format
+ *
+ * @example
+ * ```ts
+ * return createSuccessResponse({ users: [...] }, 'Users retrieved successfully');
+ * ```
  */
 export function createSuccessResponse<T>(
   data: T,
@@ -26,7 +37,18 @@ export function createSuccessResponse<T>(
 }
 
 /**
- * Create error response
+ * Create a standardized error response
+ *
+ * @param error - Error message
+ * @param status - HTTP status code (default: 500)
+ * @param code - Optional error code for client-side handling
+ * @param details - Optional additional error details
+ * @returns NextResponse with standardized error format
+ *
+ * @example
+ * ```ts
+ * return createErrorResponse('User not found', 404, 'USER_NOT_FOUND');
+ * ```
  */
 export function createErrorResponse(
   error: string,
