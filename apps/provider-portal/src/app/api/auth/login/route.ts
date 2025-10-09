@@ -8,6 +8,50 @@ import {
   type DeveloperAuthConfig,
 } from '@cortiware/auth-service';
 
+// In-memory rate limiting (in production, use Redis)
+const loginAttempts = new Map<string, { count: number; lockedUntil?: number }>();
+
+function checkRateLimit(email: string): { allowed: boolean; lockedUntil?: number } {
+  const now = Date.now();
+  const attempts = loginAttempts.get(email);
+
+  if (!attempts) {
+    return { allowed: true };
+  }
+
+  // Check if account is locked
+  if (attempts.lockedUntil && attempts.lockedUntil > now) {
+    return { allowed: false, lockedUntil: attempts.lockedUntil };
+  }
+
+  // Reset if lock expired
+  if (attempts.lockedUntil && attempts.lockedUntil <= now) {
+    loginAttempts.delete(email);
+    return { allowed: true };
+  }
+
+  // Allow if under limit
+  return { allowed: attempts.count < 5 };
+}
+
+function recordFailedAttempt(email: string) {
+  const now = Date.now();
+  const attempts = loginAttempts.get(email) || { count: 0 };
+
+  attempts.count += 1;
+
+  // Lock account after 5 failed attempts for 15 minutes
+  if (attempts.count >= 5) {
+    attempts.lockedUntil = now + 15 * 60 * 1000; // 15 minutes
+  }
+
+  loginAttempts.set(email, attempts);
+}
+
+function clearAttempts(email: string) {
+  loginAttempts.delete(email);
+}
+
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
   const contentType = req.headers.get('content-type') || '';
@@ -37,6 +81,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=missing', url), 303);
   }
 
+  // Check rate limit
+  const rateLimitCheck = checkRateLimit(email);
+  if (!rateLimitCheck.allowed) {
+    console.log(`🔒 Account locked: ${email} (until ${new Date(rateLimitCheck.lockedUntil!).toISOString()})`);
+    return NextResponse.redirect(new URL('/login?error=locked&locked=true', url), 303);
+  }
+
   const authInput: AuthInput = {
     email,
     password,
@@ -63,6 +114,7 @@ export async function POST(req: NextRequest) {
   const providerResult = await authenticateProvider(authInput, providerConfig);
   if (providerResult.success) {
     console.log(`✅ Provider login: ${email}`);
+    clearAttempts(email); // Clear failed attempts on success
     const res = NextResponse.redirect(new URL('/provider', url), 303);
     const cookieHeader = buildCookieHeader({
       name: 'rs_provider',
@@ -76,6 +128,7 @@ export async function POST(req: NextRequest) {
   const developerResult = await authenticateDeveloper(authInput, developerConfig);
   if (developerResult.success) {
     console.log(`✅ Developer login: ${email}`);
+    clearAttempts(email); // Clear failed attempts on success
     const res = NextResponse.redirect(new URL('/provider', url), 303);
     const cookieHeader = buildCookieHeader({
       name: 'rs_developer',
@@ -90,8 +143,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/login?totp=required', url), 303);
   }
 
-  // Authentication failed
-  console.log(`❌ Login failed: ${email}`);
+  // Authentication failed - record attempt
+  recordFailedAttempt(email);
+  const attempts = loginAttempts.get(email);
+  console.log(`❌ Login failed: ${email} (${attempts?.count || 0}/5 attempts)`);
+
   return NextResponse.redirect(new URL('/login?error=invalid', url), 303);
 }
 
