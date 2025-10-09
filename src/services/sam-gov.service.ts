@@ -74,12 +74,20 @@ export interface SamGovSearchParams {
   pscCodes?: string[]; // Product Service Codes
   postedFrom?: string; // YYYY-MM-DD
   postedTo?: string; // YYYY-MM-DD
+  responseDeadlineFrom?: string; // YYYY-MM-DD
+  responseDeadlineTo?: string; // YYYY-MM-DD
   state?: string; // Two-letter state code
   city?: string;
   zipCode?: string;
   radius?: number; // Miles from zipCode
   setAsideTypes?: string[]; // SBA, 8AN, HZC, WOSB, VO, etc.
+  noticeTypes?: string[]; // Solicitation, Award, Sources Sought, etc.
+  organizationType?: string; // OFFICE, SUBTIER, DEPT
+  active?: boolean; // true = active only, false = archived only, undefined = all
+  minContractValue?: number;
+  maxContractValue?: number;
   limit?: number;
+  offset?: number;
 }
 
 export interface SamGovSearchResult {
@@ -151,6 +159,14 @@ export async function searchSamGovOpportunities(
     url.searchParams.set('postedTo', params.postedTo);
   }
 
+  if (params.responseDeadlineFrom) {
+    url.searchParams.set('responseDeadlineFrom', params.responseDeadlineFrom);
+  }
+
+  if (params.responseDeadlineTo) {
+    url.searchParams.set('responseDeadlineTo', params.responseDeadlineTo);
+  }
+
   if (params.state) {
     url.searchParams.set('state', params.state);
   }
@@ -170,7 +186,23 @@ export async function searchSamGovOpportunities(
     url.searchParams.set('typeOfSetAside', params.setAsideTypes.join(','));
   }
 
+  if (params.noticeTypes && params.noticeTypes.length > 0) {
+    url.searchParams.set('noticeType', params.noticeTypes.join(','));
+  }
+
+  if (params.organizationType) {
+    url.searchParams.set('organizationType', params.organizationType);
+  }
+
+  if (params.active !== undefined) {
+    url.searchParams.set('active', params.active ? 'true' : 'false');
+  }
+
   url.searchParams.set('limit', (params.limit || 50).toString());
+
+  if (params.offset) {
+    url.searchParams.set('offset', params.offset.toString());
+  }
 
   try {
     const response = await fetch(url.toString());
@@ -285,5 +317,199 @@ export async function getTenantDefaultNaicsCodes(orgId: string): Promise<string[
 
   const metadata = org.metadata as any;
   return metadata?.samGovNaicsCodes || [];
+}
+
+/**
+ * NAICS Code descriptions
+ */
+export const NAICS_DESCRIPTIONS: Record<string, string> = {
+  '238160': 'Roofing Contractors',
+  '238220': 'Plumbing, Heating, and Air-Conditioning Contractors',
+  '561720': 'Janitorial Services',
+  '561740': 'Carpet and Upholstery Cleaning Services',
+  '561790': 'Other Services to Buildings and Dwellings',
+  '236220': 'Commercial and Institutional Building Construction',
+  '238': 'Specialty Trade Contractors',
+  '561730': 'Landscaping Services',
+  '238320': 'Painting and Wall Covering Contractors',
+  '238210': 'Electrical Contractors and Other Wiring Installation Contractors',
+};
+
+/**
+ * Common PSC (Product Service Codes)
+ */
+export const COMMON_PSC_CODES: Record<string, string> = {
+  'S201': 'Housekeeping- Custodial Janitorial',
+  'S214': 'Housekeeping- Landscaping/Groundskeeping',
+  'S299': 'Housekeeping- Other',
+  'Y1AA': 'Construction of Structures and Facilities',
+  'Z1DA': 'Maintenance of Real Property',
+  'Z2AA': 'Utilities and Housekeeping Services',
+};
+
+/**
+ * Set-Aside Types
+ */
+export const SET_ASIDE_TYPES: Record<string, string> = {
+  'SBA': 'Small Business Set-Aside',
+  '8AN': '8(a) Set-Aside',
+  'HZC': 'HUBZone Set-Aside',
+  'WOSB': 'Women-Owned Small Business',
+  'EDWOSB': 'Economically Disadvantaged WOSB',
+  'SDVOSB': 'Service-Disabled Veteran-Owned Small Business',
+  'VSA': 'Veteran-Owned Small Business',
+};
+
+/**
+ * Notice Types
+ */
+export const NOTICE_TYPES: Record<string, string> = {
+  'Solicitation': 'Solicitation',
+  'Presolicitation': 'Presolicitation',
+  'Combined Synopsis/Solicitation': 'Combined Synopsis/Solicitation',
+  'Award Notice': 'Award Notice',
+  'Sources Sought': 'Sources Sought',
+  'Special Notice': 'Special Notice',
+  'Sale of Surplus Property': 'Sale of Surplus Property',
+};
+
+/**
+ * Saved Search interface
+ */
+export interface SavedSearch {
+  id: string;
+  name: string;
+  searchParams: SamGovSearchParams;
+  createdAt: Date;
+  lastRun?: Date;
+  alertEnabled: boolean;
+  alertFrequency?: 'daily' | 'weekly';
+}
+
+/**
+ * Save a search template
+ */
+export async function saveSamGovSearch(
+  orgId: string,
+  name: string,
+  searchParams: SamGovSearchParams,
+  alertEnabled: boolean = false,
+  alertFrequency?: 'daily' | 'weekly'
+): Promise<SavedSearch> {
+  const org = await prisma.customer.findUnique({
+    where: { id: orgId },
+    select: { metadata: true },
+  });
+
+  const metadata = (org?.metadata as any) || {};
+  const savedSearches = metadata.samGovSavedSearches || [];
+
+  const newSearch: SavedSearch = {
+    id: `search_${Date.now()}`,
+    name,
+    searchParams,
+    createdAt: new Date(),
+    alertEnabled,
+    alertFrequency,
+  };
+
+  savedSearches.push(newSearch);
+  metadata.samGovSavedSearches = savedSearches;
+
+  await prisma.customer.update({
+    where: { id: orgId },
+    data: { metadata },
+  });
+
+  return newSearch;
+}
+
+/**
+ * Get saved searches for a tenant
+ */
+export async function getSavedSearches(orgId: string): Promise<SavedSearch[]> {
+  const org = await prisma.customer.findUnique({
+    where: { id: orgId },
+    select: { metadata: true },
+  });
+
+  if (!org?.metadata) return [];
+
+  const metadata = org.metadata as any;
+  return metadata?.samGovSavedSearches || [];
+}
+
+/**
+ * Delete a saved search
+ */
+export async function deleteSavedSearch(orgId: string, searchId: string): Promise<void> {
+  const org = await prisma.customer.findUnique({
+    where: { id: orgId },
+    select: { metadata: true },
+  });
+
+  const metadata = (org?.metadata as any) || {};
+  const savedSearches = (metadata.samGovSavedSearches || []).filter(
+    (s: SavedSearch) => s.id !== searchId
+  );
+
+  metadata.samGovSavedSearches = savedSearches;
+
+  await prisma.customer.update({
+    where: { id: orgId },
+    data: { metadata },
+  });
+}
+
+/**
+ * Get SAM.gov analytics for a tenant
+ */
+export async function getSamGovAnalytics(orgId: string) {
+  // Get all SAM.gov imported leads
+  const leads = await prisma.lead.findMany({
+    where: {
+      orgId,
+      sourceType: 'RFP',
+    },
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      metadata: true,
+      state: true,
+    },
+  });
+
+  // Aggregate by NAICS
+  const byNaics: Record<string, number> = {};
+  const byState: Record<string, number> = {};
+  const byStatus: Record<string, number> = {};
+
+  for (const lead of leads) {
+    const metadata = lead.metadata as any;
+    const naics = metadata?.samGov?.naicsCode;
+    if (naics) {
+      byNaics[naics] = (byNaics[naics] || 0) + 1;
+    }
+
+    if (lead.state) {
+      byState[lead.state] = (byState[lead.state] || 0) + 1;
+    }
+
+    byStatus[lead.status] = (byStatus[lead.status] || 0) + 1;
+  }
+
+  // Calculate conversion rate
+  const converted = leads.filter(l => l.status === 'CONVERTED').length;
+  const conversionRate = leads.length > 0 ? (converted / leads.length) * 100 : 0;
+
+  return {
+    totalImported: leads.length,
+    converted,
+    conversionRate,
+    byNaics,
+    byState,
+    byStatus,
+  };
 }
 
