@@ -1,11 +1,13 @@
 /**
  * API Usage & Rate Limit Management Service
- * 
+ *
  * Provides functionality for tracking API usage, managing rate limits,
  * and generating usage-based billing insights.
  */
 
 import { prisma } from '@cortiware/db';
+import { getDaysAgo, getStartOfMonth, getEndOfMonth, getDateKey } from '@/lib/utils/date.utils';
+import { safeQuery } from '@/lib/utils/query.utils';
 
 export interface ApiUsageMetrics {
   tenantId: string;
@@ -127,13 +129,12 @@ export async function getTenantApiUsage(tenantId: string): Promise<ApiUsageMetri
       limit: 10000,
       current: requestsLast24h,
       remaining: Math.max(0, 10000 - requestsLast24h),
-      resetAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      resetAt: getDaysAgo(-1), // Tomorrow
     },
     usageByDay: Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
+      const date = getDaysAgo(29 - i);
       return {
-        date: date.toISOString().split('T')[0],
+        date: getDateKey(date),
         requests: Math.floor(Math.random() * 3000) + 500,
         errors: Math.floor(Math.random() * 50),
       };
@@ -189,10 +190,14 @@ export async function updateRateLimitConfig(
  * Get usage-based billing preview
  */
 export async function getUsageBillingPreview(tenantId: string): Promise<UsageBillingPreview> {
-  const tenant = await prisma.customer.findUnique({
-    where: { id: tenantId },
-    select: { company: true, primaryName: true, createdAt: true },
-  });
+  const tenant = await safeQuery(
+    () => prisma.customer.findUnique({
+      where: { id: tenantId },
+      select: { company: true, primaryName: true, createdAt: true },
+    }),
+    null,
+    'Failed to fetch tenant for billing preview'
+  );
 
   if (!tenant) {
     throw new Error('Tenant not found');
@@ -202,8 +207,8 @@ export async function getUsageBillingPreview(tenantId: string): Promise<UsageBil
 
   // Billing period: current month
   const now = new Date();
-  const periodStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const periodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const periodStart = getStartOfMonth(now);
+  const periodEnd = getEndOfMonth(now);
 
   // Pricing tiers (example)
   const includedRequests = 50000; // Free tier
