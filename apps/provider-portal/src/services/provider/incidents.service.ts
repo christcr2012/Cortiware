@@ -4,6 +4,7 @@
 // a dedicated incident tracking system or be stored in a separate Incident model.
 
 import { prisma } from '@/lib/prisma';
+import { safeQuery, calculatePercentage } from '@/lib/utils/query.utils';
 
 export type IncidentSummary = {
   totalOpen: number;
@@ -35,16 +36,20 @@ export type IncidentItem = {
  */
 export async function getIncidentSummary(): Promise<IncidentSummary> {
   // Placeholder: Query activities with entityType='incident'
-  const incidents = await prisma.activity.findMany({
-    where: {
-      entityType: 'incident',
-    },
-    select: {
-      action: true,
-      meta: true,
-      createdAt: true,
-    },
-  });
+  const incidents = await safeQuery(
+    () => prisma.activity.findMany({
+      where: {
+        entityType: 'incident',
+      },
+      select: {
+        action: true,
+        meta: true,
+        createdAt: true,
+      },
+    }),
+    [],
+    'Failed to fetch incident activities'
+  );
 
   let totalOpen = 0;
   let totalResolved = 0;
@@ -120,14 +125,18 @@ export async function getSlaMetrics(): Promise<{
   breachedSla: number;
   complianceRate: number;
 }> {
-  const incidents = await prisma.activity.findMany({
-    where: {
-      entityType: 'incident',
-    },
-    select: {
-      meta: true,
-    },
-  });
+  const incidents = await safeQuery(
+    () => prisma.activity.findMany({
+      where: {
+        entityType: 'incident',
+      },
+      select: {
+        meta: true,
+      },
+    }),
+    [],
+    'Failed to fetch incident SLA data'
+  );
 
   let withinSla = 0;
   let breachedSla = 0;
@@ -142,9 +151,7 @@ export async function getSlaMetrics(): Promise<{
   }
 
   const totalIncidents = withinSla + breachedSla;
-  const complianceRate = totalIncidents > 0 
-    ? Math.round((withinSla / totalIncidents) * 10000) / 100 
-    : 100;
+  const complianceRate = calculatePercentage(withinSla, totalIncidents, 2);
 
   return {
     totalIncidents,
