@@ -88,6 +88,9 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           >
             Revenue Streams
           </div>
+          <ProviderNavLink href="/provider/revenue-intelligence" active={active('/provider/revenue-intelligence')}>
+            Revenue Intelligence
+          </ProviderNavLink>
           <ProviderNavLink href="/provider/monetization" active={active('/provider/monetization')}>
             Monetization
           </ProviderNavLink>
