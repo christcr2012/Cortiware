@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import OrganizationEditForm from './edit-form';
 
 type Organization = {
   id: string;
@@ -22,6 +23,7 @@ export default function OrganizationDetailPage() {
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     fetchOrganization();
@@ -41,6 +43,26 @@ export default function OrganizationDetailPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSave(data: any) {
+    const response = await fetch(`/api/v2/organizations/${params.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotency-Key': `org-update-${params.id}-${Date.now()}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to update organization');
+    }
+
+    const updated = await response.json();
+    setOrganization(updated);
+    setEditing(false);
   }
 
   if (loading) {
@@ -129,6 +151,12 @@ export default function OrganizationDetailPage() {
 
         <div className="mt-6 pt-6 border-t border-gray-200 flex gap-4">
           <button
+            onClick={() => setEditing(true)}
+            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Edit Organization
+          </button>
+          <button
             onClick={() => router.push('/organizations')}
             className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50"
           >
@@ -136,6 +164,14 @@ export default function OrganizationDetailPage() {
           </button>
         </div>
       </div>
+
+      {editing && (
+        <OrganizationEditForm
+          organization={organization}
+          onSave={handleSave}
+          onCancel={() => setEditing(false)}
+        />
+      )}
     </div>
   );
 }

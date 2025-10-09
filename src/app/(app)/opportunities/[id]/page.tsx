@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import OpportunityEditForm from './edit-form';
 
 type Opportunity = {
   id: string;
@@ -23,6 +24,7 @@ export default function OpportunityDetailPage() {
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     fetchOpportunity();
@@ -42,6 +44,26 @@ export default function OpportunityDetailPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSave(data: any) {
+    const response = await fetch(`/api/v2/opportunities/${params.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Idempotency-Key': `opp-update-${params.id}-${Date.now()}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Failed to update opportunity');
+    }
+
+    const updated = await response.json();
+    setOpportunity(updated);
+    setEditing(false);
   }
 
   if (loading) {
@@ -120,6 +142,12 @@ export default function OpportunityDetailPage() {
 
         <div className="mt-6 pt-6 border-t border-gray-200 flex gap-4">
           <button
+            onClick={() => setEditing(true)}
+            className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Edit Opportunity
+          </button>
+          <button
             onClick={() => router.push('/opportunities')}
             className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50"
           >
@@ -127,6 +155,14 @@ export default function OpportunityDetailPage() {
           </button>
         </div>
       </div>
+
+      {editing && (
+        <OpportunityEditForm
+          opportunity={opportunity}
+          onSave={handleSave}
+          onCancel={() => setEditing(false)}
+        />
+      )}
     </div>
   );
 }

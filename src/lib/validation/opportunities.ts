@@ -31,3 +31,34 @@ export function validateOpportunityCreate(input: any): { ok: true } | { ok: fals
   return { ok: true };
 }
 
+export type OpportunityUpdateInput = Partial<Omit<OpportunityCreateInput, 'customerId'>>;
+
+export function validateOpportunityUpdate(input: any): { ok: true; data: OpportunityUpdateInput } | { ok: false; message: string } {
+  if (typeof input !== 'object' || input == null) {
+    return { ok: false, message: 'Body must be an object' };
+  }
+
+  const data: OpportunityUpdateInput = {};
+
+  if (input.estValue !== undefined) {
+    if (typeof input.estValue !== 'number' || input.estValue < 0) {
+      return { ok: false, message: 'estValue must be a non-negative number' };
+    }
+    data.estValue = input.estValue;
+  }
+
+  if (input.valueType !== undefined) {
+    data.valueType = input.valueType;
+  }
+
+  if (input.stage !== undefined) {
+    data.stage = input.stage;
+  }
+
+  if (input.notes !== undefined) {
+    data.notes = input.notes;
+  }
+
+  return { ok: true, data };
+}
+

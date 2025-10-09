@@ -25,10 +25,34 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formData, setFormData] = useState({
+    company: '',
+    contactName: '',
+    email: '',
+    phoneE164: '',
+    status: '',
+    sourceType: '',
+    notes: '',
+  });
 
   useEffect(() => {
     fetchLead();
   }, [params.id]);
+
+  useEffect(() => {
+    if (lead) {
+      setFormData({
+        company: lead.company || '',
+        contactName: lead.contactName || '',
+        email: lead.email || '',
+        phoneE164: lead.phoneE164 || '',
+        status: lead.status || '',
+        sourceType: lead.sourceType || '',
+        notes: lead.notes || '',
+      });
+    }
+  }, [lead]);
 
   async function fetchLead() {
     try {
@@ -46,6 +70,42 @@ export default function LeadDetailPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function handleSave() {
+    try {
+      setSaving(true);
+      setError(null);
+
+      const response = await fetch(`/api/v2/leads/${params.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Idempotency-Key': `lead-update-${params.id}-${Date.now()}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to update lead');
+      }
+
+      const updated = await response.json();
+      setLead(updated);
+      setEditing(false);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   }
 
   if (loading) {
@@ -168,16 +228,105 @@ export default function LeadDetailPage() {
       </div>
 
       {editing && (
-        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-          <p className="text-yellow-800">
-            <strong>Note:</strong> Edit functionality requires PUT /api/v2/leads/[id] endpoint (not yet implemented).
-          </p>
-          <button
-            onClick={() => setEditing(false)}
-            className="mt-2 text-sm text-yellow-700 underline"
-          >
-            Close
-          </button>
+        <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <h2 className="text-2xl font-bold mb-4">Edit Lead</h2>
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
+              <input
+                type="text"
+                id="company"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="contactName" className="block text-sm font-medium text-gray-700">Contact Name</label>
+              <input
+                type="text"
+                id="contactName"
+                name="contactName"
+                value={formData.contactName}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="phoneE164" className="block text-sm font-medium text-gray-700">Phone</label>
+              <input
+                type="tel"
+                id="phoneE164"
+                name="phoneE164"
+                value={formData.phoneE164}
+                onChange={handleChange}
+                placeholder="+1234567890"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-700">Status</label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              >
+                <option value="NEW">New</option>
+                <option value="CONTACTED">Contacted</option>
+                <option value="QUALIFIED">Qualified</option>
+                <option value="CONVERTED">Converted</option>
+                <option value="LOST">Lost</option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notes</label>
+              <textarea
+                id="notes"
+                name="notes"
+                value={formData.notes}
+                onChange={handleChange}
+                rows={4}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="flex-1 rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              <button
+                onClick={() => setEditing(false)}
+                disabled={saving}
+                className="flex-1 rounded-md border border-gray-300 px-4 py-2 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

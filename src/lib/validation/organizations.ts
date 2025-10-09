@@ -32,3 +32,50 @@ export function validateOrganizationCreate(input: any): { ok: true } | { ok: fal
   return { ok: true };
 }
 
+export type OrganizationUpdateInput = Partial<OrganizationCreateInput>;
+
+export function validateOrganizationUpdate(input: any): { ok: true; data: OrganizationUpdateInput } | { ok: false; message: string } {
+  if (typeof input !== 'object' || input == null) {
+    return { ok: false, message: 'Body must be an object' };
+  }
+
+  const data: OrganizationUpdateInput = {};
+
+  if (input.company !== undefined) {
+    if (typeof input.company !== 'string') {
+      return { ok: false, message: 'company must be a string' };
+    }
+    data.company = input.company;
+  }
+
+  if (input.primaryName !== undefined) {
+    if (typeof input.primaryName !== 'string') {
+      return { ok: false, message: 'primaryName must be a string' };
+    }
+    data.primaryName = input.primaryName;
+  }
+
+  if (input.primaryEmail !== undefined) {
+    if (typeof input.primaryEmail !== 'string') {
+      return { ok: false, message: 'primaryEmail must be a string' };
+    }
+    if (input.primaryEmail.length > 0 && !input.primaryEmail.includes('@')) {
+      return { ok: false, message: 'primaryEmail must be a valid email address' };
+    }
+    data.primaryEmail = input.primaryEmail;
+  }
+
+  if (input.primaryPhone !== undefined) {
+    if (typeof input.primaryPhone !== 'string') {
+      return { ok: false, message: 'primaryPhone must be a string' };
+    }
+    data.primaryPhone = input.primaryPhone;
+  }
+
+  if (input.notes !== undefined) {
+    data.notes = input.notes;
+  }
+
+  return { ok: true, data };
+}
+
