@@ -20,28 +20,54 @@ export default function LeadsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [sourceFilter, setSourceFilter] = useState('');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'company'>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     fetchLeads();
-  }, []);
+  }, [statusFilter, sourceFilter, sortBy, sortOrder]);
 
   async function fetchLeads(query?: string) {
     try {
       setLoading(true);
       setError(null);
-      
+
       const params = new URLSearchParams();
-      if (query) params.set('q', query);
+      if (query || searchQuery) params.set('q', query || searchQuery);
+      if (statusFilter) params.set('status', statusFilter);
+      if (sourceFilter) params.set('sourceType', sourceFilter);
       params.set('limit', '50');
-      
+
       const response = await fetch(`/api/v2/leads?${params}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch leads: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
-      setLeads(data.items || []);
+      let items = data.items || [];
+
+      // Client-side sorting (since API doesn't support it yet)
+      items.sort((a: Lead, b: Lead) => {
+        let aVal, bVal;
+        if (sortBy === 'createdAt') {
+          aVal = new Date(a.createdAt).getTime();
+          bVal = new Date(b.createdAt).getTime();
+        } else {
+          aVal = (a.company || a.contactName || '').toLowerCase();
+          bVal = (b.company || b.contactName || '').toLowerCase();
+        }
+
+        if (sortOrder === 'asc') {
+          return aVal > bVal ? 1 : -1;
+        } else {
+          return aVal < bVal ? 1 : -1;
+        }
+      });
+
+      setLeads(items);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -66,8 +92,8 @@ export default function LeadsPage() {
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="mb-6">
-        <div className="flex gap-2">
+      <form onSubmit={handleSearch} className="mb-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex gap-2 mb-4">
           <input
             type="text"
             value={searchQuery}
@@ -81,6 +107,77 @@ export default function LeadsPage() {
           >
             Search
           </button>
+        </div>
+
+        <div className="grid grid-cols-4 gap-4">
+          <div>
+            <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              id="statusFilter"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+            >
+              <option value="">All Statuses</option>
+              <option value="NEW">New</option>
+              <option value="CONTACTED">Contacted</option>
+              <option value="QUALIFIED">Qualified</option>
+              <option value="CONVERTED">Converted</option>
+              <option value="LOST">Lost</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="sourceFilter" className="block text-sm font-medium text-gray-700 mb-1">
+              Source
+            </label>
+            <select
+              id="sourceFilter"
+              value={sourceFilter}
+              onChange={(e) => setSourceFilter(e.target.value)}
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+            >
+              <option value="">All Sources</option>
+              <option value="WEBSITE">Website</option>
+              <option value="REFERRAL">Referral</option>
+              <option value="COLD_CALL">Cold Call</option>
+              <option value="SOCIAL_MEDIA">Social Media</option>
+              <option value="EVENT">Event</option>
+              <option value="OTHER">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700 mb-1">
+              Sort By
+            </label>
+            <select
+              id="sortBy"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'createdAt' | 'company')}
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+            >
+              <option value="createdAt">Date Created</option>
+              <option value="company">Company/Name</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="sortOrder" className="block text-sm font-medium text-gray-700 mb-1">
+              Order
+            </label>
+            <select
+              id="sortOrder"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+              className="w-full rounded-md border border-gray-300 px-3 py-2"
+            >
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+          </div>
         </div>
       </form>
 

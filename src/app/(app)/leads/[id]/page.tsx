@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import ConvertModal from './convert-modal';
 
 type Lead = {
   id: string;
@@ -26,6 +27,7 @@ export default function LeadDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showConvertModal, setShowConvertModal] = useState(false);
   const [formData, setFormData] = useState({
     company: '',
     contactName: '',
@@ -212,6 +214,14 @@ export default function LeadDetailPage() {
         )}
 
         <div className="mt-6 pt-6 border-t border-gray-200 flex gap-4">
+          {lead.status !== 'CONVERTED' && (
+            <button
+              onClick={() => setShowConvertModal(true)}
+              className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700"
+            >
+              Convert to Opportunity
+            </button>
+          )}
           <button
             onClick={() => setEditing(true)}
             className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
@@ -328,6 +338,13 @@ export default function LeadDetailPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {showConvertModal && (
+        <ConvertModal
+          leadId={params.id}
+          onClose={() => setShowConvertModal(false)}
+        />
       )}
     </div>
   );
