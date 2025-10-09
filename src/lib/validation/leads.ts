@@ -51,3 +51,59 @@ export function validateLeadCreate(input: any): { ok: true } | { ok: false; mess
   return { ok: true };
 }
 
+export type LeadUpdateInput = Partial<LeadCreateInput>;
+
+export function validateLeadUpdate(input: any): { ok: true; data: LeadUpdateInput } | { ok: false; message: string } {
+  if (typeof input !== 'object' || input == null) {
+    return { ok: false, message: 'Body must be an object' };
+  }
+
+  const data: LeadUpdateInput = {};
+
+  // All fields are optional for updates
+  if (input.company !== undefined) {
+    if (typeof input.company !== 'string') {
+      return { ok: false, message: 'company must be a string' };
+    }
+    data.company = input.company;
+  }
+
+  if (input.contactName !== undefined) {
+    if (typeof input.contactName !== 'string') {
+      return { ok: false, message: 'contactName must be a string' };
+    }
+    data.contactName = input.contactName;
+  }
+
+  if (input.email !== undefined) {
+    if (typeof input.email !== 'string') {
+      return { ok: false, message: 'email must be a string' };
+    }
+    if (input.email.length > 0 && !input.email.includes('@')) {
+      return { ok: false, message: 'email must be a valid email address' };
+    }
+    data.email = input.email;
+  }
+
+  if (input.phoneE164 !== undefined) {
+    if (typeof input.phoneE164 !== 'string') {
+      return { ok: false, message: 'phoneE164 must be a string' };
+    }
+    data.phoneE164 = input.phoneE164;
+  }
+
+  if (input.notes !== undefined) {
+    data.notes = input.notes;
+  }
+
+  if (input.sourceType !== undefined) {
+    data.sourceType = input.sourceType;
+  }
+
+  if (input.sourceDetail !== undefined) {
+    data.sourceDetail = input.sourceDetail;
+  }
+
+  return { ok: true, data };
+}
+
