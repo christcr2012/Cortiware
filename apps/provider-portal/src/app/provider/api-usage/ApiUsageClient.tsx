@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { StatCard, StatCardGrid } from '@/components/common';
 
 interface ApiUsageMetrics {
   tenantId: string;
@@ -137,47 +138,34 @@ export default function ApiUsageClient({ initialUsage, globalMetrics }: Props) {
       </div>
 
       {/* Global Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="kpi-card">
-          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Total Requests (All Time)</div>
-          <div className="text-3xl font-bold mt-2" style={{ color: 'var(--text-primary)' }}>
-            {globalMetrics.totalRequests.toLocaleString()}
-          </div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-            Across {globalMetrics.totalTenants} tenants
-          </div>
-        </div>
+      <StatCardGrid columns={4} className="mb-6">
+        <StatCard
+          title="Total Requests (All Time)"
+          value={globalMetrics.totalRequests}
+          subtitle={`Across ${globalMetrics.totalTenants} tenants`}
+        />
 
-        <div className="kpi-card">
-          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Last 24 Hours</div>
-          <div className="text-3xl font-bold mt-2" style={{ color: '#10b981' }}>
-            {globalMetrics.totalRequestsLast24h.toLocaleString()}
-          </div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-            Requests in last day
-          </div>
-        </div>
+        <StatCard
+          title="Last 24 Hours"
+          value={globalMetrics.totalRequestsLast24h}
+          valueColor="#10b981"
+          subtitle="Requests in last day"
+        />
 
-        <div className="kpi-card">
-          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Avg Error Rate</div>
-          <div className="text-3xl font-bold mt-2" style={{ color: globalMetrics.avgErrorRate > 5 ? '#ef4444' : '#f59e0b' }}>
-            {globalMetrics.avgErrorRate.toFixed(2)}%
-          </div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-            Across all endpoints
-          </div>
-        </div>
+        <StatCard
+          title="Avg Error Rate"
+          value={`${globalMetrics.avgErrorRate.toFixed(2)}%`}
+          valueColor={globalMetrics.avgErrorRate > 5 ? '#ef4444' : '#f59e0b'}
+          subtitle="Across all endpoints"
+        />
 
-        <div className="kpi-card">
-          <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Avg Response Time</div>
-          <div className="text-3xl font-bold mt-2" style={{ color: 'var(--brand-primary)' }}>
-            {Math.round(globalMetrics.avgResponseTime)}ms
-          </div>
-          <div className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>
-            Average latency
-          </div>
-        </div>
-      </div>
+        <StatCard
+          title="Avg Response Time"
+          value={`${Math.round(globalMetrics.avgResponseTime)}ms`}
+          valueColor="var(--brand-primary)"
+          subtitle="Average latency"
+        />
+      </StatCardGrid>
 
       {/* Alerts */}
       {globalMetrics.approachingLimits.length > 0 && (
