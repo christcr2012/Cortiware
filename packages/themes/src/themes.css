@@ -271,17 +271,29 @@ html, body {
   font-size: 0.875rem;
   transition: all 0.3s ease;
   width: 100%;
+  caret-color: var(--brand-primary);
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--border-accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), var(--shadow-glow);
-  background: var(--surface-2);
+  background: var(--surface-1); /* Keep same background on focus */
 }
 
 .input-field::placeholder {
   color: var(--text-muted);
+}
+
+/* Ensure autofill doesn't change background to white */
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover,
+.input-field:-webkit-autofill:focus,
+.input-field:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-1) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  caret-color: var(--brand-primary) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Premium Table */
