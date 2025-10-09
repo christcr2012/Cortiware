@@ -6,6 +6,8 @@ export default function ProviderIntegrations() {
   const [showAdd, setShowAdd] = useState(false);
   const [newProvider, setNewProvider] = useState({ name: '', url: '' });
   const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editData, setEditData] = useState({ name: '', type: '', enabled: true });
 
   useEffect(() => {
     fetchProviders();
@@ -49,14 +51,45 @@ export default function ProviderIntegrations() {
     }
   };
 
+  const handleEdit = (provider: any) => {
+    setEditingId(provider.id);
+    setEditData({
+      name: provider.name,
+      type: provider.type || 'api_key',
+      enabled: provider.enabled !== false,
+    });
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    try {
+      const res = await fetch(`/api/provider/federation/providers/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editData),
+      });
+
+      if (res.ok) {
+        setEditingId(null);
+        fetchProviders();
+      }
+    } catch (error) {
+      console.error('Error updating provider:', error);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditData({ name: '', type: '', enabled: true });
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to remove this provider integration?')) return;
-    
+
     try {
       const res = await fetch(`/api/provider/federation/providers/${id}`, {
         method: 'DELETE'
       });
-      
+
       if (res.ok) {
         fetchProviders();
       }
@@ -147,30 +180,82 @@ export default function ProviderIntegrations() {
             <tbody>
               {providers.map((provider) => (
                 <tr key={provider.id} style={{ borderBottom: '1px solid var(--border-primary)' }}>
-                  <td className="px-4 py-3" style={{ color: 'var(--text-primary)' }}>{provider.name}</td>
-                  <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{provider.url}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className="px-2 py-1 rounded text-xs font-medium"
-                      style={{
-                        background: provider.status === 'active' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-                        color: provider.status === 'active' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
-                      }}
-                    >
-                      {provider.status}
-                    </span>
+                    {editingId === provider.id ? (
+                      <input
+                        type="text"
+                        value={editData.name}
+                        onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                        className="px-2 py-1 rounded w-full"
+                        style={{ background: 'var(--input-bg)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                      />
+                    ) : (
+                      <span style={{ color: 'var(--text-primary)' }}>{provider.name}</span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{provider.url || provider.type}</td>
+                  <td className="px-4 py-3">
+                    {editingId === provider.id ? (
+                      <select
+                        value={editData.enabled ? 'active' : 'inactive'}
+                        onChange={(e) => setEditData({ ...editData, enabled: e.target.value === 'active' })}
+                        className="px-2 py-1 rounded text-xs"
+                        style={{ background: 'var(--input-bg)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    ) : (
+                      <span
+                        className="px-2 py-1 rounded text-xs font-medium"
+                        style={{
+                          background: provider.enabled ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                          color: provider.enabled ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)'
+                        }}
+                      >
+                        {provider.enabled ? 'Active' : 'Inactive'}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>
                     {new Date(provider.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => handleDelete(provider.id)}
-                      className="px-3 py-1 rounded text-sm font-medium"
-                      style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'rgb(239, 68, 68)' }}
-                    >
-                      Remove
-                    </button>
+                    {editingId === provider.id ? (
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => handleSaveEdit(provider.id)}
+                          className="px-3 py-1 rounded text-sm font-medium"
+                          style={{ background: 'var(--brand-primary)', color: 'white' }}
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={handleCancelEdit}
+                          className="px-3 py-1 rounded text-sm font-medium"
+                          style={{ background: 'var(--surface-3)', color: 'var(--text-primary)' }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 justify-end">
+                        <button
+                          onClick={() => handleEdit(provider)}
+                          className="px-3 py-1 rounded text-sm font-medium"
+                          style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'rgb(59, 130, 246)' }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(provider.id)}
+                          className="px-3 py-1 rounded text-sm font-medium"
+                          style={{ background: 'rgba(239, 68, 68, 0.1)', color: 'rgb(239, 68, 68)' }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
