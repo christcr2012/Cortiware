@@ -1,10 +1,18 @@
+import SamGovEnhanced from './SamGovEnhanced';
+
+export default function SamGovSearchPage() {
+  return <SamGovEnhanced />;
+}
+
+/*
+// OLD IMPLEMENTATION - REPLACED WITH ENHANCED VERSION
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { INDUSTRY_NAICS_CODES } from '@/services/sam-gov.service';
 
-export default function SamGovSearchPage() {
+export default function SamGovSearchPageOld() {
   const [apiKey, setApiKey] = useState('');
   const [hasApiKey, setHasApiKey] = useState(false);
   const [searchParams, setSearchParams] = useState({
@@ -376,4 +384,5 @@ export default function SamGovSearchPage() {
     </div>
   );
 }
+*/
 
