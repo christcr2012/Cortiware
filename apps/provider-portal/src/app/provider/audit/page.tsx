@@ -31,30 +31,73 @@ export default async function ProviderAuditPage(props: any) {
       {/* Filters */}
       <div className="rounded-xl p-6" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>
         <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Filters</h2>
-        <form method="get" className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Entity</label>
-            <input
-              type="text"
-              name="entity"
-              defaultValue={sp?.entity || ''}
-              placeholder="e.g., onboarding, coupon"
-              className="w-full px-3 py-2 rounded-lg"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
-            />
+        <form method="get" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Entity</label>
+              <input
+                type="text"
+                name="entity"
+                defaultValue={sp?.entity || ''}
+                placeholder="e.g., onboarding, coupon"
+                className="w-full px-3 py-2 rounded-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Org ID</label>
+              <input
+                type="text"
+                name="orgId"
+                defaultValue={sp?.orgId || ''}
+                placeholder="Filter by organization"
+                className="w-full px-3 py-2 rounded-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Action Type</label>
+              <select
+                name="action"
+                defaultValue={sp?.action || ''}
+                className="w-full px-3 py-2 rounded-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+              >
+                <option value="">All Actions</option>
+                <option value="create">Create</option>
+                <option value="update">Update</option>
+                <option value="delete">Delete</option>
+                <option value="verify">Verify</option>
+                <option value="accepted">Accepted</option>
+                <option value="failed">Failed</option>
+              </select>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Org ID</label>
-            <input
-              type="text"
-              name="orgId"
-              defaultValue={sp?.orgId || ''}
-              placeholder="Filter by organization"
-              className="w-full px-3 py-2 rounded-lg"
-              style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>Start Date</label>
+              <input
+                type="date"
+                name="startDate"
+                defaultValue={sp?.startDate || ''}
+                className="w-full px-3 py-2 rounded-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+              />
+            </div>
+            <div>
+              <label className="block text-sm mb-2" style={{ color: 'var(--text-secondary)' }}>End Date</label>
+              <input
+                type="date"
+                name="endDate"
+                defaultValue={sp?.endDate || ''}
+                className="w-full px-3 py-2 rounded-lg"
+                style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+              />
+            </div>
           </div>
-          <div className="flex items-end gap-2">
+
+          <div className="flex items-center gap-2">
             <button
               type="submit"
               className="px-4 py-2 rounded-lg"
@@ -68,6 +111,13 @@ export default async function ProviderAuditPage(props: any) {
               style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
             >
               Clear
+            </a>
+            <a
+              href={`/api/provider/audit/export?${new URLSearchParams(sp || {}).toString()}`}
+              className="px-4 py-2 rounded-lg ml-auto"
+              style={{ background: 'var(--surface-3)', border: '1px solid var(--border-accent)', color: 'var(--text-primary)' }}
+            >
+              Export CSV
             </a>
           </div>
         </form>
