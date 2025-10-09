@@ -118,13 +118,14 @@ jobs:
 
       - name: Deploy ${{ matrix.name }}
         if: steps.changed.outputs.changed == 'true'
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets[matrix.projectSecret] }}
-          vercel-args: '--prod'
-          working-directory: ${{ matrix.dir }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets[matrix.projectSecret] }}
+        run: |
+          npm install --global vercel@latest
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ matrix.dir }}
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ matrix.dir }}
 
       - name: Deployment Summary (${{ matrix.name }})
         run: |
