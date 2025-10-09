@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { compose, withProviderAuth } from '@/lib/api/middleware';
 import {
   getSecurityMetrics,
@@ -8,6 +8,7 @@ import {
   getVulnerabilityScans,
   getAccessControlReview,
 } from '@/services/provider/compliance.service';
+import { createSuccessResponse, createErrorResponse } from '@/lib/utils/api-response.utils';
 
 async function getHandler(req: NextRequest) {
   try {
@@ -17,27 +18,27 @@ async function getHandler(req: NextRequest) {
     switch (type) {
       case 'metrics':
         const metrics = await getSecurityMetrics();
-        return NextResponse.json({ ok: true, data: metrics });
+        return createSuccessResponse(metrics);
 
       case 'compliance':
         const compliance = await getComplianceStatus();
-        return NextResponse.json({ ok: true, data: compliance });
+        return createSuccessResponse(compliance);
 
       case 'retention':
         const retention = await getDataRetentionPolicies();
-        return NextResponse.json({ ok: true, data: retention });
+        return createSuccessResponse(retention);
 
       case 'encryption':
         const encryption = await getEncryptionStatus();
-        return NextResponse.json({ ok: true, data: encryption });
+        return createSuccessResponse(encryption);
 
       case 'vulnerabilities':
         const vulnerabilities = await getVulnerabilityScans();
-        return NextResponse.json({ ok: true, data: vulnerabilities });
+        return createSuccessResponse(vulnerabilities);
 
       case 'access':
         const access = await getAccessControlReview();
-        return NextResponse.json({ ok: true, data: access });
+        return createSuccessResponse(access);
 
       default:
         // Return all data
@@ -57,23 +58,20 @@ async function getHandler(req: NextRequest) {
           getAccessControlReview(),
         ]);
 
-        return NextResponse.json({
-          ok: true,
-          data: {
-            metrics: metricsData,
-            compliance: complianceData,
-            retention: retentionData,
-            encryption: encryptionData,
-            vulnerabilities: vulnerabilitiesData,
-            access: accessData,
-          },
+        return createSuccessResponse({
+          metrics: metricsData,
+          compliance: complianceData,
+          retention: retentionData,
+          encryption: encryptionData,
+          vulnerabilities: vulnerabilitiesData,
+          access: accessData,
         });
     }
-  } catch (error) {
-    console.error('Error fetching compliance data:', error);
-    return NextResponse.json(
-      { ok: false, error: 'Failed to fetch compliance data' },
-      { status: 500 }
+  } catch (error: any) {
+    console.error('[Compliance API Error]', error);
+    return createErrorResponse(
+      error.message || 'Failed to fetch compliance data',
+      500
     );
   }
 }

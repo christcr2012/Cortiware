@@ -1,11 +1,13 @@
 /**
  * Revenue Intelligence & Forecasting Service
- * 
+ *
  * Provides MRR/ARR tracking, revenue forecasting, cohort analysis,
  * expansion revenue tracking, churn impact, and LTV:CAC calculations.
  */
 
 import { prisma } from '@/lib/prisma';
+import { getStartOfMonth, getMonthKey } from '@/lib/utils/date.utils';
+import { safeQuery, calculatePercentage } from '@/lib/utils/query.utils';
 
 export interface RevenueMetrics {
   mrrCents: number;
@@ -81,15 +83,19 @@ export interface RevenueWaterfall {
  */
 export async function getRevenueMetrics(): Promise<RevenueMetrics> {
   const now = new Date();
-  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastYear = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+  const currentMonth = getStartOfMonth(now);
+  const lastMonth = getStartOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+  const lastYear = getStartOfMonth(new Date(now.getFullYear() - 1, now.getMonth(), 1));
 
   // Get active subscriptions for current MRR
-  const activeSubscriptions = await prisma.subscription.findMany({
-    where: { status: 'active' },
-    select: { priceCents: true, orgId: true },
-  });
+  const activeSubscriptions = await safeQuery(
+    () => prisma.subscription.findMany({
+      where: { status: 'active' },
+      select: { priceCents: true, orgId: true },
+    }),
+    [],
+    'Failed to fetch active subscriptions'
+  );
 
   const mrrCents = activeSubscriptions.reduce((sum, sub) => sum + sub.priceCents, 0);
   const arrCents = mrrCents * 12;

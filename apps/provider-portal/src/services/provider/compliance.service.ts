@@ -1,4 +1,6 @@
 import { prisma } from '@cortiware/db';
+import { getDaysAgo, getHoursAgo } from '@/lib/utils/date.utils';
+import { safeQuery } from '@/lib/utils/query.utils';
 
 /**
  * Compliance & Security Service
@@ -59,68 +61,91 @@ export interface AccessControlReview {
  * Get security metrics dashboard data
  */
 export async function getSecurityMetrics(): Promise<SecurityMetrics> {
-  const now = new Date();
-  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const yesterday = getDaysAgo(1);
 
   // Get total audit events
-  const totalAuditEvents = await prisma.auditEvent.count();
+  const totalAuditEvents = await safeQuery(
+    () => prisma.auditEvent.count(),
+    0,
+    'Failed to count total audit events'
+  );
 
   // Get recent events (last 24h)
-  const recentEvents24h = await prisma.auditEvent.count({
-    where: {
-      createdAt: {
-        gte: yesterday,
+  const recentEvents24h = await safeQuery(
+    () => prisma.auditEvent.count({
+      where: {
+        createdAt: {
+          gte: yesterday,
+        },
       },
-    },
-  });
+    }),
+    0,
+    'Failed to count recent audit events'
+  );
 
   // Get failed login attempts (simulated - would need actual login tracking)
-  const failedLogins = await prisma.auditEvent.count({
-    where: {
-      action: 'login_failed',
-      createdAt: {
-        gte: yesterday,
+  const failedLogins = await safeQuery(
+    () => prisma.auditEvent.count({
+      where: {
+        action: 'login_failed',
+        createdAt: {
+          gte: yesterday,
+        },
       },
-    },
-  });
+    }),
+    0,
+    'Failed to count failed logins'
+  );
 
   // Get suspicious activity (multiple failed attempts, unusual access patterns)
-  const suspiciousActivity = await prisma.auditEvent.count({
-    where: {
-      metadata: {
-        path: ['suspicious'],
-        equals: true,
+  const suspiciousActivity = await safeQuery(
+    () => prisma.auditEvent.count({
+      where: {
+        metadata: {
+          path: ['suspicious'],
+          equals: true,
+        },
+        createdAt: {
+          gte: yesterday,
+        },
       },
-      createdAt: {
-        gte: yesterday,
-      },
-    },
-  });
+    }),
+    0,
+    'Failed to count suspicious activity'
+  );
 
   // Get data access events
-  const dataAccessEvents = await prisma.auditEvent.count({
-    where: {
-      action: 'access',
-      createdAt: {
-        gte: yesterday,
+  const dataAccessEvents = await safeQuery(
+    () => prisma.auditEvent.count({
+      where: {
+        action: 'access',
+        createdAt: {
+          gte: yesterday,
+        },
       },
-    },
-  });
+    }),
+    0,
+    'Failed to count data access events'
+  );
 
   // Get configuration changes
-  const configChanges = await prisma.auditEvent.count({
-    where: {
-      entityType: {
-        in: ['oidc_config', 'federation_key', 'global_config'],
+  const configChanges = await safeQuery(
+    () => prisma.auditEvent.count({
+      where: {
+        entityType: {
+          in: ['oidc_config', 'federation_key', 'global_config'],
+        },
+        action: {
+          in: ['create', 'update', 'delete'],
+        },
+        createdAt: {
+          gte: yesterday,
+        },
       },
-      action: {
-        in: ['create', 'update', 'delete'],
-      },
-      createdAt: {
-        gte: yesterday,
-      },
-    },
-  });
+    }),
+    0,
+    'Failed to count configuration changes'
+  );
 
   return {
     totalAuditEvents,
