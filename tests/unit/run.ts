@@ -52,8 +52,16 @@ async function main() {
   }
   console.log(`[SUMMARY] total: ${totals.passed}/${totals.total} passed`);
 
-  if (totals.failed > 0) process.exit(1);
+  if (totals.failed > 0) {
+    process.exit(1);
+  } else {
+    // Force exit even if event loop has pending tasks
+    process.exit(0);
+  }
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 

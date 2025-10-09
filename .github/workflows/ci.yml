@@ -41,7 +41,8 @@ jobs:
           SKIP_ENV_VALIDATION: true
 
       - name: Unit Tests
-        run: npm run test:unit
+        run: timeout 5m npm run test:unit || (echo "Tests timed out after 5 minutes" && exit 1)
+        timeout-minutes: 6
 
   # ============================================================================
   # CONTRACT VALIDATION - Run only on PRs
