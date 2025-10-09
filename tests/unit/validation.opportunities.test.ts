@@ -8,20 +8,14 @@ export async function run() {
     if (cond) passed++; else { failed++; console.error(`[FAIL] ${name}: ${msg}`); }
   }
 
-  // ok case
-  assert(validateOpportunityCreate({ name: 'Deal A', stage: 'prospect', amount: 1000, closeDate: '2025-01-01' }).ok === true, 'valid opp should pass');
+  // ok case - customerId is required
+  assert(validateOpportunityCreate({ customerId: 'cust_123', estValue: 1000 }).ok === true, 'valid opp should pass');
 
-  // missing name
-  assert(validateOpportunityCreate({}).ok === false, 'missing name should fail');
+  // missing customerId
+  assert(validateOpportunityCreate({}).ok === false, 'missing customerId should fail');
 
-  // invalid stage
-  assert(validateOpportunityCreate({ name: 'x', stage: 'foo' as any }).ok === false, 'invalid stage should fail');
-
-  // negative amount
-  assert(validateOpportunityCreate({ name: 'x', amount: -1 }).ok === false, 'negative amount should fail');
-
-  // invalid date
-  assert(validateOpportunityCreate({ name: 'x', closeDate: 'not-a-date' }).ok === false, 'invalid closeDate should fail');
+  // negative estValue
+  assert(validateOpportunityCreate({ customerId: 'cust_123', estValue: -1 }).ok === false, 'negative estValue should fail');
 
   return { name, passed, failed, total };
 }

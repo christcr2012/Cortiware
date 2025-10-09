@@ -1,4 +1,4 @@
-import { validateOrganizationUpsert } from '@/lib/validation/organizations';
+import { validateOrganizationCreate } from '@/lib/validation/organizations';
 
 export async function run() {
   const name = 'validation.organizations';
@@ -8,14 +8,17 @@ export async function run() {
     if (cond) passed++; else { failed++; console.error(`[FAIL] ${name}: ${msg}`); }
   }
 
-  // ok case
-  assert(validateOrganizationUpsert({ name: 'Acme', domain: 'acme.com' }).ok === true, 'valid org should pass');
+  // ok case - company provided
+  assert(validateOrganizationCreate({ company: 'Acme Corp' }).ok === true, 'valid org with company should pass');
 
-  // missing name
-  assert(validateOrganizationUpsert({}).ok === false, 'missing name should fail');
+  // ok case - primaryName provided
+  assert(validateOrganizationCreate({ primaryName: 'John Doe' }).ok === true, 'valid org with primaryName should pass');
 
-  // domain must be string
-  assert(validateOrganizationUpsert({ name: 'A', domain: 123 as any }).ok === false, 'domain number should fail');
+  // missing both company and primaryName
+  assert(validateOrganizationCreate({}).ok === false, 'missing company and primaryName should fail');
+
+  // primaryEmail must be valid
+  assert(validateOrganizationCreate({ company: 'A', primaryEmail: 'notanemail' }).ok === false, 'invalid email should fail');
 
   return { name, passed, failed, total };
 }
