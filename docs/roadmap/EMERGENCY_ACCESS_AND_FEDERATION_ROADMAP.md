@@ -86,6 +86,33 @@ Status: NOT_STARTED
    - Provide clear 403/redirect UX and audit the violation
    - Output: middleware file, config, and tests
 
+
+7) Address xlsx high severity advisory (NOT_STARTED)
+   - Track GHSA-4r6h-8v6p-xvw6 (Prototype Pollution) and GHSA-5pgg-2g8v-p4x9 (ReDoS)
+   - Evaluate replacement libraries or constrained parsing (limit features, sandbox parsing)
+   - Pin to patched version when available; add unit tests around Excel parsing paths
+   - Document risk, temporary mitigations, and acceptance criteria
+
+8) Gate GitHub Actions on Vercel deployment completion (NOT_STARTED)
+   - Extend CI to wait on Vercel deployments for changed apps; fail workflow if deployment != READY
+   - Use vercel/action or REST polling; attach Inspector URLs as workflow artifacts
+   - Scope to Dev/Preview by default; Production deploys remain approval-gated
+
+9) Turborepo env allowlist for platform variables (NOT_STARTED)
+   - Add Vercel environment variable names to turbo.json env allowlists for relevant packages to silence warnings and ensure availability
+   - Candidates include: PROVIDER_BREAKGLASS_EMAIL, PROVIDER_BREAKGLASS_PASSWORD, DEVELOPER_BREAKGLASS_EMAIL, DEVELOPER_BREAKGLASS_PASSWORD, KV_REDIS_URL, CRON_SECRET, NEON_API_KEY, NEON_PROJECT_ID, NEON_API_BASE, AUTH_TICKET_HMAC_SECRET
+   - Verify builds locally and in CI
+
+10) Husky v10 readiness (NOT_STARTED)
+   - Update .husky/pre-commit to remove sourcing of _/husky.sh; follow Husky v10 migration guidance
+   - Keep prepare script robust in CI/production (no-op if Husky not installed)
+   - Validate local hook + CI behavior and document changes
+
+11) Post-deploy smoke checks against deployment URLs (NOT_STARTED)
+   - After Vercel marks deployment READY, hit key routes (/, /login, /provider/*, /emergency/provider, /emergency/tenants)
+   - Assert 200/redirect patterns and capture response headers; attach logs to workflow
+   - Non-blocking for Production emergency flows (Prod emergency remains disabled)
+
 ---
 
 ### Category: Testing (NOT_STARTED)
