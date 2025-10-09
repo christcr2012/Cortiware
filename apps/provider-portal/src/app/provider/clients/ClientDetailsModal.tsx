@@ -12,6 +12,8 @@ export default function ClientDetailsModal({ clientId, onClose, onRefresh }: Cli
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     fetchClientDetails();
@@ -50,6 +52,32 @@ export default function ClientDetailsModal({ clientId, onClose, onRefresh }: Cli
       console.error('Error saving client:', error);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/provider/clients/${clientId}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        onRefresh();
+        onClose();
+      } else {
+        alert('Failed to delete client');
+      }
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      alert('Error deleting client');
+    } finally {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -237,7 +265,7 @@ export default function ClientDetailsModal({ clientId, onClose, onRefresh }: Cli
         </div>
 
         {/* Billing */}
-        <div>
+        <div className="mb-6">
           <h3 className="text-lg font-semibold mb-3" style={{ color: 'var(--text-primary)' }}>Billing</h3>
           <div className="rounded-lg p-4" style={{ background: 'var(--input-bg)', border: '1px solid var(--border-primary)' }}>
             <div className="text-sm font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>Total Revenue</div>
@@ -245,6 +273,43 @@ export default function ClientDetailsModal({ clientId, onClose, onRefresh }: Cli
               ${client.billing.totalRevenue.toFixed(2)}
             </div>
           </div>
+        </div>
+
+        {/* Danger Zone */}
+        <div className="pt-6" style={{ borderTop: '1px solid var(--border-primary)' }}>
+          <h3 className="text-lg font-semibold mb-3" style={{ color: 'var(--accent-error)' }}>Danger Zone</h3>
+          {showDeleteConfirm ? (
+            <div className="rounded-lg p-4" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--accent-error)' }}>
+              <p className="mb-4" style={{ color: 'var(--text-primary)' }}>
+                Are you sure you want to delete this client? This action cannot be undone.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="px-4 py-2 rounded font-medium"
+                  style={{ background: 'var(--accent-error)', color: 'white' }}
+                >
+                  {deleting ? 'Deleting...' : 'Yes, Delete Client'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 rounded font-medium"
+                  style={{ background: 'var(--input-bg)', color: 'var(--text-primary)' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 rounded font-medium"
+              style={{ background: 'var(--accent-error)', color: 'white' }}
+            >
+              Delete Client
+            </button>
+          )}
         </div>
       </div>
     </div>

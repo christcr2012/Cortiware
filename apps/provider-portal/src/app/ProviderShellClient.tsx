@@ -94,6 +94,9 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           <ProviderNavLink href="/provider/billing" active={active('/provider/billing')}>
             Billing & Revenue
           </ProviderNavLink>
+          <ProviderNavLink href="/provider/invoices" active={active('/provider/invoices')}>
+            Invoices
+          </ProviderNavLink>
 
           <div
             className="px-4 mt-6 mb-2 text-xs font-semibold uppercase tracking-wider"

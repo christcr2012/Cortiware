@@ -3,14 +3,24 @@ import { redirect } from 'next/navigation';
 import MonetizationClient from './MonetizationClient';
 
 async function fetchJSON(path: string) {
-  // Use absolute URL for server-side fetching in development
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
-                  (process.env.NODE_ENV === 'development' ? 'http://localhost:5000' : '');
-  const url = baseUrl ? `${baseUrl}${path}` : path;
+  // Server-side fetch - use absolute URL in development, relative in production
+  const baseUrl = process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
 
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) return null;
-  return res.json();
+  const url = `${baseUrl}${path}`;
+
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) {
+      console.error(`[Monetization] Failed to fetch ${path}:`, res.status, res.statusText);
+      return null;
+    }
+    return res.json();
+  } catch (error) {
+    console.error(`[Monetization] Error fetching ${path}:`, error);
+    return null;
+  }
 }
 
 export default async function ProviderMonetizationPage() {
