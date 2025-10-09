@@ -2,6 +2,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getBillingSummary, getDunningQueue } from '@/services/provider/billing.service';
 import DunningRunButtonClient from './DunningRunButtonClient';
+import BillingUpdateForm from './BillingUpdateForm';
 
 export default async function ProviderBillingPage() {
   const jar = await cookies();
@@ -27,6 +28,9 @@ export default async function ProviderBillingPage() {
           Manage invoices, payments, and financial reconciliation across all clients
         </p>
       </div>
+
+      {/* Billing Update Form */}
+      <BillingUpdateForm />
 
       {/* Actions */}
       <div className="flex items-center justify-between">
