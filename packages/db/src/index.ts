@@ -1,7 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 
 /**
  * Prisma Client Singleton for the Cortiware monorepo
+ *
+ * Uses provider-portal schema (has all federation models)
  *
  * Usage (in apps/packages):
  *   import { prisma } from '@cortiware/db';
@@ -22,5 +24,5 @@ if (process.env.NODE_ENV !== 'production') {
   globalThis.__cortiware_prisma__ = prisma;
 }
 
-export type { Prisma } from '@prisma/client';
+export type { Prisma } from '@prisma/client-provider';
 

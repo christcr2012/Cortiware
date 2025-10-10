@@ -25,10 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Generate Prisma Client
+      - name: Generate Prisma Clients
         run: |
-          # Only generate for provider-portal (has federation models)
-          # Tenant-app uses @cortiware/db package which imports from provider-portal's client
+          # Generate both schemas to separate output locations
+          # Tenant schema -> @prisma/client-tenant
+          npx prisma generate --schema=prisma/schema.prisma
+          # Provider schema -> @prisma/client-provider
           npx prisma generate --schema=apps/provider-portal/prisma/schema.prisma
 
       - name: TypeScript Type Check
