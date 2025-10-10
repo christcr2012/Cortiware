@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node ../../node_modules/next/dist/bin/next dev -p 3000",
-    "build": "node ../../node_modules/prisma/build/index.js generate && node ../../node_modules/next/dist/bin/next build",
+    "build": "node ../../node_modules/prisma/build/index.js generate && node ../../node_modules/prisma/build/index.js migrate deploy && node ../../node_modules/next/dist/bin/next build",
     "start": "node ../../node_modules/next/dist/bin/next start",
     "lint": "node ../../node_modules/next/dist/bin/next lint",
     "typecheck": "tsc --noEmit",
@@ -12,13 +12,14 @@
     "prisma:migrate": "node ../../node_modules/prisma/build/index.js migrate dev",
     "prisma:deploy": "node ../../node_modules/prisma/build/index.js migrate deploy",
     "prisma:seed": "tsx prisma/seed.ts",
-    "postinstall": "node ../../node_modules/prisma/build/index.js generate"
+    "vercel-build": "node ../../node_modules/prisma/build/index.js generate && node ../../node_modules/prisma/build/index.js migrate deploy && node ../../node_modules/next/dist/bin/next build"
   },
   "dependencies": {
     "@cortiware/auth-service": "file:../../packages/auth-service",
     "@cortiware/db": "file:../../packages/db",
     "@cortiware/themes": "file:../../packages/themes",
     "@prisma/client": "^6.16.2",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^5.20.0",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slot": "^1.2.3",
     "@sendgrid/mail": "8.1.0",

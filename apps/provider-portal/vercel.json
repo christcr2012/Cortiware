@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && node node_modules/prisma/build/index.js generate --schema=apps/provider-portal/prisma/schema.prisma && npm run build -- --filter=provider-portal",
+  "buildCommand": "cd ../.. && npm install && cd apps/provider-portal && npm run vercel-build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "cd ../.. && npm install",
