@@ -3,6 +3,7 @@ import { jsonOk, jsonError } from '@/lib/api/response';
 import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
 import { withAudit } from '@/lib/api/audit-middleware';
 import { prisma } from '@/lib/prisma';
+import { trackFunnel } from '@/services/metrics.service';
 import crypto from 'crypto';
 
 const ENCRYPTION_KEY = process.env.FED_HMAC_MASTER_KEY || 'default-key-change-in-production';
@@ -32,11 +33,13 @@ const getHandler = async (req: NextRequest) => {
     });
 
     if (!config) {
+      await trackFunnel('federation_oidc_get_miss').catch(() => {});
       return jsonOk({ config: null });
     }
 
     // Return config without decrypted secret
     const { clientSecret, ...safeConfig } = config;
+    await trackFunnel('federation_oidc_get').catch(() => {});
     return jsonOk({ config: { ...safeConfig, clientSecret: '***' } });
   } catch (error) {
     console.error('Error fetching OIDC config:', error);
@@ -70,6 +73,7 @@ const postHandler = async (req: NextRequest) => {
     });
 
     const { clientSecret: _, ...safeConfig } = config;
+    await trackFunnel('federation_oidc_post').catch(() => {});
     return jsonOk({ config: { ...safeConfig, clientSecret: '***' } });
   } catch (error) {
     console.error('Error creating OIDC config:', error);
@@ -103,6 +107,7 @@ const patchHandler = async (req: NextRequest) => {
     });
 
     const { clientSecret: _, ...safeConfig } = config;
+    await trackFunnel('federation_oidc_patch').catch(() => {});
     return jsonOk({ config: { ...safeConfig, clientSecret: '***' } });
   } catch (error) {
     console.error('Error updating OIDC config:', error);

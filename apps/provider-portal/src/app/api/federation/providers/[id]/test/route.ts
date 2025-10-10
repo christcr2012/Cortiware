@@ -38,12 +38,14 @@ async function postHandler(
     let testResult = { success: false, message: 'Test not implemented for this provider type' };
 
     try {
-      if (provider.url) {
+      const cfg = (provider.config as any) || {};
+      const url = cfg.url || cfg.endpoint || cfg.baseUrl;
+      if (url) {
         // Simple HTTP connectivity test
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-        const response = await fetch(provider.url, {
+        const response = await fetch(url, {
           method: 'HEAD',
           signal: controller.signal,
         });
@@ -82,15 +84,7 @@ async function postHandler(
       }
     }
 
-    // Update provider with test results
-    await prisma.providerIntegration.update({
-      where: { id },
-      data: {
-        healthStatus: testResult.success ? 'healthy' : 'down',
-        lastHealthCheckAt: new Date(),
-      },
-    });
-
+    // Return test results (health markers are not persisted on the model)
     return NextResponse.json(testResult);
   } catch (error) {
     console.error('Provider test error:', error);
