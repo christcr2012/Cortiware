@@ -132,14 +132,11 @@ export default function ProviderShellClient({ children }: { children: React.Reac
           >
             System
           </div>
-          <ProviderNavLink href="/provider/infrastructure" active={active('/provider/infrastructure')}>
-            Infrastructure
-          </ProviderNavLink>
           <ProviderNavLink href="/provider/federation" active={active('/provider/federation')}>
             Federation
           </ProviderNavLink>
           <ProviderNavLink href="/provider/provisioning" active={active('/provider/provisioning')}>
-            Provisioning
+            Tenant Onboarding
           </ProviderNavLink>
           <ProviderNavLink href="/provider/branding" active={active('/provider/branding')}>
             White-Label
