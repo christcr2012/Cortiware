@@ -27,18 +27,28 @@ export default function FederationKeys() {
     }
   };
 
+  const [newSecret, setNewSecret] = useState<string | null>(null);
+  const [showSecretModal, setShowSecretModal] = useState(false);
+
   const handleCreate = async () => {
     if (!newKeyName.trim()) return;
-    
+
     setCreating(true);
     try {
+      // Get orgId from session or default
+      const orgId = 'org_default'; // TODO: Get from session/context
+
       const res = await fetch('/api/federation/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newKeyName })
+        body: JSON.stringify({ orgId, name: newKeyName })
       });
-      
+
       if (res.ok) {
+        const data = await res.json();
+        // Show one-time secret reveal modal
+        setNewSecret(data.key.secret);
+        setShowSecretModal(true);
         setNewKeyName('');
         setShowCreate(false);
         fetchKeys();
@@ -47,6 +57,19 @@ export default function FederationKeys() {
       console.error('Error creating key:', error);
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleCloseSecretModal = () => {
+    setShowSecretModal(false);
+    setNewSecret(null);
+  };
+
+  const handleCopySecret = () => {
+    if (newSecret) {
+      navigator.clipboard.writeText(newSecret);
+      setCopiedKey(newSecret);
+      setTimeout(() => setCopiedKey(null), 2000);
     }
   };
 
@@ -179,6 +202,44 @@ export default function FederationKeys() {
           </table>
         )}
       </div>
+
+      {/* One-time secret reveal modal */}
+      {showSecretModal && newSecret && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="rounded-xl p-8 max-w-2xl w-full mx-4" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-accent)' }}>
+            <h3 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
+              ⚠️ Save Your API Secret
+            </h3>
+            <div className="space-y-4">
+              <p style={{ color: 'var(--text-secondary)' }}>
+                This is the only time you'll see this secret. Copy it now and store it securely.
+              </p>
+              <div className="rounded p-4 font-mono text-sm break-all" style={{ background: 'var(--input-bg)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}>
+                {newSecret}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCopySecret}
+                  className="flex-1 px-4 py-2 rounded font-medium"
+                  style={{ background: 'var(--brand-primary)', color: 'var(--text-on-brand)' }}
+                >
+                  {copiedKey === newSecret ? '✓ Copied!' : 'Copy Secret'}
+                </button>
+                <button
+                  onClick={handleCloseSecretModal}
+                  className="px-4 py-2 rounded font-medium"
+                  style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-primary)', color: 'var(--text-primary)' }}
+                >
+                  I've Saved It
+                </button>
+              </div>
+              <p className="text-sm" style={{ color: 'var(--error-text)' }}>
+                Warning: Once you close this dialog, you won't be able to retrieve this secret again.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
