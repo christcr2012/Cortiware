@@ -1,4 +1,4 @@
-import { prisma } from '@cortiware/db';
+import { prisma } from '@/lib/prisma';
 import { getDaysAgo, getHoursAgo } from '@/lib/utils/date.utils';
 import { safeQuery } from '@/lib/utils/query.utils';
 

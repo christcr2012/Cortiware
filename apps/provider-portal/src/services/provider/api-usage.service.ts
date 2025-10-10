@@ -5,7 +5,7 @@
  * and generating usage-based billing insights.
  */
 
-import { prisma } from '@cortiware/db';
+import { prisma } from '@/lib/prisma';
 import { getDaysAgo, getStartOfMonth, getEndOfMonth, getDateKey } from '@/lib/utils/date.utils';
 import { safeQuery } from '@/lib/utils/query.utils';
 

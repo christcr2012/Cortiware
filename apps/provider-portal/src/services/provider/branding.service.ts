@@ -1,4 +1,4 @@
-import { prisma } from '@cortiware/db';
+import { prisma } from '@/lib/prisma';
 import { safeQuery, calculatePercentage } from '@/lib/utils/query.utils';
 
 /**
