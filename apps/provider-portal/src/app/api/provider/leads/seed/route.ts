@@ -35,10 +35,7 @@ export async function POST(req: NextRequest) {
     // Find or create a test org
     let org = await prisma.org.findFirst({
       where: {
-        OR: [
-          { name: { contains: 'Test' } },
-          { slug: 'test-org-leads' }
-        ]
+        name: { contains: 'Test' }
       },
     });
 
@@ -51,7 +48,6 @@ export async function POST(req: NextRequest) {
         org = await prisma.org.create({
           data: {
             name: 'Test Organization for Leads',
-            slug: 'test-org-leads-' + Date.now(),
           },
         });
         console.log('✅ Created test org:', org.name);
