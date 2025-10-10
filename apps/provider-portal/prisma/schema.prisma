@@ -940,17 +940,13 @@ model AddonPurchase {
 /// Used for secure machine-to-machine authentication
 model FederationKey {
   id         String    @id @default(cuid())
-  tenantId   String    // Tenant identifier (orgId or external ID)
   keyId      String    @unique // Public key identifier
   secretHash String    // Hashed secret for HMAC verification
-  scope      String    // 'events' | 'usage' | 'billing' | 'all'
+  orgId      String    // Organization identifier
   createdAt  DateTime  @default(now())
   disabledAt DateTime? // When key was disabled (soft delete)
-  rotatedAt  DateTime? // When key was last rotated
-  lastUsedAt DateTime? // Last time key was used for authentication
 
-  @@index([tenantId, scope])
-  @@index([keyId, disabledAt])
+  @@index([orgId, keyId])
 }
 
 /// OIDCConfig stores OIDC/OAuth provider configuration for federation
@@ -983,16 +979,20 @@ model ProviderIntegration {
 /// AuditEvent stores provider-side audit trail
 model AuditEvent {
   id          String   @id @default(cuid())
-  actorType   String   // 'provider' | 'system' | 'user'
+  actorType   String   // 'provider' | 'system' | 'ai_dev'
   actorId     String?  // Provider user ID or system identifier
+  orgId       String?  // Organization identifier
   action      String   // 'create' | 'update' | 'delete' | 'access'
   entityType  String   // 'federation_key' | 'oidc_config' | 'client' | etc.
   entityId    String?  // ID of affected entity
+  result      String   @default("success") // 'success' | 'failure'
   metadata    Json     @default("{}") // Additional context (redacted PII)
+  redactJson  Json?    // Redacted sensitive fields
   ipAddress   String?
   userAgent   String?
   createdAt   DateTime @default(now())
 
+  @@index([orgId, entityType, createdAt])
   @@index([actorId, createdAt])
   @@index([entityType, entityId, createdAt])
   @@index([createdAt])
@@ -1246,4 +1246,71 @@ model OnboardingInvite {
   coupon Coupon?    @relation(fields: [couponId], references: [id])
 
   @@index([expiresAt, usedAt])
+}
+
+// ============================================================================
+// PROVIDER FEDERATION v3+ MODELS
+// ============================================================================
+
+/// FederatedClient tracks external client organizations using the federation API
+model FederatedClient {
+  id              String    @id @default(cuid())
+  orgId           String    @unique
+  name            String
+  contactEmail    String
+  planType        String
+  apiKeyId        String    @unique
+  webhookEndpoint String?
+  lastSeen        DateTime?
+  monthlyRevenue  Int       @default(0)
+  convertedLeads  Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+/// WebhookRegistration stores webhook endpoints for federated clients
+model WebhookRegistration {
+  id         String   @id @default(cuid())
+  orgId      String   @unique
+  url        String
+  secretHash String
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+/// EscalationTicket tracks escalations received via federation API
+model EscalationTicket {
+  id           String   @id @default(cuid())
+  escalationId String   @unique
+  tenantId     String
+  orgId        String
+  type         String
+  severity     String
+  description  String
+  createdAt    DateTime @default(now())
+  state        String   @default("received") // received|sandbox_created|pr_opened|canary_requested|rolled_out|rolled_back
+}
+
+/// FederationInvoice tracks billing events received via federation API
+model FederationInvoice {
+  id             String   @id @default(cuid())
+  clientOrgId    String
+  leadId         String
+  conversionType String
+  amountCents    Int
+  metadataJson   Json
+  createdAt      DateTime @default(now())
+  status         String   @default("received") // received|accepted|failed
+}
+
+/// IdempotencyKey ensures idempotent POST requests in federation API
+model IdempotencyKey {
+  key       String   @id
+  method    String
+  path      String
+  bodyHash  String
+  response  Json
+  orgId     String
+  createdAt DateTime @default(now())
+  ttl       Int
 }

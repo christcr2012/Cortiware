@@ -12,7 +12,7 @@ const deleteHandler = async (req: NextRequest, { params }: { params: Promise<{ i
     const key = await prisma.federationKey.update({
       where: { id },
       data: { disabledAt: new Date() },
-      select: { id: true, keyId: true, tenantId: true },
+      select: { id: true, keyId: true, orgId: true },
     });
 
     return jsonOk({ success: true, key });

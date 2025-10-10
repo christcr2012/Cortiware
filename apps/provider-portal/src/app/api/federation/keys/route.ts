@@ -13,12 +13,9 @@ const getHandler = async (req: NextRequest) => {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
-        tenantId: true,
+        orgId: true,
         keyId: true,
-        scope: true,
         createdAt: true,
-        lastUsedAt: true,
-        rotatedAt: true,
       },
     });
 
@@ -32,10 +29,10 @@ const getHandler = async (req: NextRequest) => {
 const postHandler = async (req: NextRequest) => {
   try {
     const body = await req.json();
-    const { tenantId, scope = 'all' } = body;
+    const { orgId } = body;
 
-    if (!tenantId) {
-      return jsonError(400, 'invalid_request', 'tenantId is required');
+    if (!orgId) {
+      return jsonError(400, 'invalid_request', 'orgId is required');
     }
 
     // Generate key pair
@@ -45,16 +42,14 @@ const postHandler = async (req: NextRequest) => {
 
     const key = await prisma.federationKey.create({
       data: {
-        tenantId,
+        orgId,
         keyId,
         secretHash,
-        scope,
       },
       select: {
         id: true,
-        tenantId: true,
+        orgId: true,
         keyId: true,
-        scope: true,
         createdAt: true,
       },
     });
