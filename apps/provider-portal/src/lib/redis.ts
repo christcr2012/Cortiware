@@ -10,9 +10,10 @@ let redis: Redis | null = null;
 export function getRedis(): Redis | null {
   if (redis) return redis;
 
-  const redisUrl = process.env.REDIS_URL;
+  // Support both REDIS_URL and KV_REDIS_URL (Vercel environment variable)
+  const redisUrl = process.env.REDIS_URL || process.env.KV_REDIS_URL;
   if (!redisUrl) {
-    console.warn('REDIS_URL not configured, using in-memory stores');
+    console.warn('REDIS_URL or KV_REDIS_URL not configured, using in-memory stores');
     return null;
   }
 
