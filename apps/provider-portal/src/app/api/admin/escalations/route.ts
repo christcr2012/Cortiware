@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withAdminRead } from '@/lib/federation/rbac-middleware';
 
 /**
  * GET /api/admin/escalations
  * List all escalation tickets with optional status filter
  */
-export async function GET(req: NextRequest) {
+export const GET = withAdminRead(async (req: NextRequest) => {
   try {
     const { searchParams } = new URL(req.url);
     const state = searchParams.get('status'); // UI uses 'status' param but DB uses 'state'
@@ -30,5 +31,5 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 

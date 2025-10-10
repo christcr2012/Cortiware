@@ -1,10 +1,11 @@
 import { NextRequest } from 'next/server';
 import { jsonOk } from '@/lib/api/response';
 import { prisma } from '@/lib/prisma';
+import { withFederationRead } from '@/lib/federation/rbac-middleware';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export const GET = withFederationRead(async (req: NextRequest) => {
   try {
     // Aggregate invoice metrics
     const invoiceStats = await prisma.federationInvoice.aggregate({
@@ -33,5 +34,5 @@ export async function GET(req: NextRequest) {
       escalations: { count: 0 },
     });
   }
-}
+});
 

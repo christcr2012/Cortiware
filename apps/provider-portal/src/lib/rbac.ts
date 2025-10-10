@@ -14,6 +14,19 @@ export const PERMS = {
   LEAD_EXPORT: "lead:export",
   ROLES_MANAGE: "roles:manage",
   BILLING_MANAGE: "billing:manage",
+
+  // Federation permissions
+  FEDERATION_READ: "federation:read",
+  FEDERATION_WRITE: "federation:write",
+  FEDERATION_ADMIN: "federation:admin",
+
+  // Monetization permissions
+  MONETIZATION_READ: "monetization:read",
+  MONETIZATION_WRITE: "monetization:write",
+
+  // Admin permissions
+  ADMIN_READ: "admin:read",
+  ADMIN_WRITE: "admin:write",
 } as const;
 export type PermCode = (typeof PERMS)[keyof typeof PERMS];
 
@@ -92,6 +105,35 @@ async function getUserPermCodes(userId: string, legacyRole?: string | null): Pro
       break;
     case "STAFF":
       [PERMS.DASHBOARD_VIEW, PERMS.LEAD_READ, PERMS.LEAD_CREATE, PERMS.LEAD_UPDATE].forEach(c => codes.add(c));
+      break;
+    case "PROVIDER_ADMIN":
+      // Full access to federation, monetization, and admin routes
+      [
+        PERMS.DASHBOARD_VIEW, PERMS.LEAD_READ, PERMS.LEAD_CREATE, PERMS.LEAD_UPDATE, PERMS.LEAD_DELETE, PERMS.LEAD_EXPORT,
+        PERMS.ROLES_MANAGE, PERMS.BILLING_MANAGE,
+        PERMS.FEDERATION_READ, PERMS.FEDERATION_WRITE, PERMS.FEDERATION_ADMIN,
+        PERMS.MONETIZATION_READ, PERMS.MONETIZATION_WRITE,
+        PERMS.ADMIN_READ, PERMS.ADMIN_WRITE
+      ].forEach(c => codes.add(c));
+      break;
+    case "PROVIDER_ANALYST":
+      // Read-only access to federation, monetization, and admin routes
+      [
+        PERMS.DASHBOARD_VIEW, PERMS.LEAD_READ,
+        PERMS.FEDERATION_READ,
+        PERMS.MONETIZATION_READ,
+        PERMS.ADMIN_READ
+      ].forEach(c => codes.add(c));
+      break;
+    case "DEVELOPER":
+    case "AI_DEV":
+      // No write permissions in production - read-only access
+      [
+        PERMS.DASHBOARD_VIEW,
+        PERMS.FEDERATION_READ,
+        PERMS.MONETIZATION_READ,
+        PERMS.ADMIN_READ
+      ].forEach(c => codes.add(c));
       break;
   }
 

@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { withFederationRead } from '@/lib/federation/rbac-middleware';
 
 /**
  * GET /api/webhooks
  * List all webhook registrations
  */
-export async function GET(req: NextRequest) {
+export const GET = withFederationRead(async (req: NextRequest) => {
   try {
     const webhooks = await prisma.webhookRegistration.findMany({
       orderBy: { createdAt: 'desc' },
@@ -24,5 +25,5 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
