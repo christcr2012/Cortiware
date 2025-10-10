@@ -28,6 +28,16 @@ type Lead = {
   orgName: string;
   sourceType: string;
   convertedAt?: Date;
+  // Management fields
+  disputeStatus?: string | null;
+  disputeReason?: string | null;
+  disputeResolvedAt?: Date | null;
+  classificationType?: string | null;
+  classificationReason?: string | null;
+  classifiedAt?: Date | null;
+  qualityScore?: number | null;
+  qualityNotes?: string | null;
+  qualityScoredAt?: Date | null;
 };
 
 type LeadSummary = {
@@ -281,6 +291,9 @@ export default function LeadsManagementClient({ initialLeads, initialSummary, ne
                 <th className="text-left p-3">Email</th>
                 <th className="text-left p-3">Org</th>
                 <th className="text-left p-3">Status</th>
+                <th className="text-left p-3">Dispute</th>
+                <th className="text-left p-3">Classification</th>
+                <th className="text-left p-3">Quality</th>
                 <th className="text-left p-3">Source</th>
                 <th className="text-left p-3">Created</th>
                 <th className="text-left p-3">Actions</th>
@@ -302,6 +315,58 @@ export default function LeadsManagementClient({ initialLeads, initialSummary, ne
                   <td className="p-3" style={{ color: 'var(--text-primary)' }}>{l.email}</td>
                   <td className="p-3" style={{ color: 'var(--text-primary)' }}>{l.orgName}</td>
                   <td className="p-3 font-mono" style={{ color: 'var(--brand-primary)' }}>{l.status}</td>
+                  <td className="p-3">
+                    {l.disputeStatus && l.disputeStatus !== 'NONE' ? (
+                      <span
+                        className="px-2 py-1 rounded text-xs font-mono"
+                        style={{
+                          background: l.disputeStatus === 'PENDING' ? 'rgba(251, 191, 36, 0.1)' :
+                                     l.disputeStatus === 'APPROVED' ? 'rgba(34, 197, 94, 0.1)' :
+                                     'rgba(239, 68, 68, 0.1)',
+                          color: l.disputeStatus === 'PENDING' ? 'rgb(251, 191, 36)' :
+                                 l.disputeStatus === 'APPROVED' ? 'rgb(34, 197, 94)' :
+                                 'rgb(239, 68, 68)'
+                        }}
+                      >
+                        {l.disputeStatus}
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {l.classificationType ? (
+                      <span
+                        className="px-2 py-1 rounded text-xs font-mono"
+                        style={{ background: 'rgba(59, 130, 246, 0.1)', color: 'rgb(59, 130, 246)' }}
+                        title={l.classificationReason || undefined}
+                      >
+                        {l.classificationType.replace(/_/g, ' ')}
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {l.qualityScore ? (
+                      <span
+                        className="px-2 py-1 rounded text-xs font-mono font-bold"
+                        style={{
+                          background: l.qualityScore >= 8 ? 'rgba(34, 197, 94, 0.1)' :
+                                     l.qualityScore >= 5 ? 'rgba(251, 191, 36, 0.1)' :
+                                     'rgba(239, 68, 68, 0.1)',
+                          color: l.qualityScore >= 8 ? 'rgb(34, 197, 94)' :
+                                 l.qualityScore >= 5 ? 'rgb(251, 191, 36)' :
+                                 'rgb(239, 68, 68)'
+                        }}
+                        title={l.qualityNotes || undefined}
+                      >
+                        {l.qualityScore}/10
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+                    )}
+                  </td>
                   <td className="p-3" style={{ color: 'var(--text-secondary)' }}>{l.sourceType}</td>
                   <td className="p-3" style={{ color: 'var(--text-secondary)' }}>{new Date(l.createdAt).toLocaleDateString()}</td>
                   <td className="p-3">

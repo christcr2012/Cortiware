@@ -75,7 +75,26 @@ export async function listLeads(params: LeadListParams) {
       take: limit + 1,
       orderBy: { createdAt: 'desc' },
       cursor: params.cursor ? { id: params.cursor } : undefined,
-      include: {
+      select: {
+        id: true,
+        createdAt: true,
+        status: true,
+        company: true,
+        contactName: true,
+        email: true,
+        orgId: true,
+        sourceType: true,
+        convertedAt: true,
+        // New management fields
+        disputeStatus: true,
+        disputeReason: true,
+        disputeResolvedAt: true,
+        classificationType: true,
+        classificationReason: true,
+        classifiedAt: true,
+        qualityScore: true,
+        qualityNotes: true,
+        qualityScoredAt: true,
         org: { select: { id: true, name: true } },
       },
     });
