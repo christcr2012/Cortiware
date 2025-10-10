@@ -1,5 +1,5 @@
 {
-  "buildCommand": "cd ../.. && npx prisma generate --schema=prisma/schema.prisma && npm run build -- --filter=tenant-app",
+  "buildCommand": "cd ../.. && node node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma && npm run build -- --filter=tenant-app",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "cd ../.. && npm install"
