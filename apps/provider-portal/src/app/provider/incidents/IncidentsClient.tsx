@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, AlertCircle, CheckCircle, Clock, XCircle, Filter, Download, Bell, Zap, Calendar, Search } from 'lucide-react';
+import FederationEscalationsSection from './FederationEscalationsSection';
 
 type Incident = {
   id: string;
@@ -27,6 +28,7 @@ export default function IncidentsClient() {
   const [filter, setFilter] = useState<string>('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'incidents' | 'federation'>('incidents');
 
   // Enhanced filtering state
   const [severityFilter, setSeverityFilter] = useState<string>('all');
@@ -183,10 +185,10 @@ export default function IncidentsClient() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
-            Incidents
+            Incidents & Escalations
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-            Track and manage customer incidents with SLA monitoring and escalation workflows
+            Track customer incidents and federation escalations with SLA monitoring and automated workflows
           </p>
         </div>
         <div className="flex gap-2">
@@ -228,8 +230,34 @@ export default function IncidentsClient() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
+      {/* Tabs */}
+      <div className="flex gap-2 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+        <button
+          onClick={() => setActiveTab('incidents')}
+          className="px-4 py-2 font-medium transition-all"
+          style={{
+            color: activeTab === 'incidents' ? 'var(--brand-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'incidents' ? '2px solid var(--brand-primary)' : '2px solid transparent',
+          }}
+        >
+          Customer Incidents
+        </button>
+        <button
+          onClick={() => setActiveTab('federation')}
+          className="px-4 py-2 font-medium transition-all"
+          style={{
+            color: activeTab === 'federation' ? 'var(--brand-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'federation' ? '2px solid var(--brand-primary)' : '2px solid transparent',
+          }}
+        >
+          Federation Escalations
+        </button>
+      </div>
+
+      {activeTab === 'incidents' ? (
+        <>
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
         <div className="rounded-xl p-4" style={{ background: 'var(--surface-1)', border: '1px solid var(--border-primary)' }}>
           <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Open</div>
           <div className="text-2xl font-bold mt-1" style={{ color: 'var(--accent-warning)' }}>{stats.open}</div>
@@ -804,6 +832,10 @@ export default function IncidentsClient() {
             </div>
           </div>
         </div>
+      )}
+        </>
+      ) : (
+        <FederationEscalationsSection />
       )}
     </div>
   );

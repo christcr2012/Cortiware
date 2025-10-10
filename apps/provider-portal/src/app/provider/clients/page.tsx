@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import ClientListTable from './ClientListTable';
 import ClientDetailsModal from './ClientDetailsModal';
 import ClientFilters from './ClientFilters';
+import FederatedClientsSection from './FederatedClientsSection';
 
 export default function ProviderClientsPage() {
   const [clients, setClients] = useState<any[]>([]);
@@ -16,6 +17,7 @@ export default function ProviderClientsPage() {
   const [status, setStatus] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const [activeTab, setActiveTab] = useState<'clients' | 'federation'>('clients');
 
   const fetchClients = async () => {
     setLoading(true);
@@ -57,11 +59,37 @@ export default function ProviderClientsPage() {
           Client Management
         </h1>
         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          View and manage all client tenants, organizations, and accounts
+          View and manage all client tenants, organizations, and federated clients
         </p>
       </header>
 
-      <ClientFilters
+      {/* Tabs */}
+      <div className="flex gap-2 border-b" style={{ borderColor: 'var(--border-primary)' }}>
+        <button
+          onClick={() => setActiveTab('clients')}
+          className="px-4 py-2 font-medium transition-all"
+          style={{
+            color: activeTab === 'clients' ? 'var(--brand-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'clients' ? '2px solid var(--brand-primary)' : '2px solid transparent',
+          }}
+        >
+          Tenant Clients
+        </button>
+        <button
+          onClick={() => setActiveTab('federation')}
+          className="px-4 py-2 font-medium transition-all"
+          style={{
+            color: activeTab === 'federation' ? 'var(--brand-primary)' : 'var(--text-secondary)',
+            borderBottom: activeTab === 'federation' ? '2px solid var(--brand-primary)' : '2px solid transparent',
+          }}
+        >
+          Federated Clients
+        </button>
+      </div>
+
+      {activeTab === 'clients' ? (
+        <>
+          <ClientFilters
         search={search}
         status={status}
         onSearchChange={setSearch}
@@ -93,6 +121,10 @@ export default function ProviderClientsPage() {
           onClose={() => setSelectedClient(null)}
           onRefresh={handleRefresh}
         />
+      )}
+        </>
+      ) : (
+        <FederatedClientsSection />
       )}
     </div>
   );
