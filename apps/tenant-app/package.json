@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "node ../../node_modules/next/dist/bin/next dev -p 3003",
-    "build": "node ../../node_modules/next/dist/bin/next build",
+    "build": "cd ../.. && node node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma && node node_modules/prisma/build/index.js migrate deploy --schema=prisma/schema.prisma && cd apps/tenant-app && node ../../node_modules/next/dist/bin/next build",
     "start": "node ../../node_modules/next/dist/bin/next start",
     "lint": "node ../../node_modules/next/dist/bin/next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "vercel-build": "cd ../.. && node node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma && node node_modules/prisma/build/index.js migrate deploy --schema=prisma/schema.prisma && cd apps/tenant-app && node ../../node_modules/next/dist/bin/next build"
   },
   "dependencies": {
     "@cortiware/auth-service": "file:../../packages/auth-service",
@@ -15,6 +16,7 @@
     "@cortiware/kv": "file:../../packages/kv",
     "@cortiware/themes": "file:../../packages/themes",
     "@prisma/client": "^6.16.2",
+    "@prisma/nextjs-monorepo-workaround-plugin": "^5.20.0",
     "bcryptjs": "^3.0.2",
     "next": "^15.0.0",
     "react": "^18.3.1",
