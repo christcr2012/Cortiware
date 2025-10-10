@@ -8,9 +8,19 @@ export default async function ProviderAddonsPage(props: any) {
     redirect('/provider/login');
   }
 
-  const summary = await getAddonSummary();
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let summary = { totalPurchases: 0, totalRefunds: 0, totalRevenueCents: 0, netRevenueCents: 0, topSkus: [] };
+  let page = { items: [], nextCursor: null };
+
+  try {
+    summary = await getAddonSummary();
+    const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
+    page = await listAddonPurchases({ limit: 20, cursor: sp?.cursor, status: sp?.status });
+  } catch (error) {
+    console.log('Addons page: Database not available during build, using empty data');
+  }
+
   const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
-  const page = await listAddonPurchases({ limit: 20, cursor: sp?.cursor, status: sp?.status });
 
   return (
     <div className="space-y-8">

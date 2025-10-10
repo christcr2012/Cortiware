@@ -8,14 +8,24 @@ export default async function ProviderAuditPage(props: any) {
     redirect('/provider/login');
   }
 
-  const summary = await getAuditSummary();
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let summary = { totalEvents: 0, uniqueEntities: 0, uniqueOrgs: 0, topEntities: [] };
+  let page = { items: [], nextCursor: null };
+
+  try {
+    summary = await getAuditSummary();
+    const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
+    page = await listAuditEvents({
+      limit: 50,
+      cursor: sp?.cursor,
+      entity: sp?.entity,
+      orgId: sp?.orgId,
+    });
+  } catch (error) {
+    console.log('Audit page: Database not available during build, using empty data');
+  }
+
   const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
-  const page = await listAuditEvents({ 
-    limit: 50, 
-    cursor: sp?.cursor,
-    entity: sp?.entity,
-    orgId: sp?.orgId,
-  });
 
   return (
     <div className="space-y-8">

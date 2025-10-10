@@ -16,7 +16,7 @@ export default function ProviderAnalyticsPage() {
   const fetchAnalytics = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/provider/analytics?range=${range}`);
+      const res = await fetch(`/api/analytics?range=${range}`);
       if (res.ok) {
         const analyticsData = await res.json();
         setData(analyticsData);

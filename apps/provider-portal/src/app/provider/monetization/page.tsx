@@ -30,9 +30,9 @@ export default async function ProviderMonetizationPage() {
   }
 
   const [plans, prices, cfg] = await Promise.all([
-    fetchJSON('/api/provider/monetization/plans'),
-    fetchJSON('/api/provider/monetization/prices'),
-    fetchJSON('/api/provider/monetization/global-config'),
+    fetchJSON('/api/monetization/plans'),
+    fetchJSON('/api/monetization/prices'),
+    fetchJSON('/api/monetization/global-config'),
   ]);
 
   return (

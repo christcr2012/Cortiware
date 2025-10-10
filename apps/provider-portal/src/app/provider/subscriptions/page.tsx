@@ -8,9 +8,19 @@ export default async function ProviderSubscriptionsPage(props: any) {
     redirect('/provider/login');
   }
 
-  const summary = await getSubscriptionSummary();
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let summary = { totalActive: 0, totalTrialing: 0, totalCanceled: 0, mrrCents: 0, arrCents: 0, churnRate: 0 };
+  let page = { items: [], nextCursor: null };
+
+  try {
+    summary = await getSubscriptionSummary();
+    const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
+    page = await listSubscriptions({ limit: 20, cursor: sp?.cursor, status: sp?.status });
+  } catch (error) {
+    console.log('Subscriptions page: Database not available during build, using empty data');
+  }
+
   const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
-  const page = await listSubscriptions({ limit: 20, cursor: sp?.cursor, status: sp?.status });
 
   return (
     <div className="space-y-8">

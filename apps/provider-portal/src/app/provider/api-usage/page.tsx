@@ -6,10 +6,18 @@ export const metadata = {
 };
 
 export default async function ApiUsagePage() {
-  const [allUsage, globalMetrics] = await Promise.all([
-    getAllTenantsApiUsage(),
-    getGlobalApiMetrics(),
-  ]);
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let allUsage: any[] = [];
+  let globalMetrics = { totalRequests: 0, totalTenants: 0, avgRequestsPerTenant: 0 };
+
+  try {
+    [allUsage, globalMetrics] = await Promise.all([
+      getAllTenantsApiUsage(),
+      getGlobalApiMetrics(),
+    ]);
+  } catch (error) {
+    console.log('API Usage page: Database not available during build, using empty data');
+  }
 
   return (
     <ApiUsageClient

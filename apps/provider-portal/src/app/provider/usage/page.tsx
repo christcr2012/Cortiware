@@ -8,13 +8,23 @@ export default async function ProviderUsagePage(props: any) {
     redirect('/provider/login');
   }
 
-  const [summary, ratingSummary] = await Promise.all([
-    getUsageSummary(),
-    getMeterRatingSummary(),
-  ]);
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let summary = { totalMeters: 0, totalQuantity: 0, uniqueOrgs: 0, topMeters: [] };
+  let ratingSummary: any[] = [];
+  let page = { items: [], nextCursor: null };
+
+  try {
+    [summary, ratingSummary] = await Promise.all([
+      getUsageSummary(),
+      getMeterRatingSummary(),
+    ]);
+    const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
+    page = await listUsageMeters({ limit: 20, cursor: sp?.cursor, meter: sp?.meter });
+  } catch (error) {
+    console.log('Usage page: Database not available during build, using empty data');
+  }
 
   const sp = typeof props?.searchParams?.then === 'function' ? await props.searchParams : props?.searchParams;
-  const page = await listUsageMeters({ limit: 20, cursor: sp?.cursor, meter: sp?.meter });
 
   return (
     <div className="space-y-8">

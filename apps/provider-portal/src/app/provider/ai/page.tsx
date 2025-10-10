@@ -8,7 +8,18 @@ export default async function ProviderAiPage() {
     redirect('/provider/login');
   }
 
-  const overview = await getAiOverview();
+  // Handle build-time gracefully (no DATABASE_URL available)
+  let overview = {
+    monthKey: new Date().toISOString().slice(0, 7),
+    totals: { creditsUsed: 0, callCount: 0, tokensIn: 0, tokensOut: 0, costUsd: 0 },
+    topOrgs: []
+  };
+
+  try {
+    overview = await getAiOverview();
+  } catch (error) {
+    console.log('AI page: Database not available during build, using empty data');
+  }
 
   return (
     <div className="space-y-8">
