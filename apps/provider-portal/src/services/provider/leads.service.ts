@@ -23,24 +23,35 @@ export interface LeadListParams {
 }
 
 export async function getLeadSummary(): Promise<LeadSummary> {
-  const [total, converted, newToday, byStatusArr] = await Promise.all([
-    prisma.lead.count(),
-    prisma.lead.count({ where: { convertedAt: { not: null } } }),
-    prisma.lead.count({ where: { createdAt: { gte: startOfToday() } } }),
-    prisma.lead.groupBy({
-      by: ['status'],
-      _count: { status: true },
-    })
-  ]);
+  try {
+    const [total, converted, newToday, byStatusArr] = await Promise.all([
+      prisma.lead.count(),
+      prisma.lead.count({ where: { convertedAt: { not: null } } }),
+      prisma.lead.count({ where: { createdAt: { gte: startOfToday() } } }),
+      prisma.lead.groupBy({
+        by: ['status'],
+        _count: { status: true },
+      })
+    ]);
 
-  const byStatus = {
-    NEW: 0, CONTACTED: 0, QUALIFIED: 0, CONVERTED: 0, DISQUALIFIED: 0,
-  } as Record<LeadStatus, number>;
-  for (const row of byStatusArr as Array<{ status: LeadStatus; _count: { status: number } }>) {
-    byStatus[row.status] = row._count.status;
+    const byStatus = {
+      NEW: 0, CONTACTED: 0, QUALIFIED: 0, CONVERTED: 0, DISQUALIFIED: 0,
+    } as Record<LeadStatus, number>;
+    for (const row of byStatusArr as Array<{ status: LeadStatus; _count: { status: number } }>) {
+      byStatus[row.status] = row._count.status;
+    }
+
+    return { total, converted, newToday, byStatus };
+  } catch (error) {
+    console.error('Error in getLeadSummary:', error);
+    // Return empty summary on error
+    return {
+      total: 0,
+      converted: 0,
+      newToday: 0,
+      byStatus: { NEW: 0, CONTACTED: 0, QUALIFIED: 0, CONVERTED: 0, DISQUALIFIED: 0 }
+    };
   }
-
-  return { total, converted, newToday, byStatus };
 }
 
 export async function listLeads(params: LeadListParams) {
