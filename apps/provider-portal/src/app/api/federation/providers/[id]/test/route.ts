@@ -18,13 +18,6 @@ async function postHandler(
     // Get provider details
     const provider = await prisma.providerIntegration.findUnique({
       where: { id },
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        type: true,
-        enabled: true,
-      },
     });
 
     if (!provider) {
