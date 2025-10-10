@@ -1,11 +1,11 @@
 /**
  * Upgrade Recommendation Engine
- * 
+ *
  * Analyzes usage trends and generates AI-powered upgrade recommendations
  * with ROI analysis and cost-benefit justification.
  */
 
-import { PrismaClient, InfrastructureService, MetricType, RecommendationPriority } from '@prisma/client';
+import { PrismaClient, InfrastructureService, MetricType, RecommendationPriority } from '@prisma/client-provider';
 import type { UsageTrend, UpgradeRecommendationInput } from './types';
 
 export class RecommendationEngine {

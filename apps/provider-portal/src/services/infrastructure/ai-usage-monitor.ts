@@ -7,7 +7,7 @@
  * - Credits usage percent (sum used / sum budget)
  */
 
-import { PrismaClient, InfrastructureService, MetricType } from '@prisma/client';
+import { PrismaClient, InfrastructureService, MetricType } from '@prisma/client-provider';
 import type { MetricData } from './types';
 
 export class AiUsageMonitor {

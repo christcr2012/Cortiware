@@ -14,7 +14,7 @@
  * And, defensively, any *string* containing "referral" is treated as referral.
  */
 
-import { LeadSource } from "@prisma/client";
+import { LeadSource } from "@prisma/client-provider";
 
 // Flat price — Phase 2 policy
 export const UNIT_PRICE_CENTS = 10000; // $100

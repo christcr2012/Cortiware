@@ -1,6 +1,6 @@
 /**
  * Vercel Platform Monitoring Service
- * 
+ *
  * Monitors Vercel platform usage metrics:
  * - Build minutes
  * - Function invocations
@@ -9,7 +9,7 @@
  * - ISR reads
  */
 
-import { InfrastructureService, MetricType } from '@prisma/client';
+import { InfrastructureService, MetricType } from '@prisma/client-provider';
 import type { MetricData } from './types';
 
 export interface VercelPlatformMetrics {

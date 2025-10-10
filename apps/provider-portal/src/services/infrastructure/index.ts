@@ -1,11 +1,11 @@
 /**
  * Infrastructure Monitoring Service
- * 
+ *
  * Main orchestrator for infrastructure monitoring and cost optimization.
  * Collects metrics, analyzes trends, and generates upgrade recommendations.
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 import { VercelKVMonitor } from './vercel-kv-monitor';
 import { VercelPlatformMonitor } from './vercel-platform-monitor';
 import { NeonPostgresMonitor } from './neon-postgres-monitor';

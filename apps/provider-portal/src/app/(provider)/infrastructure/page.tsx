@@ -1,6 +1,6 @@
 /**
  * Infrastructure Monitoring Dashboard
- * 
+ *
  * Owner-only page that displays:
  * - Real-time usage metrics for all services
  * - Usage trend charts (last 30 days)
@@ -9,7 +9,7 @@
  * - One-click upgrade actions
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 import { InfrastructureMonitoringService } from '@/services/infrastructure';
 import { InfrastructureDashboard } from './InfrastructureDashboard';
 

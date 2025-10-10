@@ -1,6 +1,6 @@
 /**
  * Vercel KV Monitoring Service
- * 
+ *
  * Monitors Vercel KV (Redis) usage metrics:
  * - Storage usage (MB)
  * - Commands per day
@@ -8,7 +8,7 @@
  * - Latency
  */
 
-import { InfrastructureService, MetricType } from '@prisma/client';
+import { InfrastructureService, MetricType } from '@prisma/client-provider';
 import type { MetricData } from './types';
 
 export interface VercelKVMetrics {

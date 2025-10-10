@@ -1,10 +1,10 @@
 /**
  * Shared Query Utilities
- * 
+ *
  * Common database query patterns and error handling
  */
 
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client-provider';
 
 /**
  * Standard pagination parameters

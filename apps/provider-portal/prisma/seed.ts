@@ -1,5 +1,5 @@
 // prisma/seed.ts
-import { PrismaClient, Role, LeadSource, LeadStatus, Prisma } from "@prisma/client";
+import { PrismaClient, Role, LeadSource, LeadStatus, Prisma } from "@prisma/client-provider";
 import { createOwnerIfMissing } from "@/lib/tenant";
 import crypto from "node:crypto";
 

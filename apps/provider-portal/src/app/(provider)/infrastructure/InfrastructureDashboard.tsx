@@ -2,12 +2,12 @@
 
 /**
  * Infrastructure Dashboard Client Component
- * 
+ *
  * Displays usage metrics, trends, and recommendations
  */
 
 import { useMemo, useState } from 'react';
-import type { InfrastructureMetric, UpgradeRecommendation, InfrastructureLimit } from '@prisma/client';
+import type { InfrastructureMetric, UpgradeRecommendation, InfrastructureLimit } from '@prisma/client-provider';
 
 interface Props {
   usageSummary: Record<string, { current: number; limit: number; percent: number }>;

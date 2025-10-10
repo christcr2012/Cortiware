@@ -2,7 +2,7 @@
 // Server-only service for subscription management, MRR/ARR, and churn analysis
 
 import { prisma } from '@/lib/prisma';
-import type { Subscription } from '@prisma/client';
+import type { Subscription } from '@prisma/client-provider';
 
 export type SubscriptionSummary = {
   totalActive: number;

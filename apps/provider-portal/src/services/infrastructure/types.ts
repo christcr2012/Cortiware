@@ -1,15 +1,15 @@
 /**
  * Infrastructure Monitoring Types
- * 
+ *
  * Shared types for infrastructure monitoring services
  */
 
-import type { 
-  InfrastructureService, 
-  MetricType, 
+import type {
+  InfrastructureService,
+  MetricType,
   RecommendationPriority,
-  RecommendationStatus 
-} from '@prisma/client';
+  RecommendationStatus
+} from '@prisma/client-provider';
 
 export interface MetricData {
   service: InfrastructureService;

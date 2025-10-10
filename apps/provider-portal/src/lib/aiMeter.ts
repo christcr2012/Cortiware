@@ -2,7 +2,7 @@
 // Wraps all AI calls with usage tracking, budget enforcement, and credit management
 // Provides hard $50/month limit with graceful fallbacks
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 import OpenAI from 'openai';
 
 const prisma = new PrismaClient();

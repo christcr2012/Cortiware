@@ -1,16 +1,16 @@
 /**
  * Infrastructure Metrics Collection Cron Job
- * 
+ *
  * Runs every 15 minutes to:
  * - Collect metrics from all infrastructure services
  * - Generate upgrade recommendations
  * - Check for alert conditions
- * 
+ *
  * Secured with Bearer token authentication using CRON_SECRET
  */
 
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 import { InfrastructureMonitoringService } from '@/services/infrastructure';
 
 const prisma = new PrismaClient();

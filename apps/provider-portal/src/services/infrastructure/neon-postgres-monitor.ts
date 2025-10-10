@@ -8,9 +8,9 @@
  * - Estimated monthly cost (USD): storage + compute-hours (if Neon API configured)
  */
 
-import { InfrastructureService, MetricType } from '@prisma/client';
+import { InfrastructureService, MetricType } from '@prisma/client-provider';
 import type { MetricData } from './types';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client-provider';
 import { NeonApiClient } from './neon-api-client';
 
 export class NeonPostgresMonitor {
