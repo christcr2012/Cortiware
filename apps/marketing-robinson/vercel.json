@@ -3,6 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "cd ../.. && npm install",
+  "ignoreCommand": "npx turbo-ignore marketing-robinson",
   "rewrites": [
     {
       "source": "/portal/:path*",

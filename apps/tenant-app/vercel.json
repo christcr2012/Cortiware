@@ -2,6 +2,7 @@
   "buildCommand": "cd ../.. && node node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma && npm run build -- --filter=tenant-app",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "cd ../.. && npm install"
+  "installCommand": "cd ../.. && npm install",
+  "ignoreCommand": "npx turbo-ignore tenant-app"
 }
 

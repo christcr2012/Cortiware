@@ -3,6 +3,7 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "cd ../.. && npm install",
+  "ignoreCommand": "npx turbo-ignore provider-portal",
   "crons": [
     {
       "path": "/api/cron/collect-metrics",
