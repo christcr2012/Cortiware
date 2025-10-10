@@ -97,6 +97,8 @@ const IGNORE_PATTERNS = [
   /\.md$/i, // Markdown files (documentation)
   /INCIDENT_RESPONSE/i, // Incident response docs
   /SECRET_ROTATION/i, // Secret rotation docs
+  /tests\/.*\.test\.(ts|js)$/i, // Test files
+  /tests\/.*\.sh$/i, // Test scripts
 ];
 
 // Get staged files
