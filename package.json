@@ -30,7 +30,8 @@
     "contracts:diff": "node scripts/diff-contracts.js --fail-on-breaking",
     "contracts:check": "npm run contracts:gen && node scripts/diff-contracts.js --fail-on-breaking",
     "contracts:promote": "node scripts/promote-contracts.js",
-    "prepare": "node -e \"try{require('husky').install()}catch(e){process.exit(0)}\""
+    "prepare": "node -e \"try{require('husky').install()}catch(e){process.exit(0)}\"",
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma && prisma generate --schema=./apps/provider-portal/prisma/schema.prisma"
   },
   "dependencies": {
     "@prisma/client": "^6.16.2",
