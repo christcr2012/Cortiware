@@ -128,11 +128,13 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets[matrix.projectSecret] }}
         run: |
           npm install --global vercel@latest
-          # Pull project settings into the specific app directory so .vercel/project.json is created there
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ matrix.dir }}
-          # Build and deploy from that app directory
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ matrix.dir }}
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --cwd=${{ matrix.dir }}
+          cd ${{ matrix.dir }}
+          # Pull project settings into this app directory
+          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          # Build from this app directory
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+          # Deploy the prebuilt app
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deployment Summary (${{ matrix.name }})
         run: |
