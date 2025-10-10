@@ -20,23 +20,46 @@ export async function POST(req: NextRequest) {
 
     console.log('🌱 Seeding Leads Management test data...');
 
+    // Test database connection
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log('✅ Database connection OK');
+    } catch (dbError) {
+      console.error('❌ Database connection failed:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed', details: dbError instanceof Error ? dbError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
+
     // Find or create a test org
     let org = await prisma.org.findFirst({
-      where: { name: { contains: 'Test' } },
+      where: {
+        OR: [
+          { name: { contains: 'Test' } },
+          { slug: 'test-org-leads' }
+        ]
+      },
     });
 
     if (!org) {
-      org = await prisma.org.create({
-        data: {
-          id: 'org_test_leads_' + Date.now(),
-          name: 'Test Organization for Leads',
-          slug: 'test-org-leads',
-          tier: 'PROFESSIONAL',
-        },
-      });
-      console.log('✅ Created test org:', org.name);
+      // Get any existing org to use for testing
+      org = await prisma.org.findFirst();
+
+      if (!org) {
+        // Create a new test org only if no orgs exist
+        org = await prisma.org.create({
+          data: {
+            name: 'Test Organization for Leads',
+            slug: 'test-org-leads-' + Date.now(),
+          },
+        });
+        console.log('✅ Created test org:', org.name);
+      } else {
+        console.log('✅ Using existing org:', org.name);
+      }
     } else {
-      console.log('✅ Using existing org:', org.name);
+      console.log('✅ Using existing test org:', org.name);
     }
 
     // Create sample leads with different statuses
@@ -134,15 +157,20 @@ export async function POST(req: NextRequest) {
 
     const createdLeads = [];
     for (const leadData of leadsData) {
-      const lead = await prisma.lead.create({
-        data: {
-          ...leadData,
-          identityHash: `hash_${leadData.email}`,
-          publicId: `LEAD_${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        },
-      });
-      createdLeads.push(lead);
-      console.log(`✅ Created lead: ${lead.company} (${lead.status})`);
+      try {
+        const lead = await prisma.lead.create({
+          data: {
+            ...leadData,
+            identityHash: `hash_${leadData.email}`,
+            publicId: `LEAD_${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          },
+        });
+        createdLeads.push(lead);
+        console.log(`✅ Created lead: ${lead.company} (${lead.status})`);
+      } catch (leadError) {
+        console.error(`❌ Failed to create lead ${leadData.company}:`, leadError);
+        // Continue with other leads even if one fails
+      }
     }
 
     console.log('\n🎉 Seed complete! Created', createdLeads.length, 'test leads');
