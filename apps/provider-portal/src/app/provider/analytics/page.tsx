@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import FederationAnalyticsSection from './FederationAnalyticsSection';
 
 export default function ProviderAnalyticsPage() {
   const [data, setData] = useState<any>(null);
@@ -213,6 +214,11 @@ export default function ProviderAnalyticsPage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
+      </div>
+
+      {/* Federation Analytics Section */}
+      <div className="mt-8">
+        <FederationAnalyticsSection />
       </div>
     </div>
   );
