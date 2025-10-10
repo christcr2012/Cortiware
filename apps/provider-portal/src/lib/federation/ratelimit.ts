@@ -1,61 +1,47 @@
 /**
- * Rate limiting for federation API
- * Uses Redis if RATE_LIMIT_REDIS_URL is set, otherwise in-memory (dev only)
+ * Rate limiting for federation API using Redis
+ * Implements token bucket algorithm with Redis INCR and EXPIRE
  */
 
-// In-memory store for development (not suitable for production multi-instance)
-const memoryStore = new Map<string, { count: number; resetAt: number }>();
+import { getRedis } from '../redis';
 
 /**
- * Rate limit check using token bucket algorithm
+ * Rate limit check using token bucket algorithm with Redis
  * @param key - Unique key for rate limiting (e.g., orgId)
  * @param limitPerMin - Maximum requests per minute
  * @returns True if rate limit exceeded
  */
 export async function rateLimit(key: string, limitPerMin: number): Promise<boolean> {
-  const redisUrl = process.env.RATE_LIMIT_REDIS_URL;
-  
-  if (redisUrl) {
-    // TODO: Implement Redis-backed rate limiting for production
-    // For now, fall through to in-memory
-    console.warn('Redis rate limiting not yet implemented, using in-memory fallback');
-  }
-  
-  // In-memory implementation (dev only)
-  const now = Date.now();
-  const windowMs = 60_000; // 1 minute
-  const bucket = memoryStore.get(key);
-  
-  if (!bucket || now > bucket.resetAt) {
-    // New window
-    memoryStore.set(key, { count: 1, resetAt: now + windowMs });
+  const redis = getRedis();
+
+  if (!redis) {
+    // Redis not configured - fail open (allow request) with warning
+    console.warn('Redis not configured for rate limiting - allowing request');
     return false;
   }
-  
-  if (bucket.count >= limitPerMin) {
-    // Rate limit exceeded
-    return true;
-  }
-  
-  // Increment counter
-  bucket.count++;
-  return false;
-}
 
-/**
- * Clean up expired entries from in-memory store (call periodically)
- */
-export function cleanupMemoryStore(): void {
-  const now = Date.now();
-  for (const [key, bucket] of memoryStore.entries()) {
-    if (now > bucket.resetAt) {
-      memoryStore.delete(key);
+  const redisKey = `ratelimit:federation:${key}`;
+  const windowSeconds = 60; // 1 minute window
+
+  try {
+    // Use Redis INCR to atomically increment counter
+    const count = await redis.incr(redisKey);
+
+    // Set expiration on first request in window
+    if (count === 1) {
+      await redis.expire(redisKey, windowSeconds);
     }
-  }
-}
 
-// Auto-cleanup every 5 minutes
-if (typeof setInterval !== 'undefined') {
-  setInterval(cleanupMemoryStore, 5 * 60 * 1000);
+    // Check if limit exceeded
+    if (count > limitPerMin) {
+      return true; // Rate limit exceeded
+    }
+
+    return false; // Within limit
+  } catch (error) {
+    // Redis error - fail open (allow request) to prevent blocking legitimate traffic
+    console.error('Redis rate limit error:', error);
+    return false;
+  }
 }
 
