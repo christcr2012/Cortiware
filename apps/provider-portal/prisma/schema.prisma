@@ -324,6 +324,24 @@ model Lead {
   addressLine2    String?
   country         String?
 
+  // Dispute management (provider-side)
+  disputeStatus      DisputeStatus?      @default(NONE)
+  disputeReason      String?
+  disputeResolvedAt  DateTime?
+  disputeResolvedBy  String? // Provider user ID who resolved
+
+  // Classification (provider-side)
+  classificationType   ClassificationType?
+  classificationReason String?
+  classifiedAt         DateTime?
+  classifiedBy         String? // Provider user ID who classified
+
+  // Quality scoring (provider-side)
+  qualityScore       Int? // 1-10
+  qualityNotes       String?
+  qualityScoredAt    DateTime?
+  qualityScoredBy    String? // Provider user ID who scored
+
   org             Org               @relation(fields: [orgId], references: [id])
   LeadInvoiceLine LeadInvoiceLine[]
   @@index([orgId, createdAt])
@@ -331,6 +349,7 @@ model Lead {
   @@index([orgId, status])
   @@index([orgId, sourceType])
   @@index([orgId, identityHash])
+  @@index([orgId, disputeStatus])
 }
 
 model Customer {
@@ -543,6 +562,21 @@ enum Role {
   STAFF
   PROVIDER
   ACCOUNTANT
+}
+
+enum DisputeStatus {
+  NONE
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ClassificationType {
+  EMPLOYEE_REFERRAL
+  DUPLICATE
+  INVALID_CONTACT
+  OUT_OF_SERVICE_AREA
+  SPAM
 }
 
 enum LeadSource {
