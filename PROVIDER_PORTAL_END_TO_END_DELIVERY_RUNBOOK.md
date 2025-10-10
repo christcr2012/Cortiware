@@ -29,6 +29,30 @@ Notes:
 - We will add a seed path to create a test tenant.
 
 ---
+## 0a) Phase 0: Platform Integrity & Security Hardening (1–2 days)
+
+Tasks (from v2, merged into v3):
+1) Federation UI path fixes: replace all /api/provider/federation/* with /api/federation/* (done)
+2) API guardrails: wrap Federation & Monetization routes with compose(withProviderAuth(), withRateLimit('api')); keep audit wrappers on writes
+3) OIDC posture:
+   - Use /.well-known discovery for issuer metadata
+   - Encrypt clientSecret at rest (AES) and only ever reveal once at creation; redact on reads
+   - Keep POST /api/federation/oidc/test for connectivity checks; rate-limit it
+4) Observability & SLOs:
+   - Define 99.9% availability + 95th percentile latency SLOs for federation endpoints
+   - Alerts on spikes of 401/403/429 and error budget burn
+   - Add minimal dashboard panels (requests, p95 latency, 4xx/5xx, 429)
+5) Repo hygiene (plan only):
+   - Inventory root src/app/* for eventual removal; do not remove until Phase 1 ships and routing is confirmed
+
+Acceptance checks:
+- All federation screens (Keys, OIDC, Providers, Test) work end-to-end
+- 429s return correct headers when hammering a federation route
+- OIDC secret redaction verified via GET /api/federation/oidc
+- Alerts/dashboards created (or placeholders documented)
+
+---
+
 
 ## 1) Tenancy & Data Model (validate)
 
@@ -205,6 +229,7 @@ Pre‑checks
 - npm run typecheck; npm run build — both must pass
 
 Smoke
+
 - Login → Provider dashboard loads
 - /provider/clients shows the test tenant; clicking opens Client 360
 - /provider/action-center shows at least 1 item in each relevant bucket
@@ -228,6 +253,13 @@ Edge
 ---
 
 ## 12) Implementation Order (2–3 weeks)
+Phase 0 (1-2 days):
+1) Federation UI path fixes to /api/federation/* (done)
+2) Add withRateLimit('api') to Federation & Monetization routes (done)
+3) OIDC discovery + clientSecret encryption + one-time reveal + redaction
+4) Define SLOs/alerts and minimal dashboard for federation endpoints
+5) Repo hygiene inventory only (no removals yet)
+
 
 Week 1 (Operational):
 1) Implement withUsageLogging (both apps) + feature usage capture

@@ -76,6 +76,24 @@ Tenant App (context)
 - Login, Dashboard, Emergency access flows present; SAM.gov lives correctly in Tenant App (not Provider)
 
 ---
+## 3.5) Phase 0: Platform Integrity & Security Hardening (1–2 days)
+
+Scope (from v2, merged into v3):
+- Federation UI→API path corrections: use /api/federation/* everywhere (fixed in code)
+- API guardrails: add withRateLimit('api') to Federation and Monetization endpoints; keep withProviderAuth; wrap writes with audit (redact secrets)
+- OIDC: use /.well-known discovery; encrypt clientSecret at rest; one-time reveal; redact on reads; add connectivity test endpoint
+- Observability/SLOs: 99.9% availability target for federation endpoints; 95th percentile latency budget; alerts on 401/403/429 spikes; basic dashboard
+- Repo hygiene: inventory root src/app/* for eventual removal after business features ship (do not remove yet)
+
+Acceptance Criteria:
+- All Federation UI actions succeed (keys, providers, OIDC, test) against /api/federation/*
+- Rate limiting active on federation/monetization APIs (429s return with Retry-After headers)
+- OIDC clientSecret is stored encrypted and never returned in plaintext; redact in responses
+- Basic SLO monitors/alerts defined for federation routes
+- No breaking changes to business features; Week 1 can proceed
+
+---
+
 
 ## 4) Strategic Recommendations (Prioritized)
 
@@ -144,7 +162,7 @@ Copy and Micro‑UX
 - Replace “Provision resources” with “Set up their workspace”
 - Replace “Rate limit exceeded” with “Too many requests — try again in a moment”
 - Buttons use verbs: “Approve Dispute”, “Reclassify Lead”, “Create Task”, “Send Reminder”
-- Add empty states with helpful next steps (e.g., “No disputes today — see yesterday’s”) 
+- Add empty states with helpful next steps (e.g., “No disputes today — see yesterday’s”)
 
 Navigation & Layout
 - Add “Action Center” in top‑level nav
@@ -171,6 +189,7 @@ Status key: ✅ Functional, ⚠️ Incomplete/Misaligned, ❌ Missing
 - Tenant Health: ✅
 - Leads (with disputes/reclassify/quality/bulk): ✅
 - Analytics: ⚠️ confirm data sources
+
 - API Usage: ⚠️ complete table, modal, trends, CSV
 - Revenue Intelligence: ⚠️ implement v1
 - Billing: ✅
@@ -188,6 +207,14 @@ Status key: ✅ Functional, ⚠️ Incomplete/Misaligned, ❌ Missing
 ---
 
 ## 8) Implementation Blueprint (next 2–3 weeks)
+Phase 0 (1-2 days):
+- Federation UI path corrections to /api/federation/* (done)
+- Add withRateLimit('api') to Federation & Monetization routes (done)
+- OIDC discovery + clientSecret encryption + one-time reveal + redaction
+- Define SLOs/alerts and minimal dashboard for federation endpoints
+- Repo hygiene inventory only (no removals yet)
+
+
 
 Week 1 (Operational wins)
 - Tenant Onboarding: server + client + service; replace infra copy; add checklists
@@ -195,6 +222,7 @@ Week 1 (Operational wins)
 - UX Language Refresh: nav labels + key copy updates
 
 Week 2 (Revenue & Success)
+
 - Revenue Intelligence v1: KPIs, forecast, cohorts, waterfall
 - Client Success Workspace: Account 360, playbooks, tasks, timeline
 - Analytics data sources: wire to services; remove mocks
