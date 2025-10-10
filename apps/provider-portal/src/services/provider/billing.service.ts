@@ -40,48 +40,59 @@ export type ReconciliationGap = {
  * Get billing summary with revenue by stream
  */
 export async function getBillingSummary(): Promise<BillingSummary> {
-  const [payments, unbilledLeads, dunningInvoices] = await Promise.all([
-    prisma.payment.findMany({
-      select: { amount: true },
-    }),
-    prisma.lead.count({
-      where: {
-        status: 'CONVERTED',
-        convertedAt: { not: null },
-        // TODO: Add invoiced flag to Lead model
-      },
-    }),
-    prisma.invoice.count({
-      where: {
-        status: 'past_due',
-      },
-    }),
-  ]);
+  try {
+    const [payments, unbilledLeads, dunningInvoices] = await Promise.all([
+      prisma.payment.findMany({
+        select: { amount: true },
+      }),
+      prisma.lead.count({
+        where: {
+          status: 'CONVERTED',
+          convertedAt: { not: null },
+          // TODO: Add invoiced flag to Lead model
+        },
+      }),
+      prisma.invoice.count({
+        where: {
+          status: 'past_due',
+        },
+      }),
+    ]);
 
-  // Calculate revenue by stream from payment amount
-  const streamRevenue = new Map<string, number>();
-  let totalRevenueCents = 0;
+    // Calculate revenue by stream from payment amount
+    const streamRevenue = new Map<string, number>();
+    let totalRevenueCents = 0;
 
-  for (const payment of payments) {
-    const amountCents = Math.round(parseFloat(payment.amount.toString()) * 100);
-    const stream = 'payments'; // Simplified - no metadata in Payment model
-    const current = streamRevenue.get(stream) || 0;
-    streamRevenue.set(stream, current + amountCents);
-    totalRevenueCents += amountCents;
+    for (const payment of payments) {
+      const amountCents = Math.round(parseFloat(payment.amount.toString()) * 100);
+      const stream = 'payments'; // Simplified - no metadata in Payment model
+      const current = streamRevenue.get(stream) || 0;
+      streamRevenue.set(stream, current + amountCents);
+      totalRevenueCents += amountCents;
+    }
+
+    const revenueByStream = Array.from(streamRevenue.entries()).map(([stream, revenueCents]) => ({
+      stream,
+      revenueCents,
+    }));
+
+    return {
+      totalRevenueCents,
+      revenueByStream,
+      unbilledLeads,
+      unbilledRevenueCents: unbilledLeads * 50000, // Placeholder: $500 per lead
+      dunningCount: dunningInvoices,
+    };
+  } catch (error) {
+    console.error('Error in getBillingSummary:', error);
+    return {
+      totalRevenueCents: 0,
+      revenueByStream: [],
+      unbilledLeads: 0,
+      unbilledRevenueCents: 0,
+      dunningCount: 0,
+    };
   }
-
-  const revenueByStream = Array.from(streamRevenue.entries()).map(([stream, revenueCents]) => ({
-    stream,
-    revenueCents,
-  }));
-
-  return {
-    totalRevenueCents,
-    revenueByStream,
-    unbilledLeads,
-    unbilledRevenueCents: unbilledLeads * 50000, // Placeholder: $500 per lead
-    dunningCount: dunningInvoices,
-  };
 }
 
 /**

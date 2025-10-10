@@ -29,49 +29,59 @@ export type AuditEventItem = {
  * Get audit summary
  */
 export async function getAuditSummary(): Promise<AuditSummary> {
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  try {
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const [totalEvents, recentEvents, entities, users] = await Promise.all([
-    prisma.auditLog.count(),
-    prisma.auditLog.count({
-      where: {
-        createdAt: { gte: twentyFourHoursAgo },
-      },
-    }),
-    prisma.auditLog.findMany({
-      select: { entity: true },
-      distinct: ['entity'],
-      take: 5,
-    }),
-    prisma.auditLog.findMany({
-      where: { actorUserId: { not: null } },
-      select: { actorUserId: true },
-      distinct: ['actorUserId'],
-      take: 5,
-    }),
-  ]);
+    const [totalEvents, recentEvents, entities, users] = await Promise.all([
+      prisma.auditLog.count(),
+      prisma.auditLog.count({
+        where: {
+          createdAt: { gte: twentyFourHoursAgo },
+        },
+      }),
+      prisma.auditLog.findMany({
+        select: { entity: true },
+        distinct: ['entity'],
+        take: 5,
+      }),
+      prisma.auditLog.findMany({
+        where: { actorUserId: { not: null } },
+        select: { actorUserId: true },
+        distinct: ['actorUserId'],
+        take: 5,
+      }),
+    ]);
 
-  // Count occurrences
-  const entityCounts = await Promise.all(
-    entities.map(async (e) => ({
-      entity: e.entity,
-      count: await prisma.auditLog.count({ where: { entity: e.entity } }),
-    }))
-  );
+    // Count occurrences
+    const entityCounts = await Promise.all(
+      entities.map(async (e) => ({
+        entity: e.entity,
+        count: await prisma.auditLog.count({ where: { entity: e.entity } }),
+      }))
+    );
 
-  const userCounts = await Promise.all(
-    users.map(async (u) => ({
-      userId: u.actorUserId!,
-      count: await prisma.auditLog.count({ where: { actorUserId: u.actorUserId } }),
-    }))
-  );
+    const userCounts = await Promise.all(
+      users.map(async (u) => ({
+        userId: u.actorUserId!,
+        count: await prisma.auditLog.count({ where: { actorUserId: u.actorUserId } }),
+      }))
+    );
 
-  return {
-    totalEvents,
-    recentEvents,
-    topEntities: entityCounts.sort((a, b) => b.count - a.count),
-    topUsers: userCounts.sort((a, b) => b.count - a.count),
-  };
+    return {
+      totalEvents,
+      recentEvents,
+      topEntities: entityCounts.sort((a, b) => b.count - a.count),
+      topUsers: userCounts.sort((a, b) => b.count - a.count),
+    };
+  } catch (error) {
+    console.error('Error in getAuditSummary:', error);
+    return {
+      totalEvents: 0,
+      recentEvents: 0,
+      topEntities: [],
+      topUsers: [],
+    };
+  }
 }
 
 /**
