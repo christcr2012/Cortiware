@@ -1,21 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
+import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
+import { withAudit } from '@/lib/api/audit-middleware';
 
 export const dynamic = 'force-dynamic';
 
-function ensureProviderCookie(jar: Awaited<ReturnType<typeof cookies>>) {
-  return jar.get('rs_provider') || jar.get('provider-session') || jar.get('ws_provider');
-}
-
-export async function GET() {
+const getHandler = async () => {
   const cfg = await prisma.globalMonetizationConfig.findFirst({ include: { defaultPlan: true, defaultPrice: true } });
   return NextResponse.json({ item: cfg });
-}
+};
 
-export async function PATCH(req: NextRequest) {
-  const jar = await cookies();
-  if (!ensureProviderCookie(jar)) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
+const patchHandler = async (req: NextRequest) => {
   const body = await req.json().catch(() => ({}));
   const { defaultPlanId, defaultPriceId, defaultTrialDays, publicOnboarding } = body || {};
   const first = await prisma.globalMonetizationConfig.findFirst();
@@ -27,5 +22,16 @@ export async function PATCH(req: NextRequest) {
     item = await prisma.globalMonetizationConfig.create({ data });
   }
   return NextResponse.json({ ok: true, item });
-}
+};
+
+export const GET = compose(withProviderAuth(), withRateLimit('api'))(getHandler);
+
+export const PATCH = compose(withProviderAuth(), withRateLimit('api'))(
+  withAudit(patchHandler, {
+    action: 'update',
+    entityType: 'global_monetization_config',
+    actorType: 'provider',
+    redactFields: [],
+  })
+);
 
