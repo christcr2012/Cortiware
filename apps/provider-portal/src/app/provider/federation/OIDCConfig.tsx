@@ -20,7 +20,7 @@ export default function OIDCConfig() {
   const fetchConfig = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/provider/federation/oidc');
+      const res = await fetch('/api/federation/oidc');
       if (res.ok) {
         const data = await res.json();
         setConfig(data.config);
@@ -35,7 +35,7 @@ export default function OIDCConfig() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetch('/api/provider/federation/oidc', {
+      const res = await fetch('/api/federation/oidc', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(config)
@@ -55,7 +55,7 @@ export default function OIDCConfig() {
     setTesting(true);
     setTestResult(null);
     try {
-      const res = await fetch('/api/provider/federation/oidc/test', {
+      const res = await fetch('/api/federation/oidc/test', {
         method: 'POST'
       });
       

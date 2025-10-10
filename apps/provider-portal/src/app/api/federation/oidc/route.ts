@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
 import { withAudit } from '@/lib/api/audit-middleware';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
@@ -110,8 +110,8 @@ const patchHandler = async (req: NextRequest) => {
   }
 };
 
-export const GET = compose(withProviderAuth())(getHandler);
-export const POST = compose(withProviderAuth())(
+export const GET = compose(withProviderAuth(), withRateLimit('api'))(getHandler);
+export const POST = compose(withProviderAuth(), withRateLimit('api'))(
   withAudit(postHandler, {
     action: 'create',
     entityType: 'oidc_config',
@@ -119,7 +119,7 @@ export const POST = compose(withProviderAuth())(
     redactFields: ['clientSecret'],
   })
 );
-export const PATCH = compose(withProviderAuth())(
+export const PATCH = compose(withProviderAuth(), withRateLimit('api'))(
   withAudit(patchHandler, {
     action: 'update',
     entityType: 'oidc_config',

@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
 import { withAudit } from '@/lib/api/audit-middleware';
 import { prisma } from '@/lib/prisma';
 
@@ -22,7 +22,7 @@ const deleteHandler = async (req: NextRequest, { params }: { params: Promise<{ i
   }
 };
 
-export const DELETE = compose(withProviderAuth())(
+export const DELETE = compose(withProviderAuth(), withRateLimit('api'))(
   withAudit(deleteHandler, {
     action: 'delete',
     entityType: 'federation_key',

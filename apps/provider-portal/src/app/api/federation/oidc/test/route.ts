@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
 
 const postHandler = async (req: NextRequest) => {
   try {
@@ -12,5 +12,5 @@ const postHandler = async (req: NextRequest) => {
   }
 };
 
-export const POST = compose(withProviderAuth())(postHandler);
+export const POST = compose(withProviderAuth(), withRateLimit('api'))(postHandler);
 

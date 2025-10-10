@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth } from '@/lib/api/middleware';
+import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
 import { withAudit } from '@/lib/api/audit-middleware';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
@@ -67,8 +67,8 @@ const postHandler = async (req: NextRequest) => {
   }
 };
 
-export const GET = compose(withProviderAuth())(getHandler);
-export const POST = compose(withProviderAuth())(
+export const GET = compose(withProviderAuth(), withRateLimit('api'))(getHandler);
+export const POST = compose(withProviderAuth(), withRateLimit('api'))(
   withAudit(postHandler, {
     action: 'create',
     entityType: 'federation_key',

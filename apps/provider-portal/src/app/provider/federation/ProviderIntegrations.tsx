@@ -43,7 +43,7 @@ export default function ProviderIntegrations() {
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/provider/federation/providers');
+      const res = await fetch('/api/federation/providers');
       if (res.ok) {
         const data = await res.json();
         setProviders(data.providers || []);
@@ -60,7 +60,7 @@ export default function ProviderIntegrations() {
     
     setAdding(true);
     try {
-      const res = await fetch('/api/provider/federation/providers', {
+      const res = await fetch('/api/federation/providers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newProvider)
@@ -89,7 +89,7 @@ export default function ProviderIntegrations() {
 
   const handleSaveEdit = async (id: string) => {
     try {
-      const res = await fetch(`/api/provider/federation/providers/${id}`, {
+      const res = await fetch(`/api/federation/providers/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editData),
@@ -113,7 +113,7 @@ export default function ProviderIntegrations() {
     if (!confirm('Are you sure you want to remove this provider integration?')) return;
 
     try {
-      const res = await fetch(`/api/provider/federation/providers/${id}`, {
+      const res = await fetch(`/api/federation/providers/${id}`, {
         method: 'DELETE'
       });
 
@@ -154,7 +154,7 @@ export default function ProviderIntegrations() {
 
     try {
       const promises = Array.from(selectedProviders).map(id =>
-        fetch(`/api/provider/federation/providers/${id}`, {
+        fetch(`/api/federation/providers/${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ enabled: bulkAction === 'enable' }),
@@ -175,7 +175,7 @@ export default function ProviderIntegrations() {
   const handleTestConnection = async (id: string) => {
     setTestingId(id);
     try {
-      const res = await fetch(`/api/provider/federation/providers/${id}/test`, {
+      const res = await fetch(`/api/federation/providers/${id}/test`, {
         method: 'POST',
       });
       const data = await res.json();

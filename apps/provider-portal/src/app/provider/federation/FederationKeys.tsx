@@ -15,7 +15,7 @@ export default function FederationKeys() {
   const fetchKeys = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/provider/federation/keys');
+      const res = await fetch('/api/federation/keys');
       if (res.ok) {
         const data = await res.json();
         setKeys(data.keys || []);
@@ -32,7 +32,7 @@ export default function FederationKeys() {
     
     setCreating(true);
     try {
-      const res = await fetch('/api/provider/federation/keys', {
+      const res = await fetch('/api/federation/keys', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newKeyName })
@@ -60,7 +60,7 @@ export default function FederationKeys() {
     if (!confirm('Are you sure you want to revoke this key?')) return;
     
     try {
-      const res = await fetch(`/api/provider/federation/keys/${id}`, {
+      const res = await fetch(`/api/federation/keys/${id}`, {
         method: 'DELETE'
       });
       
