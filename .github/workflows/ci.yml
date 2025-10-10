@@ -25,8 +25,12 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
+      - name: Generate Prisma Clients
+        run: |
+          # Generate for tenant-app (root schema)
+          npx prisma generate
+          # Generate for provider-portal
+          npx prisma generate --schema=apps/provider-portal/prisma/schema.prisma
 
       - name: TypeScript Type Check
         run: npm run typecheck
