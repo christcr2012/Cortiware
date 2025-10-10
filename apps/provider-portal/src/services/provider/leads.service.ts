@@ -55,51 +55,56 @@ export async function getLeadSummary(): Promise<LeadSummary> {
 }
 
 export async function listLeads(params: LeadListParams) {
-  const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
-  const where: any = {};
+  try {
+    const limit = Math.min(Math.max(params.limit ?? 20, 1), 100);
+    const where: any = {};
 
-  if (params.status && params.status !== 'ALL') where.status = params.status;
-  if (params.orgId) where.orgId = params.orgId;
-  if (params.sourceType) where.sourceType = params.sourceType as any;
-  if (params.q) {
-    where.OR = [
-      { email: { contains: params.q, mode: 'insensitive' } },
-      { company: { contains: params.q, mode: 'insensitive' } },
-      { contactName: { contains: params.q, mode: 'insensitive' } },
-    ];
+    if (params.status && params.status !== 'ALL') where.status = params.status;
+    if (params.orgId) where.orgId = params.orgId;
+    if (params.sourceType) where.sourceType = params.sourceType as any;
+    if (params.q) {
+      where.OR = [
+        { email: { contains: params.q, mode: 'insensitive' } },
+        { company: { contains: params.q, mode: 'insensitive' } },
+        { contactName: { contains: params.q, mode: 'insensitive' } },
+      ];
+    }
+
+    const leads = await prisma.lead.findMany({
+      where,
+      take: limit + 1,
+      orderBy: { createdAt: 'desc' },
+      cursor: params.cursor ? { id: params.cursor } : undefined,
+      include: {
+        org: { select: { id: true, name: true } },
+      },
+    });
+
+    let nextCursor: string | null = null;
+    if (leads.length > limit) {
+      const next = leads.pop();
+      nextCursor = next?.id ?? null;
+    }
+
+    return {
+      items: leads.map(l => ({
+        id: l.id,
+        createdAt: l.createdAt,
+        status: l.status as LeadStatus,
+        company: l.company ?? '',
+        contactName: l.contactName ?? '',
+        email: l.email ?? '',
+        orgId: l.orgId,
+        orgName: l.org?.name ?? '',
+        sourceType: String(l.sourceType),
+        convertedAt: l.convertedAt ?? undefined,
+      })),
+      nextCursor,
+    };
+  } catch (error) {
+    console.error('Error in listLeads:', error);
+    return { items: [], nextCursor: null };
   }
-
-  const leads = await prisma.lead.findMany({
-    where,
-    take: limit + 1,
-    orderBy: { createdAt: 'desc' },
-    cursor: params.cursor ? { id: params.cursor } : undefined,
-    include: {
-      org: { select: { id: true, name: true } },
-    },
-  });
-
-  let nextCursor: string | null = null;
-  if (leads.length > limit) {
-    const next = leads.pop();
-    nextCursor = next?.id ?? null;
-  }
-
-  return {
-    items: leads.map(l => ({
-      id: l.id,
-      createdAt: l.createdAt,
-      status: l.status as LeadStatus,
-      company: l.company ?? '',
-      contactName: l.contactName ?? '',
-      email: l.email ?? '',
-      orgId: l.orgId,
-      orgName: l.org?.name ?? '',
-      sourceType: String(l.sourceType),
-      convertedAt: l.convertedAt ?? undefined,
-    })),
-    nextCursor,
-  };
 }
 
 function startOfToday() {

@@ -99,31 +99,36 @@ export async function getBillingSummary(): Promise<BillingSummary> {
  * Get detailed revenue breakdown by stream
  */
 export async function getRevenueByStream(): Promise<RevenueByStream> {
-  const payments = await prisma.payment.findMany({
-    select: { amount: true },
-  });
+  try {
+    const payments = await prisma.payment.findMany({
+      select: { amount: true },
+    });
 
-  let leads = 0;
-  let subscriptions = 0;
-  let usage = 0;
-  let addons = 0;
-  let ai = 0;
+    let leads = 0;
+    let subscriptions = 0;
+    let usage = 0;
+    let addons = 0;
+    let ai = 0;
 
-  for (const payment of payments) {
-    const amountCents = Math.round(parseFloat(payment.amount.toString()) * 100);
-    // Simplified: all payments go to general revenue
-    // TODO: Add stream metadata to Payment model
-    leads += amountCents;
+    for (const payment of payments) {
+      const amountCents = Math.round(parseFloat(payment.amount.toString()) * 100);
+      // Simplified: all payments go to general revenue
+      // TODO: Add stream metadata to Payment model
+      leads += amountCents;
+    }
+
+    return {
+      leads,
+      subscriptions,
+      usage,
+      addons,
+      ai,
+      total: leads + subscriptions + usage + addons + ai,
+    };
+  } catch (error) {
+    console.error('Error in getRevenueByStream:', error);
+    return { leads: 0, subscriptions: 0, usage: 0, addons: 0, ai: 0, total: 0 };
   }
-
-  return {
-    leads,
-    subscriptions,
-    usage,
-    addons,
-    ai,
-    total: leads + subscriptions + usage + addons + ai,
-  };
 }
 
 /**
@@ -131,38 +136,43 @@ export async function getRevenueByStream(): Promise<RevenueByStream> {
  * Returns leads that have been converted but not yet invoiced
  */
 export async function getUnbilledLeads(): Promise<UnbilledLead[]> {
-  const leads = await prisma.lead.findMany({
-    where: {
-      status: 'CONVERTED',
-      convertedAt: { not: null },
-      // Filter for leads not yet associated with a LeadInvoiceLine
-      LeadInvoiceLine: {
-        none: {},
+  try {
+    const leads = await prisma.lead.findMany({
+      where: {
+        status: 'CONVERTED',
+        convertedAt: { not: null },
+        // Filter for leads not yet associated with a LeadInvoiceLine
+        LeadInvoiceLine: {
+          none: {},
+        },
       },
-    },
-    select: {
-      id: true,
-      orgId: true,
-      updatedAt: true,
-      convertedAt: true,
-    },
-  });
+      select: {
+        id: true,
+        orgId: true,
+        updatedAt: true,
+        convertedAt: true,
+      },
+    });
 
-  // Get org names separately
-  const orgIds = [...new Set(leads.map(l => l.orgId))];
-  const orgs = await prisma.org.findMany({
-    where: { id: { in: orgIds } },
-    select: { id: true, name: true },
-  });
-  const orgMap = new Map(orgs.map(o => [o.id, o.name]));
+    // Get org names separately
+    const orgIds = [...new Set(leads.map(l => l.orgId))];
+    const orgs = await prisma.org.findMany({
+      where: { id: { in: orgIds } },
+      select: { id: true, name: true },
+    });
+    const orgMap = new Map(orgs.map(o => [o.id, o.name]));
 
-  return leads.map((lead) => ({
-    id: lead.id,
-    orgId: lead.orgId,
-    orgName: orgMap.get(lead.orgId) || 'Unknown',
-    convertedAt: (lead.convertedAt || lead.updatedAt).toISOString(),
-    estimatedValueCents: 50000, // Placeholder: $500 per lead
-  }));
+    return leads.map((lead) => ({
+      id: lead.id,
+      orgId: lead.orgId,
+      orgName: orgMap.get(lead.orgId) || 'Unknown',
+      convertedAt: (lead.convertedAt || lead.updatedAt).toISOString(),
+      estimatedValueCents: 50000, // Placeholder: $500 per lead
+    }));
+  } catch (error) {
+    console.error('Error in getUnbilledLeads:', error);
+    return [];
+  }
 }
 
 /**
@@ -219,44 +229,49 @@ export async function getDunningQueue(): Promise<Array<{
   dueDate: string;
   attemptCount: number;
 }>> {
-  const invoices = await prisma.invoice.findMany({
-    where: {
-      status: 'past_due',
-    },
-    select: {
-      id: true,
-      orgId: true,
-      amount: true,
-      issuedAt: true,
-    },
-    orderBy: { issuedAt: 'asc' },
-  });
+  try {
+    const invoices = await prisma.invoice.findMany({
+      where: {
+        status: 'past_due',
+      },
+      select: {
+        id: true,
+        orgId: true,
+        amount: true,
+        issuedAt: true,
+      },
+      orderBy: { issuedAt: 'asc' },
+    });
 
-  // Get org names
-  const orgIds = [...new Set(invoices.map(i => i.orgId))];
-  const orgs = await prisma.org.findMany({
-    where: { id: { in: orgIds } },
-    select: { id: true, name: true },
-  });
-  const orgMap = new Map(orgs.map(o => [o.id, o.name]));
+    // Get org names
+    const orgIds = [...new Set(invoices.map(i => i.orgId))];
+    const orgs = await prisma.org.findMany({
+      where: { id: { in: orgIds } },
+      select: { id: true, name: true },
+    });
+    const orgMap = new Map(orgs.map(o => [o.id, o.name]));
 
-  // Compute attempt counts per invoice (retry-* references)
-  const invoiceIds = invoices.map(i => i.id);
-  const attempts = await prisma.payment.findMany({
-    where: { invoiceId: { in: invoiceIds }, reference: { startsWith: 'retry-' } },
-    select: { invoiceId: true },
-  });
-  const attemptMap = new Map<string, number>();
-  for (const a of attempts) attemptMap.set(a.invoiceId!, (attemptMap.get(a.invoiceId!) || 0) + 1);
+    // Compute attempt counts per invoice (retry-* references)
+    const invoiceIds = invoices.map(i => i.id);
+    const attempts = await prisma.payment.findMany({
+      where: { invoiceId: { in: invoiceIds }, reference: { startsWith: 'retry-' } },
+      select: { invoiceId: true },
+    });
+    const attemptMap = new Map<string, number>();
+    for (const a of attempts) attemptMap.set(a.invoiceId!, (attemptMap.get(a.invoiceId!) || 0) + 1);
 
-  return invoices.map((inv) => ({
-    invoiceId: inv.id,
-    orgId: inv.orgId,
-    orgName: orgMap.get(inv.orgId) || 'Unknown',
-    amountCents: Math.round(parseFloat(inv.amount.toString()) * 100),
-    dueDate: inv.issuedAt.toISOString(),
-    attemptCount: attemptMap.get(inv.id) || 0,
-  }));
+    return invoices.map((inv) => ({
+      invoiceId: inv.id,
+      orgId: inv.orgId,
+      orgName: orgMap.get(inv.orgId) || 'Unknown',
+      amountCents: Math.round(parseFloat(inv.amount.toString()) * 100),
+      dueDate: inv.issuedAt.toISOString(),
+      attemptCount: attemptMap.get(inv.id) || 0,
+    }));
+  } catch (error) {
+    console.error('Error in getDunningQueue:', error);
+    return [];
+  }
 }
 
 /**

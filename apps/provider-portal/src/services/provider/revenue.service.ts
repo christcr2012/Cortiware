@@ -82,20 +82,21 @@ export interface RevenueWaterfall {
  * Get current revenue metrics with growth rates
  */
 export async function getRevenueMetrics(): Promise<RevenueMetrics> {
-  const now = new Date();
-  const currentMonth = getStartOfMonth(now);
-  const lastMonth = getStartOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
-  const lastYear = getStartOfMonth(new Date(now.getFullYear() - 1, now.getMonth(), 1));
+  try {
+    const now = new Date();
+    const currentMonth = getStartOfMonth(now);
+    const lastMonth = getStartOfMonth(new Date(now.getFullYear(), now.getMonth() - 1, 1));
+    const lastYear = getStartOfMonth(new Date(now.getFullYear() - 1, now.getMonth(), 1));
 
-  // Get active subscriptions for current MRR
-  const activeSubscriptions = await safeQuery(
-    () => prisma.subscription.findMany({
-      where: { status: 'active' },
-      select: { priceCents: true, orgId: true },
-    }),
-    [],
-    'Failed to fetch active subscriptions'
-  );
+    // Get active subscriptions for current MRR
+    const activeSubscriptions = await safeQuery(
+      () => prisma.subscription.findMany({
+        where: { status: 'active' },
+        select: { priceCents: true, orgId: true },
+      }),
+      [],
+      'Failed to fetch active subscriptions'
+    );
 
   const mrrCents = activeSubscriptions.reduce((sum, sub) => sum + sub.priceCents, 0);
   const arrCents = mrrCents * 12;
@@ -143,19 +144,31 @@ export async function getRevenueMetrics(): Promise<RevenueMetrics> {
     0
   );
 
-  const averageRevenuePerAccount = activeSubscriptions.length > 0
-    ? mrrCents / activeSubscriptions.length
-    : 0;
+    const averageRevenuePerAccount = activeSubscriptions.length > 0
+      ? mrrCents / activeSubscriptions.length
+      : 0;
 
-  return {
-    mrrCents,
-    arrCents,
-    momGrowthPercent: Math.round(momGrowthPercent * 100) / 100,
-    yoyGrowthPercent: Math.round(yoyGrowthPercent * 100) / 100,
-    totalRevenueCents,
-    activeSubscriptions: activeSubscriptions.length,
-    averageRevenuePerAccount: Math.round(averageRevenuePerAccount),
-  };
+    return {
+      mrrCents,
+      arrCents,
+      momGrowthPercent: Math.round(momGrowthPercent * 100) / 100,
+      yoyGrowthPercent: Math.round(yoyGrowthPercent * 100) / 100,
+      totalRevenueCents,
+      activeSubscriptions: activeSubscriptions.length,
+      averageRevenuePerAccount: Math.round(averageRevenuePerAccount),
+    };
+  } catch (error) {
+    console.error('Error in getRevenueMetrics:', error);
+    return {
+      mrrCents: 0,
+      arrCents: 0,
+      momGrowthPercent: 0,
+      yoyGrowthPercent: 0,
+      totalRevenueCents: 0,
+      activeSubscriptions: 0,
+      averageRevenuePerAccount: 0,
+    };
+  }
 }
 
 /**
