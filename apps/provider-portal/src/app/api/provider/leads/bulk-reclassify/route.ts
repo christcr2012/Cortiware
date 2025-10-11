@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client-provider';
 
 /**
  * POST /api/provider/leads/bulk-reclassify
@@ -73,7 +74,7 @@ export async function POST(req: NextRequest) {
             entity: 'lead',
             entityId: lead.id,
             field: 'classificationType',
-            oldValue: null,
+            oldValue: Prisma.JsonNull,
             newValue: enumType,
             reason: `Bulk reclassify: ${classificationType.replace('_', ' ')} (${leadIds.length} leads)`,
           },

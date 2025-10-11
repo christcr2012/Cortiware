@@ -49,6 +49,9 @@ jobs:
         run: timeout 5m npm run test:unit || (echo "Tests timed out after 5 minutes" && exit 1)
         timeout-minutes: 6
 
+      - name: Route Count Check (36-route cap)
+        run: npx tsx scripts/ci/verify_route_count.ts
+
   # ============================================================================
   # CONTRACT VALIDATION - Run only on PRs
   # ============================================================================

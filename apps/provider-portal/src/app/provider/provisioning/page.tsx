@@ -10,6 +10,8 @@ import {
   getProvisioningTemplates,
   getActiveWorkflows,
   getWorkflowStats,
+  type ProvisioningTemplate,
+  type ProvisioningWorkflow,
 } from '@/services/provider/provisioning.service';
 
 export const metadata = {
@@ -17,11 +19,29 @@ export const metadata = {
   description: 'Automated tenant provisioning workflows and templates',
 };
 
+type WorkflowStats = {
+  total: number;
+  completed: number;
+  inProgress: number;
+  awaitingApproval: number;
+  failed: number;
+  successRate: number;
+  avgCompletionTimeMinutes: number;
+};
+
 export default async function ProvisioningPage() {
   // Handle build-time gracefully (no DATABASE_URL available)
-  let templates = [];
-  let workflows = [];
-  let stats = { total: 0, active: 0, completed: 0, failed: 0 };
+  let templates: ProvisioningTemplate[] = [];
+  let workflows: ProvisioningWorkflow[] = [];
+  let stats: WorkflowStats = {
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    awaitingApproval: 0,
+    failed: 0,
+    successRate: 0,
+    avgCompletionTimeMinutes: 0
+  };
 
   try {
     [templates, workflows, stats] = await Promise.all([

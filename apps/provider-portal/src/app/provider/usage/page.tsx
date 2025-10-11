@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getUsageSummary, listUsageMeters, getMeterRatingSummary } from '@/services/provider/usage.service';
+import { getUsageSummary, listUsageMeters, getMeterRatingSummary, type UsageSummary, type UsageMeterItem, type MeterRatingSummary } from '@/services/provider/usage.service';
 
 export default async function ProviderUsagePage(props: any) {
   const jar = await cookies();
@@ -9,9 +9,14 @@ export default async function ProviderUsagePage(props: any) {
   }
 
   // Handle build-time gracefully (no DATABASE_URL available)
-  let summary = { totalMeters: 0, totalQuantity: 0, uniqueOrgs: 0, topMeters: [] };
-  let ratingSummary: any[] = [];
-  let page = { items: [], nextCursor: null };
+  let summary: UsageSummary = {
+    totalMeters: 0,
+    totalQuantity: 0,
+    uniqueOrgs: 0,
+    topMeters: []
+  };
+  let ratingSummary: MeterRatingSummary[] = [];
+  let page: { items: UsageMeterItem[]; nextCursor: string | null } = { items: [], nextCursor: null };
 
   try {
     [summary, ratingSummary] = await Promise.all([

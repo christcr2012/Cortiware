@@ -14,6 +14,13 @@ import {
   getChurnImpact,
   getLtvCacMetrics,
   getRevenueWaterfall,
+  type RevenueMetrics,
+  type RevenueForecast,
+  type CohortData,
+  type ExpansionMetrics,
+  type ChurnImpact,
+  type LtvCacMetrics,
+  type RevenueWaterfall,
 } from '@/services/provider/revenue.service';
 
 export const metadata = {
@@ -23,13 +30,49 @@ export const metadata = {
 
 async function RevenueData() {
   // Handle build-time gracefully (no DATABASE_URL available)
-  let metrics = { mrr: 0, arr: 0, growth: 0, churn: 0 };
-  let forecast = [];
-  let cohorts = [];
-  let expansion = { rate: 0, revenue: 0 };
-  let churn = { rate: 0, impact: 0 };
-  let ltvCac = { ltv: 0, cac: 0, ratio: 0 };
-  let waterfall = [];
+  let metrics: RevenueMetrics = {
+    mrrCents: 0,
+    arrCents: 0,
+    momGrowthPercent: 0,
+    yoyGrowthPercent: 0,
+    totalRevenueCents: 0,
+    activeSubscriptions: 0,
+    averageRevenuePerAccount: 0
+  };
+  let forecast: RevenueForecast[] = [];
+  let cohorts: CohortData[] = [];
+  let expansion: ExpansionMetrics = {
+    expansionMrrCents: 0,
+    contractionMrrCents: 0,
+    netExpansionRate: 0,
+    upgradeCount: 0,
+    downgradeCount: 0,
+    averageExpansionCents: 0
+  };
+  let churn: ChurnImpact = {
+    churnedMrrCents: 0,
+    churnedCustomers: 0,
+    churnRate: 0,
+    annualizedChurnImpactCents: 0,
+    topChurnReasons: []
+  };
+  let ltvCac: LtvCacMetrics = {
+    averageLtvCents: 0,
+    averageCacCents: 0,
+    ltvCacRatio: 0,
+    benchmark: 'Poor',
+    paybackMonths: 0
+  };
+  let waterfall: RevenueWaterfall = {
+    startingMrrCents: 0,
+    newMrrCents: 0,
+    expansionMrrCents: 0,
+    contractionMrrCents: 0,
+    churnedMrrCents: 0,
+    endingMrrCents: 0,
+    netChangeCents: 0,
+    netChangePercent: 0
+  };
 
   try {
     // Fetch all revenue data in parallel

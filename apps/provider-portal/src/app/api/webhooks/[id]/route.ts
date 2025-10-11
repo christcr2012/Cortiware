@@ -8,7 +8,7 @@ import { FEDERATION_PERMS, hasPermission, getUserRole, isProduction } from '@/li
  */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   // RBAC: Check federation write permission
   const role = await getUserRole(req);
@@ -33,7 +33,7 @@ export async function PATCH(
     );
   }
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await req.json();
     const { isActive } = body;
 

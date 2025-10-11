@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getAuditSummary, listAuditEvents } from '@/services/provider/audit.service';
+import { getAuditSummary, listAuditEvents, type AuditSummary, type AuditEventItem } from '@/services/provider/audit.service';
 
 export default async function ProviderAuditPage(props: any) {
   const jar = await cookies();
@@ -9,8 +9,13 @@ export default async function ProviderAuditPage(props: any) {
   }
 
   // Handle build-time gracefully (no DATABASE_URL available)
-  let summary = { totalEvents: 0, uniqueEntities: 0, uniqueOrgs: 0, topEntities: [] };
-  let page = { items: [], nextCursor: null };
+  let summary: AuditSummary = {
+    totalEvents: 0,
+    recentEvents: 0,
+    topEntities: [],
+    topUsers: []
+  };
+  let page: { items: AuditEventItem[]; nextCursor: string | null } = { items: [], nextCursor: null };
 
   try {
     summary = await getAuditSummary();

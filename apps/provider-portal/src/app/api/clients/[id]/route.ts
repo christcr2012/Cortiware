@@ -7,9 +7,9 @@ import { compose, withProviderAuth } from '@/lib/api/middleware';
  * GET /api/provider/clients/[id]
  * Get detailed information about a specific client
  */
-const getHandler = async (req: NextRequest, { params }: { params: { id: string } }) => {
+const getHandler = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     const org = await prisma.org.findUnique({
       where: { id },
@@ -126,9 +126,9 @@ const getHandler = async (req: NextRequest, { params }: { params: { id: string }
  * PATCH /api/provider/clients/[id]
  * Update client organization
  */
-const patchHandler = async (req: NextRequest, { params }: { params: { id: string } }) => {
+const patchHandler = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   try {
-    const { id } = params;
+    const { id} = await params;
     const body = await req.json();
     const { name, status } = body;
 

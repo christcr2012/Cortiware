@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client-provider';
 
 /**
  * POST /api/provider/leads/reclassify
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
         entity: 'lead',
         entityId: leadId,
         field: 'classificationType',
-        oldValue: lead.classificationType || null,
+        oldValue: lead.classificationType ?? Prisma.JsonNull,
         newValue: enumType,
         reason: reason || `Reclassified as ${classificationType.replace('_', ' ')}`,
       },

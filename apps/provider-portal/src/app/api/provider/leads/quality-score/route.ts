@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client-provider';
 
 /**
  * POST /api/provider/leads/quality-score
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
         entity: 'lead',
         entityId: leadId,
         field: 'qualityScore',
-        oldValue: lead.qualityScore,
+        oldValue: lead.qualityScore ?? Prisma.JsonNull,
         newValue: qualityScore,
         reason: qualityNotes || `Quality scored: ${qualityScore}/10`,
       },

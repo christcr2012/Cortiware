@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getAddonSummary, listAddonPurchases } from '@/services/provider/addons.service';
+import { getAddonSummary, listAddonPurchases, type AddonSummary, type AddonPurchaseItem } from '@/services/provider/addons.service';
 
 export default async function ProviderAddonsPage(props: any) {
   const jar = await cookies();
@@ -9,8 +9,8 @@ export default async function ProviderAddonsPage(props: any) {
   }
 
   // Handle build-time gracefully (no DATABASE_URL available)
-  let summary = { totalPurchases: 0, totalRefunds: 0, totalRevenueCents: 0, netRevenueCents: 0, topSkus: [] };
-  let page = { items: [], nextCursor: null };
+  let summary: AddonSummary = { totalPurchases: 0, totalRefunds: 0, totalRevenueCents: 0, netRevenueCents: 0, topSkus: [] };
+  let page: { items: AddonPurchaseItem[]; nextCursor: string | null } = { items: [], nextCursor: null };
 
   try {
     summary = await getAddonSummary();

@@ -1,6 +1,15 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getSubscriptionSummary, listSubscriptions } from '@/services/provider/subscriptions.service';
+import { getSubscriptionSummary, listSubscriptions, type SubscriptionListItem } from '@/services/provider/subscriptions.service';
+
+type SubscriptionSummary = {
+  totalActive: number;
+  totalTrialing: number;
+  totalCanceled: number;
+  mrrCents: number;
+  arrCents: number;
+  churnRate: number;
+};
 
 export default async function ProviderSubscriptionsPage(props: any) {
   const jar = await cookies();
@@ -9,8 +18,15 @@ export default async function ProviderSubscriptionsPage(props: any) {
   }
 
   // Handle build-time gracefully (no DATABASE_URL available)
-  let summary = { totalActive: 0, totalTrialing: 0, totalCanceled: 0, mrrCents: 0, arrCents: 0, churnRate: 0 };
-  let page = { items: [], nextCursor: null };
+  let summary: SubscriptionSummary = {
+    totalActive: 0,
+    totalTrialing: 0,
+    totalCanceled: 0,
+    mrrCents: 0,
+    arrCents: 0,
+    churnRate: 0
+  };
+  let page: { items: SubscriptionListItem[]; nextCursor: string | null } = { items: [], nextCursor: null };
 
   try {
     summary = await getSubscriptionSummary();

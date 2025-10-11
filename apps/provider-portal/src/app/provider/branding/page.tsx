@@ -1,11 +1,33 @@
-import { getAllBrandingConfigs, getBrandingStats, getBrandingTemplates } from '@/services/provider/branding.service';
+import { getAllBrandingConfigs, getBrandingStats, getBrandingTemplates, type BrandingTemplate, type BrandConfig } from '@/services/provider/branding.service';
 import BrandingClient from './BrandingClient';
+
+type BrandingOrg = {
+  id: string;
+  name: string;
+  brandConfig: BrandConfig;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+type BrandingStats = {
+  totalOrgs: number;
+  orgsWithBranding: number;
+  orgsWithLogo: number;
+  orgsWithCustomColors: number;
+  brandingAdoptionRate: number;
+};
 
 export default async function BrandingPage() {
   // Handle build-time gracefully (no DATABASE_URL available)
-  let configs = [];
-  let stats = { total: 0, withBranding: 0, templates: 0 };
-  let templates = [];
+  let configs: BrandingOrg[] = [];
+  let stats: BrandingStats = {
+    totalOrgs: 0,
+    orgsWithBranding: 0,
+    orgsWithLogo: 0,
+    orgsWithCustomColors: 0,
+    brandingAdoptionRate: 0
+  };
+  let templates: BrandingTemplate[] = [];
 
   try {
     [configs, stats, templates] = await Promise.all([

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { getAiOverview } from '@/services/provider/ai.service';
+import { getAiOverview, type AiOverview } from '@/services/provider/ai.service';
 
 export default async function ProviderAiPage() {
   const jar = await cookies();
@@ -9,10 +9,11 @@ export default async function ProviderAiPage() {
   }
 
   // Handle build-time gracefully (no DATABASE_URL available)
-  let overview = {
+  let overview: AiOverview = {
     monthKey: new Date().toISOString().slice(0, 7),
     totals: { creditsUsed: 0, callCount: 0, tokensIn: 0, tokensOut: 0, costUsd: 0 },
-    topOrgs: []
+    topOrgs: [],
+    recent: []
   };
 
   try {
