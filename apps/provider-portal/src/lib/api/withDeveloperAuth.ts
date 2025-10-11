@@ -35,7 +35,7 @@ export function getDeveloperSession(request: NextRequest): DeveloperSession | nu
 
 /**
  * Higher-order function to wrap API route handlers with developer authentication
- * 
+ *
  * Usage:
  * ```typescript
  * export const GET = withDeveloperAuth(async (request, { session }) => {
@@ -44,19 +44,19 @@ export function getDeveloperSession(request: NextRequest): DeveloperSession | nu
  * });
  * ```
  */
-export function withDeveloperAuth<T = unknown>(
+export function withDeveloperAuth(
   handler: (
     request: NextRequest,
-    context: { params?: T; session: DeveloperSession }
+    context: { params?: any; session: DeveloperSession }
   ) => Promise<NextResponse> | NextResponse
 ) {
   return async (
     request: NextRequest,
-    context?: { params?: T }
+    context?: { params?: any }
   ): Promise<NextResponse> => {
     // Extract session
     const session = getDeveloperSession(request);
-    
+
     // Check authentication
     if (!session) {
       return NextResponse.json(
@@ -64,7 +64,7 @@ export function withDeveloperAuth<T = unknown>(
         { status: 401 }
       );
     }
-    
+
     // Call handler with session
     return handler(request, { params: context?.params, session });
   };

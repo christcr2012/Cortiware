@@ -1,32 +1,53 @@
-import { NextRequest } from 'next/server';
-import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
-import { withAudit } from '@/lib/api/audit-middleware';
+import { NextRequest, NextResponse } from 'next/server';
+import { withProviderAuth, type ProviderSession } from '@/lib/api/withProviderAuth';
+import { PERMISSIONS } from '@/lib/rbac/roles';
 import { prisma } from '@/lib/prisma';
 
-const deleteHandler = async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
-  try {
-    const { id } = await params;
+/**
+ * DELETE /api/federation/keys/[id]
+ * Disable a federation key (soft delete)
+ */
+export const DELETE = withProviderAuth(
+  async (
+    request: NextRequest,
+    { params, session }: { params?: { id: string }; session: ProviderSession }
+  ) => {
+    try {
+      // Handle params properly for Next.js 15
+      const resolvedParams = params ? await Promise.resolve(params) : { id: '' };
+      const { id } = resolvedParams;
 
-    // Soft delete by setting disabledAt
-    const key = await prisma.federationKey.update({
-      where: { id },
-      data: { disabledAt: new Date() },
-      select: { id: true, keyId: true, orgId: true },
-    });
+      // Soft delete by setting disabledAt
+      const key = await prisma.federationKey.update({
+        where: { id },
+        data: { disabledAt: new Date() },
+        select: { id: true, keyId: true, orgId: true },
+      });
 
-    return jsonOk({ success: true, key });
-  } catch (error) {
-    console.error('Error deleting federation key:', error);
-    return jsonError(500, 'internal_error', 'Failed to delete key');
-  }
-};
+      // Audit log
+      await prisma.auditEvent.create({
+        data: {
+          action: 'federation_key_deleted',
+          entityType: 'federation_key',
+          entityId: key.id,
+          actorType: 'provider',
+          actorId: session.email,
+          orgId: key.orgId,
+          metadata: {
+            keyId: key.keyId,
+          },
+        },
+      });
 
-export const DELETE = compose(withProviderAuth(), withRateLimit('api'))(
-  withAudit(deleteHandler, {
-    action: 'delete',
-    entityType: 'federation_key',
-    actorType: 'provider',
-  })
+      return NextResponse.json({ success: true, key });
+    } catch (error) {
+      console.error('Error deleting federation key:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete key' },
+        { status: 500 }
+      );
+    }
+  },
+  { requiredPermission: PERMISSIONS.FEDERATION_KEYS_DELETE }
 );
 

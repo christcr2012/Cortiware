@@ -52,7 +52,7 @@ export interface WithProviderAuthOptions {
 
 /**
  * Higher-order function to wrap API route handlers with provider authentication
- * 
+ *
  * Usage:
  * ```typescript
  * export const GET = withProviderAuth(async (request, { session }) => {
@@ -61,20 +61,20 @@ export interface WithProviderAuthOptions {
  * });
  * ```
  */
-export function withProviderAuth<T = unknown>(
+export function withProviderAuth(
   handler: (
     request: NextRequest,
-    context: { params?: T; session: ProviderSession }
+    context: { params?: any; session: ProviderSession }
   ) => Promise<NextResponse> | NextResponse,
   options: WithProviderAuthOptions = {}
 ) {
   return async (
     request: NextRequest,
-    context?: { params?: T }
+    context?: { params?: any }
   ): Promise<NextResponse> => {
     // Extract session
     const session = getProviderSession(request);
-    
+
     // Check authentication
     if (!session) {
       return NextResponse.json(
@@ -82,7 +82,7 @@ export function withProviderAuth<T = unknown>(
         { status: 401 }
       );
     }
-    
+
     // Check role requirement
     if (options.requiredRole && session.role !== options.requiredRole) {
       // Allow admin bypass if enabled
@@ -93,11 +93,11 @@ export function withProviderAuth<T = unknown>(
         );
       }
     }
-    
+
     // Check permission requirement
     if (options.requiredPermission) {
       const hasRequiredPermission = hasPermission(session.role, options.requiredPermission);
-      
+
       if (!hasRequiredPermission) {
         return NextResponse.json(
           { error: `Forbidden: ${options.requiredPermission} permission required` },
@@ -105,7 +105,7 @@ export function withProviderAuth<T = unknown>(
         );
       }
     }
-    
+
     // Call handler with session
     return handler(request, { params: context?.params, session });
   };
@@ -114,10 +114,10 @@ export function withProviderAuth<T = unknown>(
 /**
  * Require provider_admin role
  */
-export function withProviderAdmin<T = unknown>(
+export function withProviderAdmin(
   handler: (
     request: NextRequest,
-    context: { params?: T; session: ProviderSession }
+    context: { params?: any; session: ProviderSession }
   ) => Promise<NextResponse> | NextResponse
 ) {
   return withProviderAuth(handler, { requiredRole: 'provider_admin' });
@@ -126,11 +126,11 @@ export function withProviderAdmin<T = unknown>(
 /**
  * Require specific permission
  */
-export function withPermission<T = unknown>(
+export function withPermission(
   permission: Permission,
   handler: (
     request: NextRequest,
-    context: { params?: T; session: ProviderSession }
+    context: { params?: any; session: ProviderSession }
   ) => Promise<NextResponse> | NextResponse
 ) {
   return withProviderAuth(handler, { requiredPermission: permission, adminBypass: true });

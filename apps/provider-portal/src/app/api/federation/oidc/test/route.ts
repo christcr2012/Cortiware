@@ -1,91 +1,126 @@
-import { NextRequest } from 'next/server';
-import { jsonOk, jsonError } from '@/lib/api/response';
-import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
+import { NextRequest, NextResponse } from 'next/server';
+import { withProviderAuth, type ProviderSession } from '@/lib/api/withProviderAuth';
+import { PERMISSIONS } from '@/lib/rbac/roles';
 import { prisma } from '@/lib/prisma';
-import { trackFunnel } from '@/services/metrics.service';
-import crypto from 'crypto';
+import { decrypt } from '@/lib/crypto/aes';
 
 const ENCRYPTION_KEY = process.env.FED_HMAC_MASTER_KEY || 'default-key-change-in-production';
 
-function decrypt(text: string): string {
-  const parts = text.split(':');
-  const iv = Buffer.from(parts[0], 'hex');
-  const encryptedText = parts[1];
-  const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)), iv);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
-}
+/**
+ * POST /api/federation/oidc/test
+ * Test OIDC configuration with discovery and token exchange (RFC 8414)
+ */
+export const POST = withProviderAuth(
+  async (request: NextRequest, { session }: { session: ProviderSession }) => {
+    const started = Date.now();
+    try {
+      // Load most recent OIDC config
+      const config = await prisma.oIDCConfig.findFirst({
+        orderBy: { createdAt: 'desc' }
+      });
 
-const postHandler = async (req: NextRequest) => {
-  const started = Date.now();
-  try {
-    // Load most recent OIDC config
-    const config = await prisma.oIDCConfig.findFirst({ orderBy: { createdAt: 'desc' } });
-    if (!config) {
-      await trackFunnel('oidc_test_missing_config').catch(() => {});
-      return jsonError(404, 'not_found', 'OIDC config not found');
+      if (!config) {
+        return NextResponse.json(
+          { error: 'OIDC config not found' },
+          { status: 404 }
+        );
+      }
+
+      const issuer = config.issuerUrl.replace(/\/+$/, '');
+
+      // Step 1: OIDC Discovery (RFC 8414)
+      const wellKnownUrl = `${issuer}/.well-known/openid-configuration`;
+      const discoveryRes = await fetch(wellKnownUrl, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!discoveryRes.ok) {
+        return NextResponse.json(
+          { error: `OIDC discovery failed (${discoveryRes.status})` },
+          { status: 502 }
+        );
+      }
+
+      const discovery = await discoveryRes.json();
+      const tokenEndpoint: string | undefined = discovery.token_endpoint;
+
+      if (!tokenEndpoint) {
+        return NextResponse.json(
+          { error: 'OIDC provider did not expose token_endpoint' },
+          { status: 502 }
+        );
+      }
+
+      // Step 2: Token exchange using client_credentials
+      const secret = decrypt(config.clientSecret, ENCRYPTION_KEY);
+      const body = new URLSearchParams();
+      body.set('grant_type', 'client_credentials');
+      if (config.scopes) body.set('scope', config.scopes);
+      body.set('client_id', config.clientId);
+      body.set('client_secret', secret);
+
+      const tokenRes = await fetch(tokenEndpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
+        },
+        body: body.toString(),
+      });
+
+      const durationMs = Date.now() - started;
+
+      if (!tokenRes.ok) {
+        return NextResponse.json(
+          { error: 'Failed to obtain access token' },
+          { status: 502 }
+        );
+      }
+
+      const token = await tokenRes.json();
+      if (!token || !token.access_token) {
+        return NextResponse.json(
+          { error: 'Provider returned an invalid token response' },
+          { status: 502 }
+        );
+      }
+
+      // Record success (update lastTestedAt)
+      await prisma.oIDCConfig.update({
+        where: { id: config.id },
+        data: { lastTestedAt: new Date() }
+      });
+
+      // Audit log
+      await prisma.auditEvent.create({
+        data: {
+          action: 'oidc_config_tested',
+          entityType: 'oidc_config',
+          entityId: config.id,
+          actorType: 'provider',
+          actorId: session.email,
+          metadata: {
+            success: true,
+            durationMs,
+            issuerUrl: config.issuerUrl,
+          },
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'OIDC connection successful',
+        durationMs
+      });
+    } catch (error) {
+      console.error('Error testing OIDC connection:', error);
+      return NextResponse.json(
+        { error: 'Failed to test OIDC connection' },
+        { status: 500 }
+      );
     }
-
-    const issuer = config.issuerUrl.replace(/\/+$/, '');
-    // Discovery
-    const wellKnownUrl = `${issuer}/.well-known/openid-configuration`;
-    const discoveryRes = await fetch(wellKnownUrl, { method: 'GET', headers: { 'Accept': 'application/json' } });
-    if (!discoveryRes.ok) {
-      await trackFunnel('oidc_test_discovery_fail', { meta: { status: discoveryRes.status } } as any).catch(() => {});
-      return jsonError(502, 'discovery_failed', `OIDC discovery failed (${discoveryRes.status})`);
-    }
-    const discovery = await discoveryRes.json();
-    const tokenEndpoint: string | undefined = discovery.token_endpoint;
-    if (!tokenEndpoint) {
-      await trackFunnel('oidc_test_no_token_endpoint').catch(() => {});
-      return jsonError(502, 'invalid_provider', 'OIDC provider did not expose token_endpoint');
-    }
-
-    // Token exchange using client_credentials and configured scopes
-    const secret = decrypt(config.clientSecret);
-    const body = new URLSearchParams();
-    body.set('grant_type', 'client_credentials');
-    if (config.scopes) body.set('scope', config.scopes);
-    body.set('client_id', config.clientId);
-    body.set('client_secret', secret);
-
-    const tokenRes = await fetch(tokenEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-      },
-      body: body.toString(),
-    });
-
-    const durationMs = Date.now() - started;
-
-    if (!tokenRes.ok) {
-      let errJson: any = null;
-      try { errJson = await tokenRes.json(); } catch {}
-      await trackFunnel('oidc_test_token_fail', { meta: { status: tokenRes.status, durationMs } } as any).catch(() => {});
-      // Do NOT include secrets in the response or logs
-      return jsonError(502, 'token_exchange_failed', 'Failed to obtain access token');
-    }
-
-    const token = await tokenRes.json();
-    if (!token || !token.access_token) {
-      await trackFunnel('oidc_test_token_invalid', { meta: { durationMs } } as any).catch(() => {});
-      return jsonError(502, 'token_invalid', 'Provider returned an invalid token response');
-    }
-
-    // Record success (update lastTestedAt)
-    await prisma.oIDCConfig.update({ where: { id: config.id }, data: { lastTestedAt: new Date() } });
-    await trackFunnel('oidc_test_ok', { meta: { durationMs } } as any).catch(() => {});
-
-    return jsonOk({ success: true, message: 'OIDC connection successful' });
-  } catch (error) {
-    await trackFunnel('oidc_test_exception').catch(() => {});
-    console.error('Error testing OIDC connection:', error);
-    return jsonError(500, 'internal_error', 'Failed to test OIDC connection');
-  }
-};
-
-export const POST = compose(withProviderAuth(), withRateLimit('api'))(postHandler);
+  },
+  { requiredPermission: PERMISSIONS.FEDERATION_OIDC_TEST }
+);
 
