@@ -4,12 +4,6 @@ const { PrismaPlugin } = require('@prisma/nextjs-monorepo-workaround-plugin');
 const nextConfig = {
   outputFileTracingRoot: require('path').join(__dirname, '../../'),
   transpilePackages: ['@cortiware/auth-service', '@cortiware/themes', '@cortiware/db', '@cortiware/kv'],
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.plugins = [...config.plugins, new PrismaPlugin()];
