@@ -1,64 +1,151 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { compose, withProviderAuth, withRateLimit } from '@/lib/api/middleware';
-import { withAudit } from '@/lib/api/audit-middleware';
+import { withProviderAuth, type ProviderSession } from '@/lib/api/withProviderAuth';
+import { PERMISSIONS } from '@/lib/rbac/roles';
 
 export const dynamic = 'force-dynamic';
 
-const getHandler = async () => {
-  const items = await prisma.pricePlan.findMany({
-    include: { prices: true },
-    orderBy: { name: 'asc' },
-  });
-  return NextResponse.json({ items });
-};
-
-export const GET = compose(withProviderAuth(), withRateLimit('api'))(getHandler);
-
-const postHandler = async (req: NextRequest) => {
-  const body = await req.json().catch(() => ({}));
-  const { key, name, description, prices } = body || {};
-  if (!key || !name) return NextResponse.json({ ok: false, error: 'missing_fields' }, { status: 400 });
-
-  const created = await prisma.pricePlan.create({ data: { key, name, description: description || null } });
-
-  if (Array.isArray(prices)) {
-    for (const p of prices) {
-      if (typeof p?.unitAmountCents === 'number' && (p.cadence === 'MONTHLY' || p.cadence === 'YEARLY')) {
-        await prisma.planPrice.create({
-          data: { planId: created.id, unitAmountCents: p.unitAmountCents, currency: p.currency || 'usd', cadence: p.cadence, trialDays: p.trialDays ?? 0, active: p.active ?? true, stripePriceId: p.stripePriceId || null },
-        });
-      }
+/**
+ * GET /api/monetization/plans
+ * List all price plans with their prices
+ */
+export const GET = withProviderAuth(
+  async (request: NextRequest, { session }: { session: ProviderSession }) => {
+    try {
+      const items = await prisma.pricePlan.findMany({
+        include: { prices: true },
+        orderBy: { name: 'asc' },
+      });
+      return NextResponse.json({ items });
+    } catch (error) {
+      console.error('Error fetching price plans:', error);
+      return NextResponse.json(
+        { error: 'Failed to fetch price plans' },
+        { status: 500 }
+      );
     }
-  }
-
-  const full = await prisma.pricePlan.findUnique({ where: { id: created.id }, include: { prices: true } });
-  return NextResponse.json({ ok: true, item: full }, { status: 201 });
-};
-
-const patchHandler = async (req: NextRequest) => {
-  const body = await req.json().catch(() => ({}));
-  const { id, name, description, active } = body || {};
-  if (!id) return NextResponse.json({ ok: false, error: 'missing_id' }, { status: 400 });
-  const updated = await prisma.pricePlan.update({ where: { id }, data: { name, description, active } });
-  return NextResponse.json({ ok: true, item: updated });
-};
-
-export const POST = compose(withProviderAuth(), withRateLimit('api'))(
-  withAudit(postHandler, {
-    action: 'create',
-    entityType: 'price_plan',
-    actorType: 'provider',
-    redactFields: [],
-  })
+  },
+  { requiredPermission: PERMISSIONS.MONETIZATION_READ }
 );
 
-export const PATCH = compose(withProviderAuth(), withRateLimit('api'))(
-  withAudit(patchHandler, {
-    action: 'update',
-    entityType: 'price_plan',
-    actorType: 'provider',
-    redactFields: [],
-  })
+/**
+ * POST /api/monetization/plans
+ * Create a new price plan (admin only)
+ */
+export const POST = withProviderAuth(
+  async (request: NextRequest, { session }: { session: ProviderSession }) => {
+    try {
+      const body = await request.json().catch(() => ({}));
+      const { key, name, description, prices } = body || {};
+
+      if (!key || !name) {
+        return NextResponse.json(
+          { error: 'key and name are required' },
+          { status: 400 }
+        );
+      }
+
+      const created = await prisma.pricePlan.create({
+        data: { key, name, description: description || null },
+      });
+
+      // Create associated prices if provided
+      if (Array.isArray(prices)) {
+        for (const p of prices) {
+          if (typeof p?.unitAmountCents === 'number' && (p.cadence === 'MONTHLY' || p.cadence === 'YEARLY')) {
+            await prisma.planPrice.create({
+              data: {
+                planId: created.id,
+                unitAmountCents: p.unitAmountCents,
+                currency: p.currency || 'usd',
+                cadence: p.cadence,
+                trialDays: p.trialDays ?? 0,
+                active: p.active ?? true,
+                stripePriceId: p.stripePriceId || null,
+              },
+            });
+          }
+        }
+      }
+
+      // Audit log
+      await prisma.auditEvent.create({
+        data: {
+          action: 'price_plan_created',
+          entityType: 'price_plan',
+          entityId: created.id,
+          actorType: 'provider',
+          actorId: session.email,
+          metadata: {
+            key: created.key,
+            name: created.name,
+            pricesCount: prices?.length || 0,
+          },
+        },
+      });
+
+      const full = await prisma.pricePlan.findUnique({
+        where: { id: created.id },
+        include: { prices: true },
+      });
+
+      return NextResponse.json({ ok: true, item: full }, { status: 201 });
+    } catch (error) {
+      console.error('Error creating price plan:', error);
+      return NextResponse.json(
+        { error: 'Failed to create price plan' },
+        { status: 500 }
+      );
+    }
+  },
+  { requiredPermission: PERMISSIONS.MONETIZATION_PLANS_MANAGE }
+);
+
+/**
+ * PATCH /api/monetization/plans
+ * Update a price plan (admin only)
+ */
+export const PATCH = withProviderAuth(
+  async (request: NextRequest, { session }: { session: ProviderSession }) => {
+    try {
+      const body = await request.json().catch(() => ({}));
+      const { id, name, description, active } = body || {};
+
+      if (!id) {
+        return NextResponse.json(
+          { error: 'id is required' },
+          { status: 400 }
+        );
+      }
+
+      const updated = await prisma.pricePlan.update({
+        where: { id },
+        data: { name, description, active },
+      });
+
+      // Audit log
+      await prisma.auditEvent.create({
+        data: {
+          action: 'price_plan_updated',
+          entityType: 'price_plan',
+          entityId: updated.id,
+          actorType: 'provider',
+          actorId: session.email,
+          metadata: {
+            changes: { name, description, active },
+          },
+        },
+      });
+
+      return NextResponse.json({ ok: true, item: updated });
+    } catch (error) {
+      console.error('Error updating price plan:', error);
+      return NextResponse.json(
+        { error: 'Failed to update price plan' },
+        { status: 500 }
+      );
+    }
+  },
+  { requiredPermission: PERMISSIONS.MONETIZATION_PLANS_MANAGE }
 );
 
